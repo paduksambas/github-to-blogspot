@@ -33,6 +33,34 @@ RSS_FEEDS = [
 ]
 
 
+def get_existing_blog_articles():
+    """
+    Mengambil katalog artikel yang sudah terbit di blog Paduka Sambas
+    untuk dijadikan target internal linking yang benar-benar kontekstual & relevan.
+    """
+    feed_url = "https://padukasambas.blogspot.com/feeds/posts/default?alt=json&max-results=30"
+    articles = []
+    try:
+        req = urllib.request.Request(feed_url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            for entry in data.get("feed", {}).get("entry", []):
+                title = entry.get("title", {}).get("$t", "").strip()
+                links = [l.get("href") for l in entry.get("link", []) if l.get("rel") == "alternate"]
+                url = links[0] if links else ""
+                
+                # Jika title kosong di feed, ekstrak dari slug URL
+                if not title and url:
+                    slug = url.split("/")[-1].replace(".html", "")
+                    title = slug.replace("-", " ").title()
+                
+                if url and title and "selamat-datang" not in url:
+                    articles.append({"title": title, "url": url})
+    except Exception as e:
+        print(f"[!] Gagal mengambil katalog artikel blog: {e}")
+    return articles
+
+
 def load_history():
     if os.path.exists(HISTORY_FILE):
         try:
@@ -116,10 +144,10 @@ def get_fresh_article(history):
     return None
 
 
-def rewrite_with_gemini(api_key, original_news):
+def rewrite_with_gemini(api_key, original_news, existing_articles=None):
     """
-    Menulis ulang berita dengan gaya jurnalisme manusia profesional (Anti-Bot Standard)
-    dan menghasilkan prompt thumbnail visual.
+    Menulis ulang berita dengan gaya jurnalisme manusia profesional (Anti-Bot Standard),
+    menghasilkan thumbnail visual, dan menyisipkan Internal Link yang benar-benar kontekstual.
     """
     candidate_models = [
         "gemini-3.5-flash-lite",
@@ -132,6 +160,24 @@ def rewrite_with_gemini(api_key, original_news):
     ]
     
     source_label = original_news.get('source_name', 'Media Nasional')
+
+    # Siapkan daftar artikel internal blog untuk internal linking kontekstual
+    internal_links_context = ""
+    if existing_articles:
+        sample_links = "\n".join([f"- Judul: \"{a['title']}\" | URL: {a['url']}" for a in existing_articles[:15]])
+        internal_links_context = f"""
+DAFTAR ARTIKEL YANG SUDAH TERBIT DI BLOG PADUKA SAMBAS:
+{sample_links}
+
+ATURAN WAJIB INTERNAL LINKING KONTEKSTUAL (SEO TINGGI):
+- Pilih 1 artikel dari daftar di atas yang PALING MEMILIKI KETERKAITAN TEMA (benang merah nyata) dengan berita yang sedang Anda tulis (misal: sama-sama isu politik, sama-sama ekonomi/bisnis, sama-sama bola, atau sama-sama tragedi/peristiwa).
+- SISIPKAN LINK TERSEBUT SECARA ALAMI & ORGANIK di dalam alur cerita kalimat (DILARANG menggunakan format 'Baca juga:' kaku di akhir paragraf).
+- Gunakan anchor text deskriptif yang menyatu mulus dengan kalimat:
+  Contoh: "...perkembangan ini mengingatkan kita pada [kasus penegakan hukum dan pemeriksaan pejabat](URL_DIPILIH) yang sempat memicu sorotan tajam publik."
+  Contoh: "...langkah ekspansi ini melengkapi dinamika ekonomi yang sebelumnya terlihat dalam [alokasi modal dan kesiapan dana perbankan](URL_DIPILIH)."
+- Tautan internal ini HARUS BENAR-BENAR NYAMBUNG DENGAN KONTEKS PEMBICARAAN.
+"""
+
     prompt = f"""
 Anda adalah jurnalis dan editor intelijen berita profesional untuk portal 'Paduka Sambas' (mengikuti standar jurnalisme MD-V14: "DETECT THE TREND. VERIFY THE FACT. CREATE THE IMPACT.").
 Tugas Anda adalah menulis ulang topik berita berikut menjadi artikel berita yang berbobot, mendalam, orisinal, dan 100% lolos deteksi algoritma bot/AI Google (mengikuti standar Google Helpful Content E-E-A-T).
@@ -140,6 +186,8 @@ Data Berita Asli:
 - Judul Asal: {original_news['title']}
 - Fakta Peristiwa: {original_news['description']}
 - Sumber Media: {source_label}
+
+{internal_links_context}
 
 PEDOMAN GAYA PENULISAN & STRUKTUR:
 1. SUB-HEADING DINAMIS & SESUAI TOPIK CERITA (SANGAT PENTING):
@@ -284,6 +332,10 @@ def main():
     history = load_history()
     print(f"[*] Riwayat postingan tersimpan: {len(history)} artikel.")
 
+    # Ambil katalog artikel yang sudah ada di blog untuk Internal Linking Kontekstual
+    existing_articles = get_existing_blog_articles()
+    print(f"[*] Terhubung dengan {len(existing_articles)} artikel live di blog untuk Internal Linking.")
+
     news_item = get_fresh_article(history)
     if not news_item:
         print("[INFO] Belum ada berita baru yang belum diposting saat ini.")
@@ -291,10 +343,10 @@ def main():
 
     print(f"\n[+] Berita hangat ditemukan: '{news_item['title']}'")
     print(f"[+] Sumber: {news_item['link']}")
-    print("[*] Menulis ulang dengan Google Gemini AI (Gaya Anti-Bot)...")
+    print("[*] Menulis ulang dengan Google Gemini AI (Gaya Anti-Bot & Contextual Linking)...")
 
     try:
-        rewritten = rewrite_with_gemini(api_key, news_item)
+        rewritten = rewrite_with_gemini(api_key, news_item, existing_articles)
     except Exception as e:
         print(f"[ERROR] Gagal menulis ulang dengan Gemini: {e}")
         sys.exit(1)
