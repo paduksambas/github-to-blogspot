@@ -305,11 +305,11 @@ def main():
 
     full_body_markdown = header_image_md + content
 
-    # Susun file Markdown dengan Frontmatter
+    # Susun file Markdown dengan Frontmatter (Status default: DRAFT)
     md_post = f"""---
 title: "{title}"
 labels: {json.dumps(labels, ensure_ascii=False)}
-status: "publish"
+status: "draft"
 date: "{today_str}"
 thumbnail: "{thumbnail_url}"
 source: "{source_name}"
