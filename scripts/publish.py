@@ -136,9 +136,8 @@ def publish_via_blogger_api(post_data):
         if not access_token:
             raise RuntimeError(f"Gagal mendapatkan access token: {res_json}")
 
-    # 2. Kirim postingan ke Blogger API
+    # 2. Kirim atau perbarui postingan di Blogger API
     is_draft = "true" if post_data["status"] == "DRAFT" else "false"
-    post_url = f"https://www.googleapis.com/blogger/v3/blogs/{blog_id}/posts?isDraft={is_draft}"
 
     payload = {
         "kind": "blogger#post",
@@ -153,14 +152,38 @@ def publish_via_blogger_api(post_data):
 
     payload_bytes = json.dumps(payload).encode("utf-8")
 
-    post_req = urllib.request.Request(post_url, data=payload_bytes, method="POST")
+    # Cek apakah artikel dengan judul ini sudah ada di Blogger (misal draf sebelumnya untuk diedit ulang)
+    existing_post_id = None
+    try:
+        search_query = urllib.parse.quote(post_data["title"])
+        search_url = f"https://www.googleapis.com/blogger/v3/blogs/{blog_id}/posts/search?q={search_query}"
+        s_req = urllib.request.Request(search_url)
+        s_req.add_header("Authorization", f"Bearer {access_token}")
+        with urllib.request.urlopen(s_req, timeout=15) as s_resp:
+            s_data = json.loads(s_resp.read().decode("utf-8"))
+            for item in s_data.get("items", []):
+                if item.get("title", "").strip().lower() == post_data["title"].strip().lower():
+                    existing_post_id = item.get("id")
+                    break
+    except Exception as e:
+        print(f"[*] Info pengecekan draf sebelumnya: {e}")
+
+    if existing_post_id:
+        print(f"[*] Draf artikel sudah ada di Blogger (ID: {existing_post_id}). Memperbarui isi draf...")
+        update_url = f"https://www.googleapis.com/blogger/v3/blogs/{blog_id}/posts/{existing_post_id}"
+        post_req = urllib.request.Request(update_url, data=payload_bytes, method="PUT")
+    else:
+        post_url = f"https://www.googleapis.com/blogger/v3/blogs/{blog_id}/posts?isDraft={is_draft}"
+        post_req = urllib.request.Request(post_url, data=payload_bytes, method="POST")
+
     post_req.add_header("Authorization", f"Bearer {access_token}")
     post_req.add_header("Content-Type", "application/json")
 
     with urllib.request.urlopen(post_req, timeout=30) as resp:
-        created_post = json.loads(resp.read().decode("utf-8"))
-        url = created_post.get("url", "(URL belum tersedia)")
-        print(f" [SUKSES VIA BLOGGER API] Postingan terbit: {url}")
+        result_post = json.loads(resp.read().decode("utf-8"))
+        url = result_post.get("url", "(URL draf tersedia di dasbor)")
+        action_verb = "diperbarui" if existing_post_id else "terbit"
+        print(f" [SUKSES VIA BLOGGER API] Postingan berhasil {action_verb}: {url}")
         return True, url
 
 
