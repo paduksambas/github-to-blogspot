@@ -158,24 +158,35 @@ def publish_via_blogger_api(post_data):
 
     payload_bytes = json.dumps(payload).encode("utf-8")
 
-    # Cek apakah artikel dengan judul ini sudah ada di Blogger (misal draf sebelumnya untuk diedit ulang)
+    def normalize_title(t):
+        t = t.lower()
+        t = re.sub(r"[^\w\s]", "", t)
+        return " ".join(t.split())
+
+    # Cek apakah artikel dengan judul ini sudah ada di Blogger (baik DRAFT maupun LIVE)
+    target_norm = normalize_title(post_data["title"])
     existing_post_id = None
-    try:
-        search_query = urllib.parse.quote(post_data["title"])
-        search_url = f"https://www.googleapis.com/blogger/v3/blogs/{blog_id}/posts/search?q={search_query}"
-        s_req = urllib.request.Request(search_url)
-        s_req.add_header("Authorization", f"Bearer {access_token}")
-        with urllib.request.urlopen(s_req, timeout=15) as s_resp:
-            s_data = json.loads(s_resp.read().decode("utf-8"))
-            for item in s_data.get("items", []):
-                if item.get("title", "").strip().lower() == post_data["title"].strip().lower():
-                    existing_post_id = item.get("id")
-                    break
-    except Exception as e:
-        print(f"[*] Info pengecekan draf sebelumnya: {e}")
+
+    for status_query in ["DRAFT", "LIVE"]:
+        try:
+            list_url = f"https://www.googleapis.com/blogger/v3/blogs/{blog_id}/posts?status={status_query}&maxResults=100"
+            l_req = urllib.request.Request(list_url)
+            l_req.add_header("Authorization", f"Bearer {access_token}")
+            with urllib.request.urlopen(l_req, timeout=15) as l_resp:
+                l_data = json.loads(l_resp.read().decode("utf-8"))
+                for item in l_data.get("items", []):
+                    item_norm = normalize_title(item.get("title", ""))
+                    if item_norm == target_norm or (len(item_norm) > 20 and (item_norm in target_norm or target_norm in item_norm)):
+                        existing_post_id = item.get("id")
+                        print(f"[*] Postingan sudah ada di Blogger ({status_query}, ID: {existing_post_id}).")
+                        break
+        except Exception as e:
+            print(f"[*] Info pengecekan postingan {status_query}: {e}")
+        if existing_post_id:
+            break
 
     if existing_post_id:
-        print(f"[*] Draf artikel sudah ada di Blogger (ID: {existing_post_id}). Memperbarui isi draf...")
+        print(f"[*] Draf/postingan sudah ada di Blogger (ID: {existing_post_id}). Memperbarui isi postingan tanpa membuat duplikat...")
         update_url = f"https://www.googleapis.com/blogger/v3/blogs/{blog_id}/posts/{existing_post_id}"
         post_req = urllib.request.Request(update_url, data=payload_bytes, method="PUT")
     else:

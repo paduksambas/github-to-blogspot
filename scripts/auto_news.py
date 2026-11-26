@@ -139,13 +139,58 @@ def fetch_news_from_rss(feed_url):
     return articles
 
 
+def is_duplicate_event(candidate_title, candidate_link, history):
+    """
+    Mendeteksi apakah peristiwa berita ini sudah pernah diposting sebelumnya,
+    bahkan jika dilaporkan oleh media berbeda dengan variasi susunan kata yang berbeda.
+    """
+    # 1. Cek langsung kecocokan judul eksak atau link URL
+    title_key = candidate_title.lower().strip()
+    if title_key in history or candidate_link in history:
+        return True
+
+    # 2. Ekstraksi kata kunci utama peristiwa (buang nama portal & stop words)
+    clean_candidate = re.sub(r"(?i)\s*[-|]\s*(detiknews|antara|cnn indonesia|kompas|tribun|cnbc|cna|kumparan).*$", "", candidate_title)
+    stop_words = {
+        "di", "ke", "dari", "dan", "yang", "untuk", "pada", "ini", "itu", "saat", "usai",
+        "jadi", "terkait", "soal", "oleh", "adalah", "dengan", "akan", "telah", "bisa",
+        "tak", "tidak", "ada", "lagi", "atas", "hingga", "dalam", "bukan", "hanya", "juga",
+        "resmi", "viral", "begini", "kata", "soal", "ungkap"
+    }
+    candidate_words = set(re.findall(r"\w+", clean_candidate.lower())) - stop_words
+    if len(candidate_words) < 2:
+        return False
+
+    for hist_key, hist_val in history.items():
+        if hist_key.startswith("__"):
+            continue
+
+        clean_hist = re.sub(r"(?i)\s*[-|]\s*(detiknews|antara|cnn indonesia|kompas|tribun|cnbc|cna|kumparan).*$", "", hist_key)
+        hist_words = set(re.findall(r"\w+", clean_hist.lower())) - stop_words
+
+        pub_title = ""
+        if isinstance(hist_val, dict):
+            pub_title = hist_val.get("published_title", "")
+        if pub_title:
+            pub_words = set(re.findall(r"\w+", pub_title.lower())) - stop_words
+            hist_words = hist_words.union(pub_words)
+
+        overlap = candidate_words.intersection(hist_words)
+        if len(overlap) >= 3:
+            similarity = len(overlap) / min(len(candidate_words), len(hist_words))
+            if similarity >= 0.45:
+                print(f"[*] Deteksi topik duplikat dilewati: '{candidate_title[:45]}...' (Sama dengan peristiwa: {list(overlap)[:3]})")
+                return True
+
+    return False
+
+
 def get_fresh_article(history):
     for feed in RSS_FEEDS:
         print(f"[*] Memeriksa sumber berita: {feed}")
         items = fetch_news_from_rss(feed)
         for it in items:
-            title_key = it["title"].lower().strip()
-            if title_key not in history and it["link"] not in history:
+            if not is_duplicate_event(it["title"], it["link"], history):
                 return it
     return None
 
