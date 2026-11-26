@@ -378,10 +378,9 @@ def main():
         if "]()" in content and existing_articles:
             content = re.sub(r"\[([^\]]+)\]\(\s*\)", f"[\\1]({existing_articles[0]['url']})", content)
 
-    # Bersihkan URL tracking panjang jika ada di isi konten
+    # Bersihkan URL tracking Google News mentah jika ada di luar format markdown
     content = re.sub(r'(?i)(?:sumber\s*(?:asal|referensi)?:\s*)?https?://news\.google\.com/\S+', '', content).strip()
     content = re.sub(r'(?i)sumber\s*asal:\s*https?://\S+', '', content).strip()
-    content = re.sub(r'https?://[^\s)]+', '', content).strip()  # Hapus sisa URL mentah acak
 
     # Pastikan footer referensi rapi tanpa link mentah panjang
     source_name = news_item.get("source_name", "Media Nasional")
