@@ -287,17 +287,99 @@ SAMPLE_EVENT_NEWS = {
 }
 
 
+def publish_to_facebook(image_path, caption, page_id=None, page_token=None):
+    """
+    Mengunggah foto dan caption berita secara otomatis ke Halaman Facebook via Meta Graph API.
+    """
+    page_id = page_id or os.environ.get("FB_PAGE_ID")
+    page_token = page_token or os.environ.get("FB_PAGE_ACCESS_TOKEN")
+
+    if not page_id or not page_token:
+        print("[!] Gagal: FB_PAGE_ID atau FB_PAGE_ACCESS_TOKEN belum disetel di environment.")
+        return False
+
+    url = f"https://graph.facebook.com/v19.0/{page_id}/photos"
+    print(f"[*] Mengirim postingan otomatis ke Halaman Facebook ID: {page_id}...")
+
+    # Membaca data gambar binary untuk multipart upload
+    with open(image_path, "rb") as f:
+        img_bytes = f.read()
+
+    boundary = "----WebKitFormBoundaryPadukaSambas"
+    body = io.BytesIO()
+
+    # Part: caption
+    body.write(f"--{boundary}\r\n".encode("utf-8"))
+    body.write(b'Content-Disposition: form-data; name="caption"\r\n\r\n')
+    body.write(caption.encode("utf-8"))
+    body.write(b"\r\n")
+
+    # Part: access_token
+    body.write(f"--{boundary}\r\n".encode("utf-8"))
+    body.write(b'Content-Disposition: form-data; name="access_token"\r\n\r\n')
+    body.write(page_token.encode("utf-8"))
+    body.write(b"\r\n")
+
+    # Part: source (photo)
+    body.write(f"--{boundary}\r\n".encode("utf-8"))
+    body.write(b'Content-Disposition: form-data; name="source"; filename="news_card.png"\r\n')
+    body.write(b"Content-Type: image/png\r\n\r\n")
+    body.write(img_bytes)
+    body.write(b"\r\n")
+
+    body.write(f"--{boundary}--\r\n".encode("utf-8"))
+    payload = body.getvalue()
+
+    req = urllib.request.Request(
+        url,
+        data=payload,
+        headers={
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+            "Content-Length": str(len(payload))
+        }
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            res_data = json.loads(resp.read().decode("utf-8"))
+            post_id = res_data.get("id") or res_data.get("post_id")
+            print(f"[+] BERHASIL! Postingan otomatis telah terbit di Facebook dengan Post ID: {post_id}")
+            return True
+    except urllib.error.HTTPError as e:
+        err_msg = e.read().decode("utf-8")
+        print(f"[!] Gagal posting ke Facebook: {err_msg}")
+        return False
+    except Exception as e:
+        print(f"[!] Terjadi kesalahan jaringan: {e}")
+        return False
+
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Generator Postingan Facebook Paduka Sambas")
     parser.add_argument("--test-data", action="store_true", help="Uji pembuatan kartu berita berbasis data angka")
     parser.add_argument("--test-event", action="store_true", help="Uji pembuatan kartu berita berbasis peristiwa non-angka")
+    parser.add_argument("--publish-test", action="store_true", help="Uji coba otomatis posting 1 berita ke Halaman Facebook")
     args = parser.parse_args()
 
     out_dir = "posts/facebook_drafts"
     os.makedirs(out_dir, exist_ok=True)
 
-    if args.test_event:
+    if args.publish_test:
+        print("[*] MEMULAI UJI COBA OTOMATIS POSTING 1 BERITA KE FACEBOOK PAGE...")
+        img_file = os.path.join(out_dir, "draft_data_news.png")
+        cap_file = os.path.join(out_dir, "draft_data_caption.txt")
+        if not os.path.exists(img_file) or not os.path.exists(cap_file):
+            generate_facebook_news_card(SAMPLE_DATA_NEWS, img_file)
+            with open(cap_file, "w", encoding="utf-8") as f:
+                f.write(generate_facebook_caption(SAMPLE_DATA_NEWS))
+
+        with open(cap_file, "r", encoding="utf-8") as f:
+            caption_text = f.read()
+
+        publish_to_facebook(img_file, caption_text)
+
+    elif args.test_event:
         print("[*] Menjalankan uji coba: Berita Peristiwa Non-Angka...")
         img_file = generate_facebook_news_card(SAMPLE_EVENT_NEWS, os.path.join(out_dir, "draft_event_news.png"))
         caption = generate_facebook_caption(SAMPLE_EVENT_NEWS)
