@@ -7,6 +7,8 @@ import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
 from datetime import datetime
+import io
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 # Import helper publikasi dari publish.py
 try:
@@ -297,19 +299,127 @@ FORMAT OUTPUT HANYA JSON MURNI TANPA BACKTICKS (```json ... ```):
     raise last_error
 
 
-def generate_thumbnail_url(image_prompt, title, rss_image=""):
+DEFAULT_UNSPLASH_MAP = {
+    "Berita": "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80",
+    "Bisnis": "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&q=80",
+    "Bola": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&q=80",
+    "Hot": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80",
+    "Travel": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80"
+}
+
+
+def create_branded_thumbnail(title, category, rss_image="", output_path="posts/images/thumb.jpg"):
     """
-    Menghasilkan URL thumbnail gambar:
-    1. Menggunakan gambar asli dari RSS jika tersedia.
-    2. Jika tidak ada, membuat gambar ilustrasi editorial resolusi tinggi via Pollinations AI.
+    Membuat Kartu Berita (Branded News Banner 16:9) beresolusi tinggi dengan:
+    1. Foto jurnalistik asli dari RSS atau foto editorial jernih (tanpa kecacatan AI).
+    2. Badge merek resmi 'PADUKA SAMBAS'.
+    3. Badge kategori berita [BERITA / BOLA / BISNIS].
+    4. Tipografi judul berita tebal dengan gradien gelap elegan.
+    5. Watermark identitas domain 'padukasambas.blogspot.com'.
     """
-    if rss_image and rss_image.startswith("http"):
-        return rss_image
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    target_w, target_h = 1200, 675
     
-    # Gunakan Pollinations AI untuk generate gambar editorial berita (1200x675)
-    prompt = image_prompt or f"indonesian news editorial photo about {title}, photojournalism, realistic"
-    encoded_prompt = urllib.parse.quote(prompt[:120])
-    return f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1200&height=675&nologo=true"
+    bg_img = None
+    candidate_urls = []
+    if rss_image and rss_image.startswith("http"):
+        candidate_urls.append(rss_image)
+    
+    candidate_urls.append(DEFAULT_UNSPLASH_MAP.get(category, DEFAULT_UNSPLASH_MAP["Berita"]))
+
+    for u in candidate_urls:
+        try:
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+            req = urllib.request.Request(u, headers=headers)
+            with urllib.request.urlopen(req, timeout=12) as r:
+                raw_data = r.read()
+                bg_img = Image.open(io.BytesIO(raw_data)).convert("RGBA")
+                break
+        except Exception as e:
+            print(f"[!] Gagal download foto latar {u}: {e}")
+
+    if not bg_img:
+        bg_img = Image.new("RGBA", (target_w, target_h), (20, 24, 33, 255))
+
+    # Resize dan crop proporsional 16:9
+    bg_img = ImageOps.fit(bg_img, (target_w, target_h), method=Image.Resampling.LANCZOS)
+
+    # Layer gradien gelap
+    overlay = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
+    draw_ov = ImageDraw.Draw(overlay)
+
+    # Gradien bawah untuk judul
+    for y in range(240, target_h):
+        alpha = int(((y - 240) / (target_h - 240)) ** 1.4 * 230)
+        draw_ov.line([(0, y), (target_w, y)], fill=(8, 12, 20, alpha))
+
+    # Gradien atas untuk badge
+    for y in range(0, 130):
+        alpha = int((1 - (y / 130)) * 140)
+        draw_ov.line([(0, y), (target_w, y)], fill=(5, 5, 10, alpha))
+
+    final_img = Image.alpha_composite(bg_img, overlay).convert("RGB")
+    draw = ImageDraw.Draw(final_img)
+
+    # Muat Font
+    font_brand = None
+    font_title = None
+    font_wm = None
+
+    font_paths = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "C:/Windows/Fonts/arialbd.ttf",
+        "C:/Windows/Fonts/segoeui.ttf"
+    ]
+    for p in font_paths:
+        if os.path.exists(p):
+            try:
+                font_brand = ImageFont.truetype(p, 26)
+                font_title = ImageFont.truetype(p, 36)
+                font_wm = ImageFont.truetype(p, 20)
+                break
+            except Exception:
+                pass
+
+    if not font_brand:
+        font_brand = ImageFont.load_default()
+        font_title = font_brand
+        font_wm = font_brand
+
+    # 1. Badge Merah 'PADUKA SAMBAS'
+    draw.rounded_rectangle([40, 35, 290, 82], radius=8, fill=(225, 29, 72))
+    draw.text((55, 43), "PADUKA SAMBAS", font=font_brand, fill=(255, 255, 255))
+
+    # 2. Badge Kategori '[ BERITA / BOLA / BISNIS ]'
+    cat_text = category.upper() if category else "BERITA"
+    draw.rounded_rectangle([305, 35, 440, 82], radius=8, fill=(15, 23, 42, 220))
+    draw.text((325, 43), cat_text, font=font_brand, fill=(241, 245, 249))
+
+    # 3. Word Wrap Judul Berita
+    words = title.split()
+    lines = []
+    current_line = []
+    for w in words:
+        current_line.append(w)
+        if len(" ".join(current_line)) > 42:
+            current_line.pop()
+            lines.append(" ".join(current_line))
+            current_line = [w]
+    if current_line:
+        lines.append(" ".join(current_line))
+    lines = lines[:3]  # Maksimal 3 baris
+
+    start_y = 675 - 75 - (len(lines) * 48)
+    for i, line in enumerate(lines):
+        draw.text((45, start_y + (i * 48)), line, font=font_title, fill=(255, 255, 255))
+
+    # 4. Watermark Domain
+    draw.text((45, 620), "padukasambas.blogspot.com", font=font_wm, fill=(203, 213, 225))
+
+    final_img.save(output_path, quality=92)
+    print(f"[+] Branded Thumbnail Paduka Sambas berhasil dibuat: {output_path}")
+    return output_path
 
 
 def slugify(text):
@@ -359,9 +469,24 @@ def main():
     if not description:
         description = re.sub(r"<[^>]+>", "", content).replace("\n", " ").strip()[:145]
 
-    # Dapatkan URL thumbnail otomatis
-    thumbnail_url = generate_thumbnail_url(image_prompt, title, news_item.get("rss_image", ""))
-    print(f"[+] Thumbnail Otomatis: {thumbnail_url}")
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    slug = slugify(title)
+    file_name = f"{today_str}-{slug}.md"
+    file_path = os.path.join("posts", file_name)
+
+    os.makedirs("posts", exist_ok=True)
+    os.makedirs(os.path.join("posts", "images"), exist_ok=True)
+
+    # Buat Kartu Berita / Thumbnail Beridentitas 'PADUKA SAMBAS' (Pillow)
+    image_file_name = f"{today_str}-{slug}.jpg"
+    local_image_path = os.path.join("posts", "images", image_file_name)
+    primary_category = labels[0] if labels else "Berita"
+    
+    create_branded_thumbnail(title, primary_category, news_item.get("rss_image", ""), local_image_path)
+    
+    # URL CDN Publik untuk Thumbnail di Blogspot
+    thumbnail_url = f"https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/{image_file_name}"
+    print(f"[+] URL CDN Thumbnail: {thumbnail_url}")
 
     # Auto-repair internal link kosong [teks]() jika AI lupa menyalin URL lengkap
     if existing_articles and "]()" in content:
@@ -386,13 +511,6 @@ def main():
     source_name = news_item.get("source_name", "Media Nasional")
     if "referensi:" not in content.lower():
         content += f"\n\n---\n*Referensi: Dirangkum dari liputan berita resmi {source_name}.*"
-
-    today_str = datetime.now().strftime("%Y-%m-%d")
-    slug = slugify(title)
-    file_name = f"{today_str}-{slug}.md"
-    file_path = os.path.join("posts", file_name)
-
-    os.makedirs("posts", exist_ok=True)
 
     # Masukkan thumbnail di bagian paling atas konten agar Blogger otomatis
     # mendeteksinya sebagai featured image / thumbnail postingan
