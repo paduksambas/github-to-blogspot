@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 import glob
 import json
 import smtplib
@@ -60,6 +61,11 @@ def parse_post(file_path):
                         labels = [l.strip().strip("\"'") for l in raw_lbls.split(",") if l.strip()]
                     elif line.startswith("description:"):
                         description = line.replace("description:", "").strip().strip("\"'")
+                    elif line.startswith("status:"):
+                        if "draft" in line.lower():
+                            status = "DRAFT"
+                        else:
+                            status = "LIVE"
 
     # Jika deskripsi belum ada, ambil kalimat pertama isi artikel
     if not description:
@@ -281,7 +287,8 @@ def main():
         files_to_process = [target_file]
     else:
         # Cari berkas markdown di dalam folder posts/
-        files_to_process = glob.glob("posts/**/*.md", recursive=True) + glob.glob("posts/*.md")
+        all_md = glob.glob("posts/**/*.md", recursive=True) + glob.glob("posts/*.md")
+        files_to_process = sorted(list(set(all_md)))
 
     if not files_to_process:
         print("[INFO] Tidak ada berkas markdown yang ditemukan untuk diproses.")
