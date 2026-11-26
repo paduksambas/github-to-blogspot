@@ -286,7 +286,7 @@ def publish_post_to_blogger(post_data):
 
 
 def update_markdown_status_to_publish(file_path, live_url=None):
-    """Memperbarui frontmatter berkas markdown dari 'draft' ke 'publish'."""
+    """Memperbarui frontmatter berkas markdown dari 'draft' ke 'publish' serta memperbarui tanggal tayang ke hari ini."""
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
@@ -296,6 +296,14 @@ def update_markdown_status_to_publish(file_path, live_url=None):
         'status: "publish"',
         content,
         flags=re.IGNORECASE
+    )
+
+    # Perbarui tanggal publikasi ke tanggal hari penayangan (WIB)
+    today_wib = get_wib_now().split()[0]
+    new_content = re.sub(
+        r'date:\s*["\']?[^"\'\r\n]+["\']?',
+        f'date: "{today_wib}"',
+        new_content
     )
 
     # Tambahkan atau perbarui blogger_url jika ada
@@ -309,7 +317,7 @@ def update_markdown_status_to_publish(file_path, live_url=None):
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(new_content)
 
-    print(f"[+] Berkas {file_path} berhasil diperbarui statusnya ke 'publish'.")
+    print(f"[+] Berkas {file_path} berhasil diperbarui statusnya ke 'publish' (Tanggal tayang: {today_wib}).")
 
 
 def extract_facebook_card_data(post_data, gemini_api_key=None):
