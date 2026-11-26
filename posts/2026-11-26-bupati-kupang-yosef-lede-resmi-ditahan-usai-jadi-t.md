@@ -2,7 +2,8 @@
 title: "Bupati Kupang Yosef Lede Resmi Ditahan Usai Jadi Tersangka Kasus Pemerkosaan Mahasiswi"
 labels: ["Berita"]
 description: "Bupati Kupang Yosef Lede resmi ditetapkan sebagai tersangka dan langsung ditahan atas kasus dugaan pemerkosaan terhadap seorang mahasiswi."
-status: "draft"
+status: "publish"
+blogger_url: "https://padukasambas.blogspot.com/2026/11/bupati-kupang-yosef-lede-resmi-ditahan.html"
 date: "2026-11-26"
 thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-bupati-kupang-yosef-lede-resmi-ditahan-usai-jadi-t.jpg"
 ---
