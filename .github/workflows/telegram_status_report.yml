@@ -1,0 +1,26 @@
+name: Telegram Editorial Queue Status Report
+
+on:
+  schedule:
+    # Dikirim setiap pagi pukul 07:00 WIB (00:00 UTC) sebagai Morning Editorial Briefing
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Bisa dijalankan manual kapan saja dari GitHub Actions / HP
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Send Telegram Queue Report
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python scripts/telegram_queue_report.py
