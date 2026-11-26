@@ -20,18 +20,18 @@ except ImportError:
 
 HISTORY_FILE = "published_history.json"
 
-# Sumber RSS berita Indonesia terpercaya & terupdate (Disinkronkan dengan acuan MD-V14 Paduka Sambas)
+# Sumber RSS berita Indonesia terpercaya & terupdate (Prioritas portal dengan foto jurnalistik asli)
 RSS_FEEDS = [
-    "https://news.google.com/rss?hl=id&gl=ID&ceid=ID:id",
     "https://www.antaranews.com/rss/terkini.xml",
-    "https://www.antaranews.com/rss/ekonomi.xml",
-    "https://www.antaranews.com/rss/sepak-bola.xml",
     "https://www.cnnindonesia.com/nasional/rss",
+    "https://www.antaranews.com/rss/ekonomi.xml",
     "https://www.cnnindonesia.com/ekonomi/rss",
+    "https://www.antaranews.com/rss/sepak-bola.xml",
     "https://news.detik.com/rss",
     "https://finance.detik.com/rss",
     "https://sepakbola.detik.com/rss",
-    "https://www.cna.id/api/v1/rss-outbound-feed?_format=xml"
+    "https://www.cna.id/api/v1/rss-outbound-feed?_format=xml",
+    "https://news.google.com/rss?hl=id&gl=ID&ceid=ID:id"
 ]
 
 
@@ -96,13 +96,17 @@ def fetch_news_from_rss(feed_url):
                 description = item.findtext("description", "").strip()
                 pub_date = item.findtext("pubDate", "").strip()
                 
-                # Deteksi gambar jika tersedia di RSS (enclosure / media / img tag)
+                # Deteksi gambar jika tersedia di RSS (mendukung enclosure, media:content, media:thumbnail, img tag)
                 image_url = ""
-                enclosure = item.find("enclosure")
-                if enclosure is not None and "image" in enclosure.get("type", ""):
-                    image_url = enclosure.get("url", "")
-                
-                if not image_url:
+                for child in item:
+                    tag_lower = child.tag.lower()
+                    if any(k in tag_lower for k in ["content", "thumbnail", "enclosure"]):
+                        u = child.get("url")
+                        if u and (u.startswith("http://") or u.startswith("https://")):
+                            image_url = u
+                            break
+
+                if not image_url and description:
                     img_match = re.search(r'src=["\']([^"\']+\.(?:jpg|jpeg|png|webp)[^"\']*)["\']', description, re.IGNORECASE)
                     if img_match:
                         image_url = img_match.group(1)
@@ -296,33 +300,136 @@ FORMAT OUTPUT WAJIB HANYA JSON MURNI TANPA BACKTICKS (```json ... ```):
     raise last_error
 
 
-DEFAULT_UNSPLASH_MAP = {
-    "Berita": "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80",
-    "Bisnis": "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&q=80",
-    "Bola": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&q=80",
-    "Hot": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80",
-    "Travel": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80"
+CURATED_EDITORIAL_POOL = {
+    "Politik": [
+        "https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1200&q=80",
+        "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1200&q=80",
+        "https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1200&q=80",
+        "https://images.unsplash.com/photo-1575320181282-9afab399332c?w=1200&q=80"
+    ],
+    "Hukum": [
+        "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80",
+        "https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?w=1200&q=80",
+        "https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=1200&q=80"
+    ],
+    "Transportasi": [
+        "https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=1200&q=80",
+        "https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=1200&q=80",
+        "https://images.unsplash.com/photo-1508873696983-2df5703bc20d?w=1200&q=80"
+    ],
+    "Bisnis": [
+        "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&q=80",
+        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80",
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80"
+    ],
+    "Bola": [
+        "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&q=80",
+        "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&q=80",
+        "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?w=1200&q=80"
+    ],
+    "Umum": [
+        "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80",
+        "https://images.unsplash.com/photo-1495020689067-958852a7765e?w=1200&q=80",
+        "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80"
+    ]
 }
 
 
-def create_branded_thumbnail(title, category, rss_image="", output_path="posts/images/thumb.jpg"):
+def get_unique_background_image(title, category, used_images=None):
+    """
+    Memilih foto latar belakang yang selalu unik dan belum pernah dipakai sebelumnya,
+    disesuaikan dengan topik berita (Wikimedia Commons Search atau Pool Editorial Tematik).
+    """
+    if used_images is None:
+        used_images = set()
+
+    title_lower = title.lower()
+
+    # 1. Coba cari foto editorial relevan dari Wikimedia Commons API
+    search_keywords = []
+    if "lrt" in title_lower or "kereta" in title_lower:
+        search_keywords = ["LRT Jabodebek", "LRT Jakarta", "KRL Commuter"]
+    elif "polri" in title_lower or "polisi" in title_lower or "kapolri" in title_lower:
+        search_keywords = ["Kepolisian Indonesia", "Markas Besar Kepolisian", "Polri"]
+    elif "dpr" in title_lower or "sidang" in title_lower or "menteri" in title_lower:
+        search_keywords = ["Gedung DPR RI", "Sidang Parlemen Indonesia"]
+    elif "tambang" in title_lower:
+        search_keywords = ["Tambang Indonesia", "Tambang Emas"]
+    elif "timnas" in title_lower or "sepak bola" in title_lower or "liga" in title_lower:
+        search_keywords = ["Timnas Indonesia sepak bola", "Stadion Gelora Bung Karno"]
+
+    for kw in search_keywords:
+        try:
+            url = f"https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch={urllib.parse.quote(kw)}&gsrnamespace=6&gsrlimit=5&prop=imageinfo&iiprop=url&format=json"
+            req = urllib.request.Request(url, headers={"User-Agent": "PadukaBot/1.0 (padukasambas@gmail.com)"})
+            with urllib.request.urlopen(req, timeout=8) as r:
+                data = json.loads(r.read().decode("utf-8"))
+                pages = data.get("query", {}).get("pages", {})
+                for pid, p in pages.items():
+                    info = p.get("imageinfo", [{}])[0]
+                    u = info.get("url")
+                    if u and u not in used_images and any(ext in u.lower() for ext in [".jpg", ".jpeg", ".png"]):
+                        print(f"[*] Menemukan foto topik unik dari Wikimedia: {kw}")
+                        return u
+        except Exception:
+            pass
+
+    # 2. Ambil dari Curated Editorial Pool berdasarkan topik
+    cat_key = "Umum"
+    if any(k in title_lower for k in ["kereta", "lrt", "mrt", "krl", "bus", "jalan", "tol", "bandara", "pesawat"]):
+        cat_key = "Transportasi"
+    elif any(k in title_lower for k in ["sidang", "polisi", "polri", "jaksa", "hakim", "kpk", "korupsi", "hukum", "etik"]):
+        cat_key = "Hukum"
+    elif any(k in title_lower for k in ["presiden", "menteri", "dpr", "pemilu", "pilkada", "politik", "gibran", "prabowo"]):
+        cat_key = "Politik"
+    elif any(k in title_lower for k in ["saham", "ihsg", "rupiah", "bank", "ekonomi", "bisnis", "inflasi"]):
+        cat_key = "Bisnis"
+    elif any(k in title_lower for k in ["bola", "timnas", "liga", "stadion", "gol"]):
+        cat_key = "Bola"
+    elif category in CURATED_EDITORIAL_POOL:
+        cat_key = category
+
+    pool = CURATED_EDITORIAL_POOL.get(cat_key, CURATED_EDITORIAL_POOL["Umum"])
+    for u in pool:
+        if u not in used_images:
+            return u
+
+    # 3. Fallback: Cari dari seluruh pool apa pun yang belum pernah dipakai
+    for sub_pool in CURATED_EDITORIAL_POOL.values():
+        for u in sub_pool:
+            if u not in used_images:
+                return u
+
+    return pool[0]
+
+
+def create_branded_thumbnail(title, category, rss_image="", used_images=None, output_path="posts/images/thumb.jpg"):
     """
     Membuat Kartu Berita (Branded News Banner 16:9) beresolusi tinggi dengan:
-    1. Foto jurnalistik asli dari RSS atau foto editorial jernih (tanpa kecacatan AI).
-    2. Badge merek resmi 'PADUKA SAMBAS'.
-    3. Badge kategori berita [BERITA / BOLA / BISNIS].
-    4. Tipografi judul berita tebal dengan gradien gelap elegan.
-    5. Watermark identitas domain 'padukasambas.blogspot.com'.
+    1. Foto jurnalistik ASLI dari RSS berita atau foto editorial UNIK (tidak pernah sama antar artikel).
+    2. Badge merek resmi 'PADUKA SAMBAS' di pojok kiri atas.
+    3. Badge kategori berita [BERITA / BOLA / BISNIS / HOT / TRAVEL].
+    4. Tipografi judul berita tebal berbayang dengan latar belakang dark vignette gradient.
+    5. Bar kapsul 4 akun media sosial resmi Paduka Sambas di bagian bawah.
     """
+    if used_images is None:
+        used_images = set()
+
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     target_w, target_h = 1200, 675
     
     bg_img = None
+    chosen_bg_url = ""
     candidate_urls = []
-    if rss_image and rss_image.startswith("http"):
+
+    # Prioritaskan foto jurnalisme riil dari sumber berita asal jika belum pernah dipakai
+    if rss_image and rss_image.startswith("http") and rss_image not in used_images:
         candidate_urls.append(rss_image)
-    
-    candidate_urls.append(DEFAULT_UNSPLASH_MAP.get(category, DEFAULT_UNSPLASH_MAP["Berita"]))
+
+    # Dapatkan foto latar yang selalu unik dan belum pernah dipakai
+    unique_fallback = get_unique_background_image(title, category, used_images)
+    if unique_fallback and unique_fallback not in candidate_urls:
+        candidate_urls.append(unique_fallback)
 
     for u in candidate_urls:
         try:
@@ -331,6 +438,8 @@ def create_branded_thumbnail(title, category, rss_image="", output_path="posts/i
             with urllib.request.urlopen(req, timeout=12) as r:
                 raw_data = r.read()
                 bg_img = Image.open(io.BytesIO(raw_data)).convert("RGBA")
+                chosen_bg_url = u
+                print(f"[+] Berhasil mengunduh foto latar unik: {u[:80]}...")
                 break
         except Exception as e:
             print(f"[!] Gagal download foto latar {u}: {e}")
@@ -458,7 +567,7 @@ def create_branded_thumbnail(title, category, rss_image="", output_path="posts/i
 
     final_img.save(output_path, quality=92)
     print(f"[+] Branded Thumbnail Paduka Sambas berhasil dibuat: {output_path}")
-    return output_path
+    return output_path, chosen_bg_url
 
 
 def slugify(text):
@@ -521,7 +630,15 @@ def main():
     local_image_path = os.path.join("posts", "images", image_file_name)
     primary_category = labels[0] if labels else "Berita"
     
-    create_branded_thumbnail(title, primary_category, news_item.get("rss_image", ""), local_image_path)
+    # Kumpulkan daftar gambar yang sudah pernah dipakai agar tidak pernah ada gambar yang sama
+    used_images = set(history.get("__used_bg_images__", []))
+    for hist_item in history.values():
+        if isinstance(hist_item, dict) and hist_item.get("bg_image"):
+            used_images.add(hist_item["bg_image"])
+
+    _, chosen_bg = create_branded_thumbnail(
+        title, primary_category, news_item.get("rss_image", ""), used_images, local_image_path
+    )
     
     # URL CDN Publik untuk Thumbnail di Blogspot
     thumbnail_url = f"https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/{image_file_name}"
@@ -592,8 +709,13 @@ source: "{source_name}"
             "published_title": title,
             "file": file_path,
             "thumbnail": thumbnail_url,
+            "bg_image": chosen_bg,
             "original_url": news_item["link"]
         }
+        if chosen_bg:
+            used_list = history.setdefault("__used_bg_images__", [])
+            if chosen_bg not in used_list:
+                used_list.append(chosen_bg)
         save_history(history)
         print(f"\n🎉 Berita viral '{title}' dengan THUMBNAIL OTOMATIS berhasil dipublikasikan ke Blogspot!")
     else:
