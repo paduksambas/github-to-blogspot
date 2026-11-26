@@ -181,8 +181,11 @@ ATURAN WAJIB INTERNAL LINKING KONTEKSTUAL (SEO TINGGI):
 """
 
     prompt = f"""
-Anda adalah jurnalis dan editor intelijen berita profesional untuk portal 'Paduka Sambas' (mengikuti standar jurnalisme MD-V14: "DETECT THE TREND. VERIFY THE FACT. CREATE THE IMPACT.").
-Tugas Anda adalah menulis ulang topik berita berikut menjadi artikel berita yang berbobot, mendalam, orisinal, dan 100% lolos deteksi algoritma bot/AI Google (mengikuti standar Google Helpful Content E-E-A-T).
+Anda adalah editor kepala dan jurnalis intelijen berita investigasi untuk portal berita 'Paduka Sambas'.
+Tulisan Anda harus mengikuti standar tertinggi jurnalisme berita modern, mematuhi PANDUAN KUALITAS GOOGLE SEARCH CENTRAL (E-E-A-T & HELPFUL CONTENT SYSTEM), serta PEDOMAN PENULISAN RESMI BLOGGER.
+
+TUGAS UTAMA:
+Tulis ulang topik berita berikut menjadi artikel berita yang BARU, MENDALAM (COMPREHENSIVE), ORISINAL, dan 100% BEBAS DARI PENALTI KONTEN DUPLIKAT (DUPLICATE CONTENT / CONTENT SPINNING).
 
 Data Berita Asli:
 - Judul Asal: {original_news['title']}
@@ -191,55 +194,49 @@ Data Berita Asli:
 
 {internal_links_context}
 
-PEDOMAN GAYA PENULISAN & STRUKTUR:
-1. SUB-HEADING DINAMIS & SESUAI TOPIK CERITA (SANGAT PENTING):
-   - JANGAN PERNAH gunakan sub-heading template yang seragam dan kaku seperti "Fakta dan Kronologi Kejadian" atau "Catatan Redaksi: Dampak bagi Masyarakat".
-   - SUB-HEADING (##) HARUS DINAMIS, KREATIF, DAN LANGSUNG MERUJUK PADA SUB-TOPIK BERITA YANG SEDANG DIBAHAS.
-   - Contoh untuk berita hukum/politik:
-     ## Menanti Putusan Majelis di Meja Hijau
-     ## Konstelasi Baru dan Implikasi Terhadap Publik
-   - Contoh untuk berita ekonomi/bisnis:
-     ## Lonjakan Harga dan Dampaknya Terhadap Konsumsi Rumah Tangga
-     ## Respon Pelaku Usaha Menghadapi Kebijakan Moneter Baru
-   - Contoh untuk berita bola:
-     ## Taktik Serangan Balik dan Evaluasi Lini Belakang
-     ## Peluang Menembus Putaran Final
+================================================================================
+ATURAN WAJIB LOLOS PENGUJIAN KONTEN DUPLIKAT GOOGLE (INFORMATION GAIN):
+1. JANGAN HANYA MEMPARAFRASE KALIMAT BERITA ASLI!
+   Google menghukum artikel yang hanya mengganti kata per kata dengan alur yang sama persis (article spinning).
+2. TAMBAHKAN NILAI TAMBAH ORISINAL (INFORMATION GAIN):
+   - Latar Belakang Konteks: Jelaskan mengapa masalah ini bisa terjadi, riwayat regulasi, atau kasus serupa sebelumnya.
+   - Analisis Multiperspektif: Ulas dampak peristiwa dari kacamata masyarakat awam, pakar/pengamat, serta lembaga terkait.
+   - Proyeksi ke Depan (Forward-Looking): Apa konsekuensi jangka pendek dan jangka panjang dari peristiwa ini.
+3. KEDALAMAN KONTEN (MINIMAL 500 - 750 KATA):
+   Tulis artikel yang berbobot dan tuntas, bukan artikel pendek (thin content) yang dangkal.
 
-2. RITME KALIMAT ALAMI (Burstiness & Human Flow):
-   - Variasikan panjang kalimat. Gunakan kalimat pendek yang lugas, diselingi kalimat majemuk. Hindari kalimat monoton yang seragam.
-   - DILARANG KERAS MENGGUNAKAN KATA KLISE AI: JANGAN gunakan "Di era digital ini...", "Kesimpulannya...", "Penting untuk diingat bahwa...", "Tentu saja...", "Mari kita telusuri...".
-   - Gunakan gaya bahasa jurnalisme investigatif yang hidup dan mengalir alami.
-
-3. KUTIPAN NARASUMBER:
-   - Sisipkan setidaknya satu kutipan narasumber/pernyataan resmi dalam format blockquote Markdown:
-     > *"Pernyataan atau kutipan penting narasumber di sini,"* tegas pihak terkait.
-
-4. LABEL RESMI (PILIH HANYA DARI DAFTAR BERIKUT):
-   - "Berita" : Berita umum, nasional, politik, hukum, peristiwa, kriminal.
-   - "Bisnis" : Ekonomi, keuangan, perbankan, pasar modal, industri, UMKM.
-   - "Bola"   : Sepak bola, liga dunia, timnas Indonesia, olahraga.
-   - "Hot"    : Topik viral yang sedang hangat dibicarakan di media sosial.
-   - "Travel" : Wisata, daerah, budaya, perjalanan.
-   *Pilih 1 sampai 3 label yang paling relevan dari daftar di atas.*
-
-5. DESKRIPSI PENELUSURAN (Search Description SEO):
-   - Buat `description`: Ringkasan padat dan menarik sepanjang 130-150 karakter untuk kolom Deskripsi Penelusuran Blogger (SEO Google).
-
-6. THUMBNAIL VISUAL REALISTIS:
-   - Buat `image_prompt`: Deskripsi gambar jurnalistik realistis dalam bahasa Inggris (15-20 kata) yang menggambarkan momen spesifik berita tersebut (photojournalism, realistic lighting, 8k).
-
-7. PENUTUP & SUMBER:
-   - Akhiri artikel dengan satu pertanyaan reflektif atau diskusi untuk memancing komentar pembaca.
-   - Di baris paling bawah, cantumkan kredit sumber rapi:
+================================================================================
+PEDOMAN PENULISAN SESUAI PANDUAN RESMI BLOGGER & SEO SEARCH CENTRAL:
+1. HIERARKI HEADING YANG SEMPURNA:
+   - Gunakan minimal 3 Sub-heading H2 (##) yang DINAMIS dan deskriptif sesuai topik cerita (DILARANG pakai template kaku seperti "Fakta dan Kronologi").
+   - Gunakan Sub-heading H3 (###) jika ada rincian data, poin penting, atau kronologi terperinci.
+2. KETERBACAAN TINGGI (MOBILE READABILITY):
+   - Paragraf pendek (maksimal 2 hingga 3 kalimat per paragraf) agar nyaman dibaca di layar smartphone.
+   - Berikan cetak TEBAL (**bold**) pada kata kunci penting, nama lembaga, atau angka kunci.
+   - Gunakan format DAFTAR POIN (bullet list '-' atau nomor '1.') untuk memudahkan pembaca menyerap fakta penting.
+   - Gunakan BLOCKQUOTE ('>') untuk kutipan narasumber resmi agar tampilan profesional.
+3. RITME BAHASA ALAMI (BURSTINESS ANTI-BOT):
+   - Variasikan panjang kalimat secara dinamis: selingi kalimat pendek lugas dengan kalimat majemuk.
+   - DILARANG KERAS menggunakan kata klise khas AI seperti: "Di era digital yang serba cepat...", "Kesimpulannya...", "Penting untuk diingat bahwa...", "Tentu saja...", "Mari kita telaah...".
+   - Gunakan kosakata jurnalisme bertutur yang hidup, cerdas, dan lugas.
+4. INTERNAL LINKING RELEVAN:
+   - Sisipkan 1 tautan kontekstual dari daftar artikel blog Paduka Sambas yang paling berhubungan ke dalam narasi kalimat.
+5. LABEL RESMI (Pilih 1-3 dari: "Berita", "Bisnis", "Bola", "Hot", "Travel").
+6. DESKRIPSI PENELUSURAN (SEARCH DESCRIPTION):
+   - Ringkasan SEO 130–150 karakter padat yang memuat kata kunci utama untuk cuplikan Google Search.
+7. THUMBNAIL VISUAL REALISTIS (15-20 kata bahasa Inggris menggambarkan foto pers jurnalisme).
+8. PENUTUP & KREDIT MEDIA RESMI:
+   - Akhiri dengan pertanyaan reflektif untuk diskusi di kolom komentar.
+   - Tulis kredit sumber resmi di baris paling akhir:
      *Referensi: Dirangkum dari liputan berita resmi {source_label}.*
 
-FORMAT OUTPUT HANYA JSON MURNI TANPA BACKTICKS (```json ... ```):
+FORMAT OUTPUT WAJIB HANYA JSON MURNI TANPA BACKTICKS (```json ... ```):
 {{
-  "title": "Judul Baru yang Menggugah dan Berbobot",
+  "title": "Judul Baru yang Kuat, Padat, dan Ramah SEO",
   "labels": ["Kategori1", "Kategori2"],
-  "description": "Ringkasan padat 130-150 karakter untuk deskripsi penelusuran...",
-  "image_prompt": "English descriptive prompt for realistic news photo thumbnail...",
-  "content": "Isi artikel lengkap dalam format Markdown dengan heading ## yang dinamis dan relevan..."
+  "description": "Deskripsi penelusuran SEO 130-150 karakter...",
+  "image_prompt": "English prompt for realistic news photo...",
+  "content": "Isi artikel lengkap dalam format Markdown sesuai seluruh pedoman di atas..."
 }}
 """
 
@@ -253,7 +250,7 @@ FORMAT OUTPUT HANYA JSON MURNI TANPA BACKTICKS (```json ... ```):
         ],
         "generationConfig": {
             "temperature": 0.7,
-            "maxOutputTokens": 2048
+            "maxOutputTokens": 3072
         }
     }
 
