@@ -4,12 +4,11 @@ labels: ["Berita", "Hot"]
 description: "Puluhan penambang emas liar terjebak di lubang maut Pongkor Bogor. Polda Jabar siagakan tim medis, Antam bertindak tegas menutup ribuan akses ilegal."
 status: "draft"
 date: "2026-11-26"
-thumbnail: "https://image.pollinations.ai/prompt/A%20tense%20rescue%20operation%20at%20a%20misty%20underground%20gold%20mine%20in%20Bogor%20with%20emergency%20medical%20teams%20and%20police.?width=1200&height=675&nologo=true"
-source: "detikNews"
+thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-tragedi-pongkor-berulang-puluhan-gurandil-terjebak.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://image.pollinations.ai/prompt/A%20tense%20rescue%20operation%20at%20a%20misty%20underground%20gold%20mine%20in%20Bogor%20with%20emergency%20medical%20teams%20and%20police.?width=1200&height=675&nologo=true" alt="Tragedi Pongkor Berulang: Puluhan Gurandil Terjebak, Antam Tutup Seribuan Akses Ilegal" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-tragedi-pongkor-berulang-puluhan-gurandil-terjebak.jpg" alt="Tragedi Pongkor Berulang: Puluhan Gurandil Terjebak, Antam Tutup Seribuan Akses Ilegal" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Tragedi Pongkor Berulang: Puluhan Gurandil Terjebak, Antam Tutup Seribuan Akses Ilegal</em>
 </p>
 
@@ -34,3 +33,5 @@ Meski penutupan ini krusial untuk keselamatan jangka panjang, penertiban tambang
 Bagaimana langkah jangka panjang pemerintah daerah dan aparat penegak hukum dalam menghentikan siklus penambangan liar yang terus memakan korban jiwa setiap tahunnya?
 
 Referensi: Dirangkum dari liputan berita resmi detikNews.
+
+Informasi terkait dinamika dan perkembangan kebijakan publik dapat disimak lebih lanjut dalam ulasan mengenai [Tragedi Lubang Maut Pongkor: 13 Gurandil Tewas di Tambang Emas Ilegal Bogor](https://padukasambas.blogspot.com/2026/11/tragedi-lubang-maut-pongkor-13-gurandil.html).

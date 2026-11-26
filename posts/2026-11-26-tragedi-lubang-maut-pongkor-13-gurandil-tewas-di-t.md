@@ -1,14 +1,14 @@
 ---
 title: "Tragedi Lubang Maut Pongkor: 13 Gurandil Tewas di Tambang Emas Ilegal Bogor"
 labels: ["Nasional", "Hukum", "Bencana", "Peristiwa"]
-status: "publish"
+description: ""
+status: "draft"
 date: "2026-11-26"
-thumbnail: "https://image.pollinations.ai/prompt/dramatic%20documentary%20photo%20of%20rescue%20workers%20at%20illegal%20gold%20mine%20site%20in%20bogor%20indonesia%2C%20hazy%20atmosphere%2C%20realistic%20ph?width=1200&height=675&nologo=true"
-source: "detikNews"
+thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-tragedi-lubang-maut-pongkor-13-gurandil-tewas-di-t.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://image.pollinations.ai/prompt/dramatic%20documentary%20photo%20of%20rescue%20workers%20at%20illegal%20gold%20mine%20site%20in%20bogor%20indonesia%2C%20hazy%20atmosphere%2C%20realistic%20ph?width=1200&height=675&nologo=true" alt="Tragedi Lubang Maut Pongkor: 13 Gurandil Tewas di Tambang Emas Ilegal Bogor" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-tragedi-lubang-maut-pongkor-13-gurandil-tewas-di-t.jpg" alt="Tragedi Lubang Maut Pongkor: 13 Gurandil Tewas di Tambang Emas Ilegal Bogor" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Tragedi Lubang Maut Pongkor: 13 Gurandil Tewas di Tambang Emas Ilegal Bogor</em>
 </p>
 
@@ -35,3 +35,5 @@ Perusahaan pelat merah pemegang izin sebenarnya telah berupaya menutup ribuan ak
 Bagaimana pandangan Anda melihat fenomena penambang liar yang terus bertaruh nyawa di tengah ancaman maut? Apakah sanksi hukum yang tegas sudah cukup, atau negara harus hadir memberikan solusi mata pencaharian alternatif yang konkret? Sampaikan pendapat Anda di kolom komentar.
 
 *Referensi: Dirangkum dari liputan berita resmi detikNews.*
+
+Informasi terkait dinamika dan perkembangan kebijakan publik dapat disimak lebih lanjut dalam ulasan mengenai [Tragedi Lubang Maut Pongkor: 13 Gurandil Tewas di Tambang Emas Ilegal Bogor](https://padukasambas.blogspot.com/2026/11/tragedi-lubang-maut-pongkor-13-gurandil.html).

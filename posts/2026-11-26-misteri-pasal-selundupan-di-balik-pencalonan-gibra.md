@@ -1,14 +1,14 @@
 ---
 title: "Misteri 'Pasal Selundupan' di Balik Pencalonan Gibran: Pengakuan Mengejutkan di Ruang Sidang DKPP"
 labels: ["Berita", "Hot"]
+description: ""
 status: "draft"
 date: "2026-11-26"
-thumbnail: "https://image.pollinations.ai/prompt/Indonesian%20news%20journalism%20photography%2C%20close-up%20of%20a%20serious%20legal%20hearing%20in%20a%20courtroom%2C%20blurred%20background%20of%20offici?width=1200&height=675&nologo=true"
-source: "detikNews"
+thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-misteri-pasal-selundupan-di-balik-pencalonan-gibra.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://image.pollinations.ai/prompt/Indonesian%20news%20journalism%20photography%2C%20close-up%20of%20a%20serious%20legal%20hearing%20in%20a%20courtroom%2C%20blurred%20background%20of%20offici?width=1200&height=675&nologo=true" alt="Misteri 'Pasal Selundupan' di Balik Pencalonan Gibran: Pengakuan Mengejutkan di Ruang Sidang DKPP" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-misteri-pasal-selundupan-di-balik-pencalonan-gibra.jpg" alt="Misteri 'Pasal Selundupan' di Balik Pencalonan Gibran: Pengakuan Mengejutkan di Ruang Sidang DKPP" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Misteri 'Pasal Selundupan' di Balik Pencalonan Gibran: Pengakuan Mengejutkan di Ruang Sidang DKPP</em>
 </p>
 
@@ -31,3 +31,5 @@ Jika integritas KPU selaku penyelenggara pemilu tergerus oleh dugaan manipulasi 
 Bagaimana menurut Anda? Apakah dugaan 'pasal selundupan' ini merupakan kelalaian administratif atau kesengajaan yang terstruktur untuk kepentingan tertentu? Sampaikan pendapat kritis Anda di kolom komentar.
 
 *Referensi: Dirangkum dari liputan berita resmi detikNews.*
+
+Informasi terkait dinamika dan perkembangan kebijakan publik dapat disimak lebih lanjut dalam ulasan mengenai [Tragedi Lubang Maut Pongkor: 13 Gurandil Tewas di Tambang Emas Ilegal Bogor](https://padukasambas.blogspot.com/2026/11/tragedi-lubang-maut-pongkor-13-gurandil.html).

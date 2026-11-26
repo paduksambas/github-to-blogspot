@@ -4,12 +4,11 @@ labels: ["Berita"]
 description: "Sugiono dan Andi Amran Sulaiman jalani tes kesehatan di RSPAD usai kantongi SKCK, hadapi verifikasi krusial penentuan kursi calon wakil presiden."
 status: "draft"
 date: "2026-11-26"
-thumbnail: "https://image.pollinations.ai/prompt/Realistic%20photojournalism%20of%20medical%20examinations%20at%20RSPAD%20Gatot%20Soebroto%2C%20Jakarta%2C%20official%20political%20verification%20proc?width=1200&height=675&nologo=true"
-source: "detikNews"
+thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-saringan-ketat-istana-sugiono-dan-amran-sulaiman-j.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://image.pollinations.ai/prompt/Realistic%20photojournalism%20of%20medical%20examinations%20at%20RSPAD%20Gatot%20Soebroto%2C%20Jakarta%2C%20official%20political%20verification%20proc?width=1200&height=675&nologo=true" alt="Saringan Ketat Istana: Sugiono dan Amran Sulaiman Jalani Tes Kesehatan Calon Wakil Presiden" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-saringan-ketat-istana-sugiono-dan-amran-sulaiman-j.jpg" alt="Saringan Ketat Istana: Sugiono dan Amran Sulaiman Jalani Tes Kesehatan Calon Wakil Presiden" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Saringan Ketat Istana: Sugiono dan Amran Sulaiman Jalani Tes Kesehatan Calon Wakil Presiden</em>
 </p>
 
@@ -36,3 +35,5 @@ Konstelasi jelang penentuan kursi wakil presiden ini menunjukkan betapa ketatnya
 Bagaimana pandangan Anda terhadap ketatnya proses seleksi kesehatan dan administrasi bagi para calon pemimpin bangsa ini? Sampaikan pendapat Anda di kolom komentar.
 
 Referensi: Dirangkum dari liputan berita resmi detikNews.
+
+Informasi terkait dinamika dan perkembangan kebijakan publik dapat disimak lebih lanjut dalam ulasan mengenai [Tragedi Lubang Maut Pongkor: 13 Gurandil Tewas di Tambang Emas Ilegal Bogor](https://padukasambas.blogspot.com/2026/11/tragedi-lubang-maut-pongkor-13-gurandil.html).

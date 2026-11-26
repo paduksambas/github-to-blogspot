@@ -1,14 +1,14 @@
 ---
 title: "Ujian Berat Mantan Kapolri Jenderal Listyo Sigit di Sidang Etik Polri Hari Ini"
 labels: ["Nasional", "Hukum", "Politik", "Kepolisian"]
-status: "publish"
+description: ""
+status: "draft"
 date: "2026-11-26"
-thumbnail: "https://image.pollinations.ai/prompt/Indonesian%20police%20headquarters%20press%20conference%20with%20serious%20high%20ranking%20officials%2C%20realistic%20photojournalism%2C%208k%20resol?width=1200&height=675&nologo=true"
-original_source: "https://news.google.com/rss/articles/CBMipwFBVV95cUxQeF83bVhtTXNBeHlKT0Z6WGVGS3d1UTZBN0xDVnlJMHItaDBRdkxnMHNaNkp5VmRhSjk3Y09zNTl2bk5oSFZQam1mNm42ajM0Sk4xTFRIdVoyb1U2ZFpLMDUwNnZHckJsTzFEbE5wQzNfRUM0SEVPbUlybkROdk1jZnNiQ1hQNXRmWjhKdXFMcUptZGxSOFJNR0xDWTJOZTBUNU1lSVN5NNIBrAFBVV95cUxOWHd1SGY4OGZ1LTZDZURzTENsWDZfeUdBdkRpeWdxeXAzVm9vRk9GSHdCVHFDblZEUlpMUW12YUxadkFsc05NQzFYVmZuYll4X3ZILUlDYkNfVktKeDNRV1hjWWpxOE9sQ242LVJXSTZKLTNBMzRwNXRHTnJoWl9yQU9xc3pKV2x4QXBmaDFKYXpIVW9LRTExTk51QTdwSVBkTG9ORllFeG1HdlNa?oc=5"
+thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-ujian-berat-mantan-kapolri-jenderal-listyo-sigit-d.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://image.pollinations.ai/prompt/Indonesian%20police%20headquarters%20press%20conference%20with%20serious%20high%20ranking%20officials%2C%20realistic%20photojournalism%2C%208k%20resol?width=1200&height=675&nologo=true" alt="Ujian Berat Mantan Kapolri Jenderal Listyo Sigit di Sidang Etik Polri Hari Ini" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-ujian-berat-mantan-kapolri-jenderal-listyo-sigit-d.jpg" alt="Ujian Berat Mantan Kapolri Jenderal Listyo Sigit di Sidang Etik Polri Hari Ini" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Ujian Berat Mantan Kapolri Jenderal Listyo Sigit di Sidang Etik Polri Hari Ini</em>
 </p>
 
@@ -29,3 +29,5 @@ Peristiwa ini bukan sekadar urusan kedisiplinan internal korps baju cokelat. Leb
 Bagaimana pandangan Anda terhadap jalannya sidang etik yang melibatkan mantan orang nomor satu di tubuh Polri ini? Apakah langkah ini sudah cukup membuktikan komitmen bersih-bersih di tubuh kepolisian? Sampaikan pendapat Anda di kolom komentar.
 
 Sumber Asal: https://news.google.com/rss/articles/CBMipwFBVV95cUxQeF83bVhtTXNBeHlKT0Z6WGVGS3d1UTZBN0xDVnlJMHItaDBRdkxnMHNaNkp5VmRhSjk3Y09zNTl2bk5oSFZQam1mNm42ajM0Sk4xTFRIdVoyb1U2ZFpLMDUwNnZHckJsTzFEbE5wQzNfRUM0SEVPbUlybkROdk1jZnNiQ1hQNXRmWjhKdXFMcUptZGxSOFJNR0xDWTJOZTBUNU1lSVN5NNIBrAFBVV95cUxOWHd1SGY4OGZ1LTZDZURzTENsWDZfeUdBdkRpeWdxeXAzVm9vRk9GSHdCVHFDblZEUlpMUW12YUxadkFsc05NQzFYVmZuYll4X3ZILUlDYkNfVktKeDNRV1hjWWpxOE9sQ242LVJXSTZKLTNBMzRwNXRHTnJoWl9yQU9xc3pKV2x4QXBmaDFKYXpIVW9LRTExTk51QTdwSVBkTG9ORllFeG1HdlNa?oc=5
+
+Informasi terkait dinamika dan perkembangan kebijakan publik dapat disimak lebih lanjut dalam ulasan mengenai [Tragedi Lubang Maut Pongkor: 13 Gurandil Tewas di Tambang Emas Ilegal Bogor](https://padukasambas.blogspot.com/2026/11/tragedi-lubang-maut-pongkor-13-gurandil.html).

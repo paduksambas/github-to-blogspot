@@ -5,7 +5,6 @@ description: "Media asing soroti langkah Garuda Adidaya ambil alih lahan RAPP. K
 status: "draft"
 date: "2026-11-26"
 thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-sorotan-media-asing-babak-baru-pengambilalihan-lah.jpg"
-source: "CNBC Indonesia"
 ---
 
 <p style="text-align: center;">

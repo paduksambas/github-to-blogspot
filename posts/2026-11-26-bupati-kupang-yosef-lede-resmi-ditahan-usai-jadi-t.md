@@ -4,12 +4,11 @@ labels: ["Berita"]
 description: "Bupati Kupang Yosef Lede resmi ditetapkan sebagai tersangka dan langsung ditahan atas kasus dugaan pemerkosaan terhadap seorang mahasiswi."
 status: "draft"
 date: "2026-11-26"
-thumbnail: "https://image.pollinations.ai/prompt/An%20Indonesian%20politician%20walking%20in%20handcuffs%20surrounded%20by%20police%20officers%20in%20a%20courtroom%20setting%2C%20photojournalism%2C%20rea?width=1200&height=675&nologo=true"
-source: "detikNews"
+thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-bupati-kupang-yosef-lede-resmi-ditahan-usai-jadi-t.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://image.pollinations.ai/prompt/An%20Indonesian%20politician%20walking%20in%20handcuffs%20surrounded%20by%20police%20officers%20in%20a%20courtroom%20setting%2C%20photojournalism%2C%20rea?width=1200&height=675&nologo=true" alt="Bupati Kupang Yosef Lede Resmi Ditahan Usai Jadi Tersangka Kasus Pemerkosaan Mahasiswi" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-bupati-kupang-yosef-lede-resmi-ditahan-usai-jadi-t.jpg" alt="Bupati Kupang Yosef Lede Resmi Ditahan Usai Jadi Tersangka Kasus Pemerkosaan Mahasiswi" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Bupati Kupang Yosef Lede Resmi Ditahan Usai Jadi Tersangka Kasus Pemerkosaan Mahasiswi</em>
 </p>
 

@@ -5,7 +5,6 @@ description: "Simak kronologi lengkap LRT Jabodebek mogok di jalur Pancoran-Kuni
 status: "draft"
 date: "2026-11-26"
 thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-kepanikan-penumpang-saat-lrt-jabodebek-mogok-di-ja.jpg"
-source: "detikNews"
 ---
 
 <p style="text-align: center;">

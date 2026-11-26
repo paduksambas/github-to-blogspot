@@ -5,7 +5,6 @@ description: "Kesaksian Kemenkum, Kemendikdasmen, dan DPR di DKPP bongkar asal-u
 status: "draft"
 date: "2026-11-26"
 thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-kala-pasal-selundupan-gibran-terkuak-di-sidang-eti.jpg"
-source: "CNN Indonesia"
 ---
 
 <p style="text-align: center;">

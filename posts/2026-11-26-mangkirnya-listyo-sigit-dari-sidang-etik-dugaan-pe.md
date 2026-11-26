@@ -4,12 +4,11 @@ labels: ["Berita"]
 description: "Sorotan publik tertuju pada mangkirnya Listyo Sigit dari sidang etik dugaan penyadapan. Polri pastikan proses penindakan hukum tetap berjalan."
 status: "draft"
 date: "2026-11-26"
-thumbnail: "https://image.pollinations.ai/prompt/indonesian%20national%20police%20headquarters%20press%20conference%20with%20journalists%20and%20cameras%2C%20realistic%20journalism%20photography%2C?width=1200&height=675&nologo=true"
-source: "detikNews"
+thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-mangkirnya-listyo-sigit-dari-sidang-etik-dugaan-pe.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://image.pollinations.ai/prompt/indonesian%20national%20police%20headquarters%20press%20conference%20with%20journalists%20and%20cameras%2C%20realistic%20journalism%20photography%2C?width=1200&height=675&nologo=true" alt="Mangkirnya Listyo Sigit dari Sidang Etik Dugaan Penyadapan: Polri Pastikan Proses Hukum Jalan Terus" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-mangkirnya-listyo-sigit-dari-sidang-etik-dugaan-pe.jpg" alt="Mangkirnya Listyo Sigit dari Sidang Etik Dugaan Penyadapan: Polri Pastikan Proses Hukum Jalan Terus" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Mangkirnya Listyo Sigit dari Sidang Etik Dugaan Penyadapan: Polri Pastikan Proses Hukum Jalan Terus</em>
 </p>
 
@@ -34,3 +33,5 @@ Ketika figur-figur penting berhadap-hadapan dengan proses etik, publik menuntut 
 Bagaimana pandangan Anda terhadap sikap mangkir yang diambil dalam sidang etik ini? Apakah penegakan hukum internal Polri sudah cukup transparan? Sampaikan pendapat Anda di kolom komentar di bawah.
 
 *Referensi: Dirangkum dari liputan berita resmi detikNews.*
+
+Informasi terkait dinamika dan perkembangan kebijakan publik dapat disimak lebih lanjut dalam ulasan mengenai [Tragedi Lubang Maut Pongkor: 13 Gurandil Tewas di Tambang Emas Ilegal Bogor](https://padukasambas.blogspot.com/2026/11/tragedi-lubang-maut-pongkor-13-gurandil.html).

@@ -1,10 +1,16 @@
 ---
 title: "Gaya Unik Tes Kesehatan Cawapres: Sugiono Tampil Ala Prabowo, Amran Pilih Kemeja Putih"
 labels: ["Nasional", "Pemilu", "Politik", "Viral"]
-status: "publish"
+description: ""
+status: "draft"
 date: "2026-11-26"
-original_source: "https://news.google.com/rss/articles/CBMitgFBVV95cUxNSGpDUHlDelVkRE1yUjFnMjlZTmlVNG5oQ2VOMU1lYjBVaWdzZTVFUTlFaVg3NG40YjZZVlFJR281RDJiUjJFMVhkMERsQUhVcnlCOE80OXZFQlJ0a250TUR0TE5oUUx4UUE0Ull2NF9TR21rOUdwNDB0aW5uNjZ2VXRtTkx4MDNnVVJIekdDN1E2OUN3LUM5SkFUV0x6Y0ViSHFMRGp4b19fVEZkM0dGUVRTYUpuUdIBuwFBVV95cUxOU2c5ZGpBUTcxYWxfYUxsejdvR3BZWmxveWNUTVJ4Vl93Y1FUWEQ2NmZXZmdFMmhfZ3dFcFB5SXI1TzRrazFPamsxN1c1UGNTcGdvdXhYVnZMUlM0UjRla0NvamJrQm5xTEd5dmdLOXRDM3RhMFAyWUZEMENBMldScExSX3RadTZfVmdadVZNZ0FnT01uVVZiQjZQMGJia0QxQkJtWmYxa3lhZTM5LTU5OXNja2ozWTBXRDdj?oc=5"
+thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-gaya-unik-tes-kesehatan-cawapres-sugiono-tampil-al.jpg"
 ---
+
+<p style="text-align: center;">
+  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-gaya-unik-tes-kesehatan-cawapres-sugiono-tampil-al.jpg" alt="Gaya Unik Tes Kesehatan Cawapres: Sugiono Tampil Ala Prabowo, Amran Pilih Kemeja Putih" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <br/><em>Ilustrasi: Gaya Unik Tes Kesehatan Cawapres: Sugiono Tampil Ala Prabowo, Amran Pilih Kemeja Putih</em>
+</p>
 
 Panggung politik nasional kembali mencuri perhatian publik dengan momen menarik dari proses pemeriksaan kesehatan calon wakil presiden. Di tengah dinamika politik yang kian memanas, penampilan para tokoh yang menjalani tes kesehatan kerap menjadi sorotan tersendiri bagi masyarakat dan awak media. Kali ini, gaya busana yang dikenakan oleh Sugiono dan Andi Amran Sulaiman saat mendatangi lokasi tes kesehatan sukses memancing komentar dan rasa penasaran publik.
 
@@ -28,3 +34,5 @@ Bagaimana pendapat Anda mengenai gaya busana unik Sugiono saat tes kesehatan ini
 
 ---  
 *Referensi Sumber: Liputan dari berbagai media nasional terkemuka termasuk detikNews, ANTARA, dan kumparan.*
+
+Informasi terkait dinamika dan perkembangan kebijakan publik dapat disimak lebih lanjut dalam ulasan mengenai [Tragedi Lubang Maut Pongkor: 13 Gurandil Tewas di Tambang Emas Ilegal Bogor](https://padukasambas.blogspot.com/2026/11/tragedi-lubang-maut-pongkor-13-gurandil.html).
