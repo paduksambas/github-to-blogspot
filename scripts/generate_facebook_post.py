@@ -62,13 +62,26 @@ def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_ca
     # 1. Unduh / Buka Foto Latar Belakang
     bg_img = None
     photo_url = data.get("photo_url", "")
-    if photo_url and photo_url.startswith("http"):
+    if photo_url and os.path.exists(photo_url):
         try:
-            req = urllib.request.Request(photo_url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                bg_img = Image.open(io.BytesIO(resp.read())).convert("RGBA")
+            bg_img = Image.open(photo_url).convert("RGBA")
         except Exception as e:
-            print(f"[!] Gagal unduh foto latar {photo_url}: {e}")
+            print(f"[!] Gagal buka foto lokal {photo_url}: {e}")
+    elif photo_url and photo_url.startswith("http"):
+        # Cek jika URL merujuk ke berkas lokal yang sudah ada di posts/images
+        local_cand = os.path.join("posts/images", os.path.basename(photo_url))
+        if os.path.exists(local_cand):
+            try:
+                bg_img = Image.open(local_cand).convert("RGBA")
+            except Exception:
+                pass
+        if not bg_img:
+            try:
+                req = urllib.request.Request(photo_url, headers={"User-Agent": "Mozilla/5.0"})
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    bg_img = Image.open(io.BytesIO(resp.read())).convert("RGBA")
+            except Exception as e:
+                print(f"[!] Gagal unduh foto latar {photo_url}: {e}")
 
     if not bg_img:
         # Fallback warna gelap jika foto tidak tersedia
