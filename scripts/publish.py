@@ -170,7 +170,15 @@ def publish_via_email(post_data):
     msg = MIMEMultipart("alternative")
     msg["From"] = sender_email
     msg["To"] = secret_email
-    msg["Subject"] = post_data["title"]
+
+    # Format subject dengan label resmi Blogger: Judul Artikel , #Label1 #Label2
+    subject_title = post_data["title"]
+    labels = post_data.get("labels", [])
+    if labels:
+        labels_str = " ".join([f"#{lbl.strip()}" for lbl in labels if lbl.strip()])
+        msg["Subject"] = f"{subject_title} , {labels_str}"
+    else:
+        msg["Subject"] = subject_title
 
     # Tambahkan format HTML
     part_html = MIMEText(post_data["html_content"], "html", "utf-8")

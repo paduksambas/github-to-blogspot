@@ -151,7 +151,14 @@ PEDOMAN GAYA BAHASA ANTI-BOT (WAJIB DIIKUTI):
      *Referensi: Dirangkum dari liputan berita resmi {source_label}.*
 4. TENTUKAN THUMBNAIL VISUAL:
    - Buat `image_prompt`: Deskripsi gambar jurnalistik realistis dalam bahasa Inggris (15-20 kata) yang menggambarkan peristiwa tersebut secara visual dan dramatis (contoh: "indonesian news journalism photography of government press conference, realistic high resolution, 8k").
-5. TENTUKAN 3-4 LABEL: (contoh: ["Berita", "Viral", "Nasional", "Politik"]).
+5. TENTUKAN LABEL ARTIKEL (WAJIB HANYA MEMILIH DARI DAFTAR LABEL BLOG RESMI BERIKUT):
+   Daftar label yang diizinkan untuk blog Paduka Sambas:
+   - "Berita" : Untuk berita umum, nasional, politik, hukum, peristiwa, kriminal.
+   - "Bisnis" : Untuk ekonomi, keuangan, perbankan, pasar uang, bisnis, UMKM.
+   - "Bola"   : Untuk sepak bola, olahraga, timnas Indonesia, kompetisi/liga.
+   - "Hot"    : Untuk topik atau peristiwa viral yang sedang menjadi sorotan hangat netizen.
+   - "Travel" : Untuk pariwisata, destinasi wisata, keindahan daerah, perjalanan.
+   *Pilih 1 sampai 3 label yang paling sesuai dari daftar di atas (JANGAN membuat label baru di luar daftar ini).*
 
 FORMAT OUTPUT HANYA JSON MURNI TANPA BACKTICKS (```json ... ```):
 {{
