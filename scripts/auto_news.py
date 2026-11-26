@@ -53,7 +53,6 @@ def fetch_news_from_rss(feed_url):
             content = resp.read()
             root = ET.fromstring(content)
             
-            # Cari item di channel RSS
             items = root.findall(".//item")
             for item in items[:15]:
                 title = item.findtext("title", "").strip()
@@ -61,7 +60,17 @@ def fetch_news_from_rss(feed_url):
                 description = item.findtext("description", "").strip()
                 pub_date = item.findtext("pubDate", "").strip()
                 
-                # Bersihkan tag HTML sederhana dari deskripsi jika ada
+                # Deteksi gambar jika tersedia di RSS (enclosure / media / img tag)
+                image_url = ""
+                enclosure = item.find("enclosure")
+                if enclosure is not None and "image" in enclosure.get("type", ""):
+                    image_url = enclosure.get("url", "")
+                
+                if not image_url:
+                    img_match = re.search(r'src=["\']([^"\']+\.(?:jpg|jpeg|png|webp)[^"\']*)["\']', description, re.IGNORECASE)
+                    if img_match:
+                        image_url = img_match.group(1)
+
                 clean_desc = re.sub(r"<[^>]+>", "", description).strip()
                 
                 if title and link:
@@ -69,7 +78,8 @@ def fetch_news_from_rss(feed_url):
                         "title": title,
                         "link": link,
                         "description": clean_desc,
-                        "pub_date": pub_date
+                        "pub_date": pub_date,
+                        "rss_image": image_url
                     })
     except Exception as e:
         print(f"[!] Gagal mengambil RSS dari {feed_url}: {e}")
@@ -77,15 +87,11 @@ def fetch_news_from_rss(feed_url):
 
 
 def get_fresh_article(history):
-    """
-    Mengambil 1 artikel berita terbaru yang belum pernah diposting sebelumnya.
-    """
     for feed in RSS_FEEDS:
         print(f"[*] Memeriksa sumber berita: {feed}")
         items = fetch_news_from_rss(feed)
         for it in items:
             title_key = it["title"].lower().strip()
-            # Cek apakah judul atau URL sudah ada di history
             if title_key not in history and it["link"] not in history:
                 return it
     return None
@@ -93,8 +99,8 @@ def get_fresh_article(history):
 
 def rewrite_with_gemini(api_key, original_news):
     """
-    Menulis ulang berita menggunakan Google Gemini Flash
-    agar unik, ramah SEO, berbobot, dan menghindari penalti duplikat konten.
+    Menulis ulang berita dengan gaya jurnalisme manusia profesional (Anti-Bot Standard)
+    dan menghasilkan prompt thumbnail visual.
     """
     candidate_models = [
         "gemini-3.5-flash-lite",
@@ -107,29 +113,37 @@ def rewrite_with_gemini(api_key, original_news):
     ]
     
     prompt = f"""
-Anda adalah jurnalis dan editor berita profesional Indonesia untuk portal berita terkemuka.
-Tugas Anda adalah menulis ulang (rewrite) topik berita berikut menjadi artikel blog berita yang lengkap, menarik, mendalam, dan ramah SEO (Search Engine Optimization).
+Anda adalah jurnalis dan editor berita investigasi profesional untuk portal berita 'Paduka Sambas'.
+Tugas Anda adalah menulis ulang topik berita berikut menjadi artikel berita yang berbobot, mendalam, dan 100% lolos deteksi algoritma bot/AI Google (mengikuti standar Google Helpful Content E-E-A-T).
 
 Data Berita Asli:
-- Judul: {original_news['title']}
-- Ringkasan/Fakta: {original_news['description']}
+- Judul Asal: {original_news['title']}
+- Fakta Peristiwa: {original_news['description']}
 - Sumber Asal: {original_news['link']}
 
-Ketentuan Penulisan:
-1. Buat judul baru yang memikat (click-worthy), bernada informatif dan viral, tanpa hoax.
-2. Tulis isi artikel secara komprehensif, minimal 4 hingga 6 paragraf dengan alur cerita yang runtut:
-   - Paragraf Pembuka: Bahas mengapa peristiwa ini sedang ramai dibicarakan publik dan poin utamanya.
-   - Paragraf Isi (Gunakan sub-heading Markdown ##): Paparkan rincian fakta, kronologi, atau konteks kejadian secara runtut.
-   - Paragraf Dampak/Tanggapan: Berikan sudut pandang dampak peristiwa atau tanggapan masyarakat.
-   - Paragraf Penutup: Rangkuman dan ajakan interaktif untuk pembaca di kolom komentar.
-   - Cantumkan catatan referensi sumber resmi di akhir tulisan.
-3. Tentukan 3 sampai 5 label/kategori artikel yang relevan (misal: ["Berita", "Viral", "Nasional", "Tren"]).
-4. Format output WAJIB HANYA berupa JSON murni tanpa markdown fence backticks (```json ... ```):
+PEDOMAN GAYA BAHASA ANTI-BOT (WAJIB DIIKUTI):
+1. RITME KALIMAT ALAMI (Burstiness): Variasikan panjang kalimat. Gunakan kalimat pendek yang lugas, diselingi kalimat majemuk. Hindari kalimat monoton yang seragam.
+2. DILARANG KERAS MENGGUNAKAN KATA KLISE AI:
+   - JANGAN PERNAH gunakan: "Di era digital ini...", "Kesimpulannya...", "Penting untuk diingat bahwa...", "Tentu saja...", "Mari kita telusuri...".
+   - GUNAKAN kosakata jurnalistik hidup: "Usut punya usut...", "Fakta di lapangan mengungkap...", "Sorotan publik tertuju pada...", "Tak butuh waktu lama hingga...", "Menanggapi hal tersebut...".
+3. STRUKTUR ARTIKEL LENGKAP:
+   - Paragraf Pembuka: Langsung sorot inti berita paling mengejutkan/hangat dalam 2-3 kalimat tajam.
+   - Sub-heading 1 (## Fakta dan Kronologi Kejadian): Paparkan rincian fakta secara runtut.
+   - Sisipkan setidaknya satu kutipan narasumber dalam format blockquote Markdown:
+     > *"Pernyataan atau kutipan penting narasumber di sini,"* tegas pihak terkait.
+   - Sub-heading 2 (## Catatan Redaksi: Dampak bagi Masyarakat): Tulis analisis sudut pandang mendalam mengapa isu ini penting bagi publik.
+   - Paragraf Penutup & Diskusi: Pertanyaan interaktif memancing komentar pembaca blog.
+   - Cantumkan referensi sumber di baris paling akhir.
+4. TENTUKAN THUMBNAIL VISUAL:
+   - Buat `image_prompt`: Deskripsi gambar jurnalistik realistis dalam bahasa Inggris (15-20 kata) yang menggambarkan peristiwa tersebut secara visual dan dramatis (contoh: "indonesian news journalism photography of government press conference, realistic high resolution, 8k").
+5. TENTUKAN 3-4 LABEL: (contoh: ["Berita", "Viral", "Nasional", "Politik"]).
 
+FORMAT OUTPUT HANYA JSON MURNI TANPA BACKTICKS (```json ... ```):
 {{
-  "title": "Judul Baru Artikel yang Menarik",
+  "title": "Judul Baru yang Menggugah dan Berbobot",
   "labels": ["Kategori1", "Kategori2", "Kategori3"],
-  "content": "Isi artikel dalam format Markdown lengkap dengan heading ##, paragraf, dan list jika relevan..."
+  "image_prompt": "English descriptive prompt for realistic news photo thumbnail...",
+  "content": "Isi artikel lengkap dalam format Markdown..."
 }}
 """
 
@@ -152,7 +166,6 @@ Ketentuan Penulisan:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
         print(f"[*] Mencoba rewrite dengan model: {model}...")
         
-        # Coba hingga 2 kali dengan jeda jika terkena 503 (high demand)
         for attempt in range(2):
             try:
                 req = urllib.request.Request(
@@ -166,7 +179,6 @@ Ketentuan Penulisan:
                     res_data = json.loads(resp.read().decode("utf-8"))
                     candidate = res_data["candidates"][0]["content"]["parts"][0]["text"]
                     
-                    # Bersihkan format jika ada pembungkus ```json
                     cleaned = candidate.strip()
                     if cleaned.startswith("```json"):
                         cleaned = cleaned[7:]
@@ -191,6 +203,21 @@ Ketentuan Penulisan:
     raise last_error
 
 
+def generate_thumbnail_url(image_prompt, title, rss_image=""):
+    """
+    Menghasilkan URL thumbnail gambar:
+    1. Menggunakan gambar asli dari RSS jika tersedia.
+    2. Jika tidak ada, membuat gambar ilustrasi editorial resolusi tinggi via Pollinations AI.
+    """
+    if rss_image and rss_image.startswith("http"):
+        return rss_image
+    
+    # Gunakan Pollinations AI untuk generate gambar editorial berita (1200x675)
+    prompt = image_prompt or f"indonesian news editorial photo about {title}, photojournalism, realistic"
+    encoded_prompt = urllib.parse.quote(prompt[:120])
+    return f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1200&height=675&nologo=true"
+
+
 def slugify(text):
     text = text.lower()
     text = re.sub(r"[^\w\s-]", "", text)
@@ -205,7 +232,7 @@ def main():
         sys.exit(1)
 
     print("\n" + "=" * 60)
-    print("🤖 MEMULAI AUTO NEWS SCANNER & AI REWRITER")
+    print("🤖 MEMULAI AUTO NEWS SCANNER DENGAN AUTO-THUMBNAIL")
     print("=" * 60)
 
     history = load_history()
@@ -218,7 +245,7 @@ def main():
 
     print(f"\n[+] Berita hangat ditemukan: '{news_item['title']}'")
     print(f"[+] Sumber: {news_item['link']}")
-    print("[*] Menulis ulang dengan Google Gemini AI...")
+    print("[*] Menulis ulang dengan Google Gemini AI (Gaya Anti-Bot)...")
 
     try:
         rewritten = rewrite_with_gemini(api_key, news_item)
@@ -229,6 +256,11 @@ def main():
     title = rewritten.get("title", news_item["title"])
     labels = rewritten.get("labels", ["Berita", "Viral", "Trending"])
     content = rewritten.get("content", "")
+    image_prompt = rewritten.get("image_prompt", "")
+
+    # Dapatkan URL thumbnail otomatis
+    thumbnail_url = generate_thumbnail_url(image_prompt, title, news_item.get("rss_image", ""))
+    print(f"[+] Thumbnail Otomatis: {thumbnail_url}")
 
     today_str = datetime.now().strftime("%Y-%m-%d")
     slug = slugify(title)
@@ -237,16 +269,28 @@ def main():
 
     os.makedirs("posts", exist_ok=True)
 
+    # Masukkan thumbnail di bagian paling atas konten agar Blogger otomatis
+    # mendeteksinya sebagai featured image / thumbnail postingan
+    header_image_md = f"""<p style="text-align: center;">
+  <img src="{thumbnail_url}" alt="{title}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <br/><em>Ilustrasi: {title}</em>
+</p>
+
+"""
+
+    full_body_markdown = header_image_md + content
+
     # Susun file Markdown dengan Frontmatter
     md_post = f"""---
 title: "{title}"
 labels: {json.dumps(labels, ensure_ascii=False)}
 status: "publish"
 date: "{today_str}"
+thumbnail: "{thumbnail_url}"
 original_source: "{news_item['link']}"
 ---
 
-{content}
+{full_body_markdown}
 """
 
     with open(file_path, "w", encoding="utf-8") as f:
@@ -260,15 +304,15 @@ original_source: "{news_item['link']}"
     success = publish_post(file_path)
 
     if success:
-        # Catat ke history
         history[news_item["title"].lower().strip()] = {
             "date": datetime.now().isoformat(),
             "published_title": title,
             "file": file_path,
+            "thumbnail": thumbnail_url,
             "original_url": news_item["link"]
         }
         save_history(history)
-        print(f"\n🎉 Berita viral '{title}' berhasil dipublikasikan ke Blogspot dan disimpan di history!")
+        print(f"\n🎉 Berita viral '{title}' dengan THUMBNAIL OTOMATIS berhasil dipublikasikan ke Blogspot!")
     else:
         print("\n[!] Gagal menerbitkan artikel ke Blogspot.")
         sys.exit(1)
