@@ -361,7 +361,8 @@ def create_branded_thumbnail(title, category, rss_image="", output_path="posts/i
     # Muat Font
     font_brand = None
     font_title = None
-    font_wm = None
+    font_social = None
+    font_icon = None
 
     font_paths = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -372,9 +373,10 @@ def create_branded_thumbnail(title, category, rss_image="", output_path="posts/i
     for p in font_paths:
         if os.path.exists(p):
             try:
-                font_brand = ImageFont.truetype(p, 26)
+                font_brand = ImageFont.truetype(p, 24)
                 font_title = ImageFont.truetype(p, 36)
-                font_wm = ImageFont.truetype(p, 20)
+                font_social = ImageFont.truetype(p, 15)
+                font_icon = ImageFont.truetype(p, 14)
                 break
             except Exception:
                 pass
@@ -382,16 +384,17 @@ def create_branded_thumbnail(title, category, rss_image="", output_path="posts/i
     if not font_brand:
         font_brand = ImageFont.load_default()
         font_title = font_brand
-        font_wm = font_brand
+        font_social = font_brand
+        font_icon = font_brand
 
     # 1. Badge Merah 'PADUKA SAMBAS'
-    draw.rounded_rectangle([40, 35, 290, 82], radius=8, fill=(225, 29, 72))
-    draw.text((55, 43), "PADUKA SAMBAS", font=font_brand, fill=(255, 255, 255))
+    draw.rounded_rectangle([45, 35, 275, 80], radius=8, fill=(225, 29, 72))
+    draw.text((60, 43), "PADUKA SAMBAS", font=font_brand, fill=(255, 255, 255))
 
     # 2. Badge Kategori '[ BERITA / BOLA / BISNIS ]'
     cat_text = category.upper() if category else "BERITA"
-    draw.rounded_rectangle([305, 35, 440, 82], radius=8, fill=(15, 23, 42, 220))
-    draw.text((325, 43), cat_text, font=font_brand, fill=(241, 245, 249))
+    draw.rounded_rectangle([290, 35, 415, 80], radius=8, fill=(15, 23, 42, 220))
+    draw.text((310, 43), cat_text, font=font_brand, fill=(241, 245, 249))
 
     # 3. Word Wrap Judul Berita
     words = title.split()
@@ -407,12 +410,51 @@ def create_branded_thumbnail(title, category, rss_image="", output_path="posts/i
         lines.append(" ".join(current_line))
     lines = lines[:3]  # Maksimal 3 baris
 
-    start_y = 675 - 75 - (len(lines) * 48)
+    y_badge = 605
+    start_y = y_badge - 25 - (len(lines) * 48)
     for i, line in enumerate(lines):
+        # Bayangan halus teks agar terbaca jelas di atas gambar apa pun
+        draw.text((47, start_y + (i * 48) + 2), line, font=font_title, fill=(0, 0, 0))
         draw.text((45, start_y + (i * 48)), line, font=font_title, fill=(255, 255, 255))
 
-    # 4. Watermark Domain
-    draw.text((45, 620), "padukasambas.blogspot.com", font=font_wm, fill=(203, 213, 225))
+    # 4. Kapsul Akun Media Sosial Resmi Paduka Sambas
+    socials = [
+        {"icon": "B", "icon_bg": (245, 124, 0), "text": "padukasambas.blogspot.com"},
+        {"icon": "f", "icon_bg": (24, 119, 242), "text": "paduka.sambas"},
+        {"icon": "IG", "icon_bg": (225, 48, 108), "text": "@paduka_sambas"},
+        {"icon": "YT", "icon_bg": (255, 0, 0), "text": "@PadukaSambas"}
+    ]
+
+    curr_x = 45
+    h_badge = 36
+
+    for s in socials:
+        try:
+            bbox = font_social.getbbox(s["text"])
+            text_w = bbox[2] - bbox[0]
+        except Exception:
+            text_w = len(s["text"]) * 8
+        total_w = 34 + text_w + 20
+
+        # Kapsul latar gelap semi-transparan
+        draw.rounded_rectangle([curr_x, y_badge, curr_x + total_w, y_badge + h_badge], radius=18, fill=(15, 23, 42, 220), outline=(51, 65, 85), width=1)
+
+        # Ikon platform berwarna resmi
+        draw.rounded_rectangle([curr_x + 4, y_badge + 4, curr_x + 30, y_badge + 32], radius=14, fill=s["icon_bg"])
+
+        # Huruf inisial ikon platform di tengah
+        try:
+            ibox = font_icon.getbbox(s["icon"])
+            iw = ibox[2] - ibox[0]
+            ih = ibox[3] - ibox[1]
+        except Exception:
+            iw, ih = 10, 10
+        draw.text((curr_x + 17 - iw // 2, y_badge + 18 - ih // 2 - 2), s["icon"], font=font_icon, fill=(255, 255, 255))
+
+        # Teks nama akun
+        draw.text((curr_x + 37, y_badge + 9), s["text"], font=font_social, fill=(241, 245, 249))
+
+        curr_x += total_w + 12
 
     final_img.save(output_path, quality=92)
     print(f"[+] Branded Thumbnail Paduka Sambas berhasil dibuat: {output_path}")
