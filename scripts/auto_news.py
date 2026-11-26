@@ -71,6 +71,17 @@ def fetch_news_from_rss(feed_url):
                     if img_match:
                         image_url = img_match.group(1)
 
+                # Ekstraksi nama sumber media (misal: detikNews, CNN Indonesia, Kompas)
+                source_elem = item.find("source")
+                source_name = "Media Nasional"
+                source_url = ""
+                if source_elem is not None:
+                    source_name = source_elem.text or "Media Nasional"
+                    source_url = source_elem.get("url", "")
+                
+                if source_name == "Media Nasional" and " - " in title:
+                    source_name = title.split(" - ")[-1].strip()
+
                 clean_desc = re.sub(r"<[^>]+>", "", description).strip()
                 
                 if title and link:
@@ -79,7 +90,9 @@ def fetch_news_from_rss(feed_url):
                         "link": link,
                         "description": clean_desc,
                         "pub_date": pub_date,
-                        "rss_image": image_url
+                        "rss_image": image_url,
+                        "source_name": source_name,
+                        "source_url": source_url
                     })
     except Exception as e:
         print(f"[!] Gagal mengambil RSS dari {feed_url}: {e}")
@@ -112,6 +125,7 @@ def rewrite_with_gemini(api_key, original_news):
         "gemini-3-flash-preview"
     ]
     
+    source_label = original_news.get('source_name', 'Media Nasional')
     prompt = f"""
 Anda adalah jurnalis dan editor berita investigasi profesional untuk portal berita 'Paduka Sambas'.
 Tugas Anda adalah menulis ulang topik berita berikut menjadi artikel berita yang berbobot, mendalam, dan 100% lolos deteksi algoritma bot/AI Google (mengikuti standar Google Helpful Content E-E-A-T).
@@ -119,7 +133,7 @@ Tugas Anda adalah menulis ulang topik berita berikut menjadi artikel berita yang
 Data Berita Asli:
 - Judul Asal: {original_news['title']}
 - Fakta Peristiwa: {original_news['description']}
-- Sumber Asal: {original_news['link']}
+- Sumber Media: {source_label}
 
 PEDOMAN GAYA BAHASA ANTI-BOT (WAJIB DIIKUTI):
 1. RITME KALIMAT ALAMI (Burstiness): Variasikan panjang kalimat. Gunakan kalimat pendek yang lugas, diselingi kalimat majemuk. Hindari kalimat monoton yang seragam.
@@ -133,7 +147,8 @@ PEDOMAN GAYA BAHASA ANTI-BOT (WAJIB DIIKUTI):
      > *"Pernyataan atau kutipan penting narasumber di sini,"* tegas pihak terkait.
    - Sub-heading 2 (## Catatan Redaksi: Dampak bagi Masyarakat): Tulis analisis sudut pandang mendalam mengapa isu ini penting bagi publik.
    - Paragraf Penutup & Diskusi: Pertanyaan interaktif memancing komentar pembaca blog.
-   - Cantumkan referensi sumber di baris paling akhir.
+   - DILARANG MENAMPILKAN LINK URL MENTAH APAPUN. Untuk sumber di baris akhir, cukup tulis rapi:
+     *Referensi: Dirangkum dari liputan berita resmi {source_label}.*
 4. TENTUKAN THUMBNAIL VISUAL:
    - Buat `image_prompt`: Deskripsi gambar jurnalistik realistis dalam bahasa Inggris (15-20 kata) yang menggambarkan peristiwa tersebut secara visual dan dramatis (contoh: "indonesian news journalism photography of government press conference, realistic high resolution, 8k").
 5. TENTUKAN 3-4 LABEL: (contoh: ["Berita", "Viral", "Nasional", "Politik"]).
@@ -262,6 +277,16 @@ def main():
     thumbnail_url = generate_thumbnail_url(image_prompt, title, news_item.get("rss_image", ""))
     print(f"[+] Thumbnail Otomatis: {thumbnail_url}")
 
+    # Bersihkan URL tracking panjang jika ada di isi konten
+    content = re.sub(r'(?i)(?:sumber\s*(?:asal|referensi)?:\s*)?https?://news\.google\.com/\S+', '', content).strip()
+    content = re.sub(r'(?i)sumber\s*asal:\s*https?://\S+', '', content).strip()
+    content = re.sub(r'https?://[^\s)]+', '', content).strip()  # Hapus sisa URL mentah acak
+
+    # Pastikan footer referensi rapi tanpa link mentah panjang
+    source_name = news_item.get("source_name", "Media Nasional")
+    if "referensi:" not in content.lower():
+        content += f"\n\n---\n*Referensi: Dirangkum dari liputan berita resmi {source_name}.*"
+
     today_str = datetime.now().strftime("%Y-%m-%d")
     slug = slugify(title)
     file_name = f"{today_str}-{slug}.md"
@@ -287,7 +312,7 @@ labels: {json.dumps(labels, ensure_ascii=False)}
 status: "publish"
 date: "{today_str}"
 thumbnail: "{thumbnail_url}"
-original_source: "{news_item['link']}"
+source: "{source_name}"
 ---
 
 {full_body_markdown}
