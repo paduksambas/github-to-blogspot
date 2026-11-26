@@ -96,7 +96,15 @@ def rewrite_with_gemini(api_key, original_news):
     Menulis ulang berita menggunakan Google Gemini Flash
     agar unik, ramah SEO, berbobot, dan menghindari penalti duplikat konten.
     """
-    candidate_models = ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest"]
+    candidate_models = [
+        "gemini-3.5-flash-lite",
+        "gemini-3.1-flash-lite",
+        "gemini-3.8-flash",
+        "gemini-3.6-flash",
+        "gemini-3.7-flash",
+        "gemini-3.5-flash",
+        "gemini-3-flash-preview"
+    ]
     
     prompt = f"""
 Anda adalah jurnalis dan editor berita profesional Indonesia untuk portal berita terkemuka.
@@ -143,32 +151,42 @@ Ketentuan Penulisan:
     for model in candidate_models:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
         print(f"[*] Mencoba rewrite dengan model: {model}...")
-        try:
-            req = urllib.request.Request(
-                url,
-                data=json.dumps(payload).encode("utf-8"),
-                headers={"Content-Type": "application/json"},
-                method="POST"
-            )
+        
+        # Coba hingga 2 kali dengan jeda jika terkena 503 (high demand)
+        for attempt in range(2):
+            try:
+                req = urllib.request.Request(
+                    url,
+                    data=json.dumps(payload).encode("utf-8"),
+                    headers={"Content-Type": "application/json"},
+                    method="POST"
+                )
 
-            with urllib.request.urlopen(req, timeout=45) as resp:
-                res_data = json.loads(resp.read().decode("utf-8"))
-                candidate = res_data["candidates"][0]["content"]["parts"][0]["text"]
-                
-                # Bersihkan format jika ada pembungkus ```json
-                cleaned = candidate.strip()
-                if cleaned.startswith("```json"):
-                    cleaned = cleaned[7:]
-                if cleaned.startswith("```"):
-                    cleaned = cleaned[3:]
-                if cleaned.endswith("```"):
-                    cleaned = cleaned[:-3]
-                cleaned = cleaned.strip()
+                with urllib.request.urlopen(req, timeout=45) as resp:
+                    res_data = json.loads(resp.read().decode("utf-8"))
+                    candidate = res_data["candidates"][0]["content"]["parts"][0]["text"]
+                    
+                    # Bersihkan format jika ada pembungkus ```json
+                    cleaned = candidate.strip()
+                    if cleaned.startswith("```json"):
+                        cleaned = cleaned[7:]
+                    if cleaned.startswith("```"):
+                        cleaned = cleaned[3:]
+                    if cleaned.endswith("```"):
+                        cleaned = cleaned[:-3]
+                    cleaned = cleaned.strip()
 
-                return json.loads(cleaned)
-        except Exception as e:
-            last_error = e
-            print(f"[!] Gagal dengan {model}: {e}. Mencoba model alternatif...")
+                    return json.loads(cleaned)
+            except Exception as e:
+                last_error = e
+                err_str = str(e)
+                if "503" in err_str and attempt == 0:
+                    print(f"    [!] {model} 503 (antrian sibuk), menunggu 3 detik...")
+                    time.sleep(3)
+                    continue
+                else:
+                    print(f"    [!] Gagal dengan {model}: {e}")
+                    break
 
     raise last_error
 
