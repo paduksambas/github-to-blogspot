@@ -172,9 +172,9 @@ DAFTAR ARTIKEL YANG SUDAH TERBIT DI BLOG PADUKA SAMBAS:
 ATURAN WAJIB INTERNAL LINKING KONTEKSTUAL (SEO TINGGI):
 - Pilih 1 artikel dari daftar di atas yang PALING MEMILIKI KETERKAITAN TEMA (benang merah nyata) dengan berita yang sedang Anda tulis (misal: sama-sama isu politik, sama-sama ekonomi/bisnis, sama-sama bola, atau sama-sama tragedi/peristiwa).
 - SISIPKAN LINK TERSEBUT SECARA ALAMI & ORGANIK di dalam alur cerita kalimat (DILARANG menggunakan format 'Baca juga:' kaku di akhir paragraf).
-- Gunakan anchor text deskriptif yang menyatu mulus dengan kalimat:
-  Contoh: "...perkembangan ini mengingatkan kita pada [kasus penegakan hukum dan pemeriksaan pejabat](URL_DIPILIH) yang sempat memicu sorotan tajam publik."
-  Contoh: "...langkah ekspansi ini melengkapi dinamika ekonomi yang sebelumnya terlihat dalam [alokasi modal dan kesiapan dana perbankan](URL_DIPILIH)."
+- WAJIB MENYALIN ALAMAT URL LENGKAP PERSIS DARI DAFTAR DI ATAS ke dalam tanda kurung `(https://padukasambas.blogspot.com/...)`. JANGAN PERNAH mengosongkan tanda kurung `()`!
+- Contoh penulisan yang benar:
+  "...peristiwa nahas ini mengingatkan publik pada [kasus maut di tambang Pongkor](https://padukasambas.blogspot.com/2026/11/tragedi-lubang-maut-pongkor-13-gurandil.html) yang sempat menyita perhatian nasional."
 - Tautan internal ini HARUS BENAR-BENAR NYAMBUNG DENGAN KONTEKS PEMBICARAAN.
 """
 
@@ -362,6 +362,21 @@ def main():
     # Dapatkan URL thumbnail otomatis
     thumbnail_url = generate_thumbnail_url(image_prompt, title, news_item.get("rss_image", ""))
     print(f"[+] Thumbnail Otomatis: {thumbnail_url}")
+
+    # Auto-repair internal link kosong [teks]() jika AI lupa menyalin URL lengkap
+    if existing_articles and "]()" in content:
+        for a in existing_articles:
+            words = [w for w in a["title"].lower().split() if len(w) > 3]
+            def repl(m):
+                anchor = m.group(1).lower()
+                if any(w in anchor for w in words):
+                    return f"[{m.group(1)}]({a['url']})"
+                return m.group(0)
+            content = re.sub(r"\[([^\]]+)\]\(\s*\)", repl, content)
+        
+        # Fallback jika masih ada tanda () kosong
+        if "]()" in content and existing_articles:
+            content = re.sub(r"\[([^\]]+)\]\(\s*\)", f"[\\1]({existing_articles[0]['url']})", content)
 
     # Bersihkan URL tracking panjang jika ada di isi konten
     content = re.sub(r'(?i)(?:sumber\s*(?:asal|referensi)?:\s*)?https?://news\.google\.com/\S+', '', content).strip()
