@@ -159,11 +159,14 @@ PEDOMAN GAYA BAHASA ANTI-BOT (WAJIB DIIKUTI):
    - "Hot"    : Untuk topik atau peristiwa viral yang sedang menjadi sorotan hangat netizen.
    - "Travel" : Untuk pariwisata, destinasi wisata, keindahan daerah, perjalanan.
    *Pilih 1 sampai 3 label yang paling sesuai dari daftar di atas (JANGAN membuat label baru di luar daftar ini).*
+6. TENTUKAN DESKRIPSI PENELUSURAN (Search Description):
+   - Buat `description`: Ringkasan padat dan menarik sepanjang 130-150 karakter untuk kolom Deskripsi Penelusuran Blogger (SEO Google Snippet).
 
 FORMAT OUTPUT HANYA JSON MURNI TANPA BACKTICKS (```json ... ```):
 {{
   "title": "Judul Baru yang Menggugah dan Berbobot",
   "labels": ["Kategori1", "Kategori2", "Kategori3"],
+  "description": "Ringkasan padat 130-150 karakter untuk deskripsi penelusuran Google SEO...",
   "image_prompt": "English descriptive prompt for realistic news photo thumbnail...",
   "content": "Isi artikel lengkap dalam format Markdown..."
 }}
@@ -279,6 +282,9 @@ def main():
     labels = rewritten.get("labels", ["Berita", "Viral", "Trending"])
     content = rewritten.get("content", "")
     image_prompt = rewritten.get("image_prompt", "")
+    description = rewritten.get("description", "")
+    if not description:
+        description = re.sub(r"<[^>]+>", "", content).replace("\n", " ").strip()[:145]
 
     # Dapatkan URL thumbnail otomatis
     thumbnail_url = generate_thumbnail_url(image_prompt, title, news_item.get("rss_image", ""))
@@ -316,6 +322,7 @@ def main():
     md_post = f"""---
 title: "{title}"
 labels: {json.dumps(labels, ensure_ascii=False)}
+description: "{description}"
 status: "draft"
 date: "{today_str}"
 thumbnail: "{thumbnail_url}"

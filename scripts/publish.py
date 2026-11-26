@@ -29,6 +29,7 @@ def parse_post(file_path):
     title = ""
     labels = []
     status = "LIVE"  # LIVE (publish) atau DRAFT
+    description = ""
     body_markdown = raw_text
 
     # Ekstraksi frontmatter jika library frontmatter tersedia
@@ -38,6 +39,7 @@ def parse_post(file_path):
         body_markdown = post.content
         title = metadata.get("title", "")
         labels = metadata.get("labels", [])
+        description = metadata.get("description", "")
         if isinstance(labels, str):
             labels = [lbl.strip() for lbl in labels.split(",")]
         raw_status = str(metadata.get("status", "publish")).lower()
@@ -56,6 +58,14 @@ def parse_post(file_path):
                     elif line.startswith("labels:"):
                         raw_lbls = line.replace("labels:", "").strip().strip("[]")
                         labels = [l.strip().strip("\"'") for l in raw_lbls.split(",") if l.strip()]
+                    elif line.startswith("description:"):
+                        description = line.replace("description:", "").strip().strip("\"'")
+
+    # Jika deskripsi belum ada, ambil kalimat pertama isi artikel
+    if not description:
+        plain_text = re.sub(r"<[^>]+>", "", body_markdown).strip()
+        first_sentence = plain_text.split(".")[0] if "." in plain_text else plain_text[:140]
+        description = first_sentence.replace("\n", " ").strip()[:150]
 
     # Jika judul belum ada, ambil H1 pertama atau nama file
     if not title:
@@ -83,6 +93,7 @@ def parse_post(file_path):
         "title": title,
         "labels": labels,
         "status": status,
+        "description": description,
         "html_content": html_content,
         "raw_markdown": body_markdown
     }
@@ -135,6 +146,11 @@ def publish_via_blogger_api(post_data):
         "content": post_data["html_content"],
         "labels": post_data["labels"]
     }
+    # Tambahkan Deskripsi Penelusuran (Search Description SEO) jika ada
+    if post_data.get("description"):
+        payload["customMetaData"] = post_data["description"]
+        print(f"[*] Menambahkan Deskripsi Penelusuran SEO: '{post_data['description'][:60]}...'")
+
     payload_bytes = json.dumps(payload).encode("utf-8")
 
     post_req = urllib.request.Request(post_url, data=payload_bytes, method="POST")
