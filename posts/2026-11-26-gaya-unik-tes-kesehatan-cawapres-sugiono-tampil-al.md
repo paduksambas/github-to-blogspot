@@ -2,8 +2,9 @@
 title: "Gaya Unik Tes Kesehatan Cawapres: Sugiono Tampil Ala Prabowo, Amran Pilih Kemeja Putih"
 labels: ["Nasional", "Pemilu", "Politik", "Viral"]
 description: ""
-status: "draft"
-date: "2026-11-26"
+status: "publish"
+blogger_url: "https://padukasambas.blogspot.com/2026/11/gaya-unik-tes-kesehatan-cawapres.html"
+date: "2026-11-27"
 thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-gaya-unik-tes-kesehatan-cawapres-sugiono-tampil-al.jpg"
 ---
 
