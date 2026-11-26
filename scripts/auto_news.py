@@ -18,12 +18,18 @@ except ImportError:
 
 HISTORY_FILE = "published_history.json"
 
-# Sumber RSS berita Indonesia terpercaya & terupdate
+# Sumber RSS berita Indonesia terpercaya & terupdate (Disinkronkan dengan acuan MD-V14 Paduka Sambas)
 RSS_FEEDS = [
     "https://news.google.com/rss?hl=id&gl=ID&ceid=ID:id",
+    "https://www.antaranews.com/rss/terkini.xml",
+    "https://www.antaranews.com/rss/ekonomi.xml",
+    "https://www.antaranews.com/rss/sepak-bola.xml",
     "https://www.cnnindonesia.com/nasional/rss",
+    "https://www.cnnindonesia.com/ekonomi/rss",
     "https://news.detik.com/rss",
-    "https://www.antaranews.com/rss/terkini.xml"
+    "https://finance.detik.com/rss",
+    "https://sepakbola.detik.com/rss",
+    "https://www.cna.id/api/v1/rss-outbound-feed?_format=xml"
 ]
 
 
@@ -127,48 +133,63 @@ def rewrite_with_gemini(api_key, original_news):
     
     source_label = original_news.get('source_name', 'Media Nasional')
     prompt = f"""
-Anda adalah jurnalis dan editor berita investigasi profesional untuk portal berita 'Paduka Sambas'.
-Tugas Anda adalah menulis ulang topik berita berikut menjadi artikel berita yang berbobot, mendalam, dan 100% lolos deteksi algoritma bot/AI Google (mengikuti standar Google Helpful Content E-E-A-T).
+Anda adalah jurnalis dan editor intelijen berita profesional untuk portal 'Paduka Sambas' (mengikuti standar jurnalisme MD-V14: "DETECT THE TREND. VERIFY THE FACT. CREATE THE IMPACT.").
+Tugas Anda adalah menulis ulang topik berita berikut menjadi artikel berita yang berbobot, mendalam, orisinal, dan 100% lolos deteksi algoritma bot/AI Google (mengikuti standar Google Helpful Content E-E-A-T).
 
 Data Berita Asli:
 - Judul Asal: {original_news['title']}
 - Fakta Peristiwa: {original_news['description']}
 - Sumber Media: {source_label}
 
-PEDOMAN GAYA BAHASA ANTI-BOT (WAJIB DIIKUTI):
-1. RITME KALIMAT ALAMI (Burstiness): Variasikan panjang kalimat. Gunakan kalimat pendek yang lugas, diselingi kalimat majemuk. Hindari kalimat monoton yang seragam.
-2. DILARANG KERAS MENGGUNAKAN KATA KLISE AI:
-   - JANGAN PERNAH gunakan: "Di era digital ini...", "Kesimpulannya...", "Penting untuk diingat bahwa...", "Tentu saja...", "Mari kita telusuri...".
-   - GUNAKAN kosakata jurnalistik hidup: "Usut punya usut...", "Fakta di lapangan mengungkap...", "Sorotan publik tertuju pada...", "Tak butuh waktu lama hingga...", "Menanggapi hal tersebut...".
-3. STRUKTUR ARTIKEL LENGKAP:
-   - Paragraf Pembuka: Langsung sorot inti berita paling mengejutkan/hangat dalam 2-3 kalimat tajam.
-   - Sub-heading 1 (## Fakta dan Kronologi Kejadian): Paparkan rincian fakta secara runtut.
-   - Sisipkan setidaknya satu kutipan narasumber dalam format blockquote Markdown:
+PEDOMAN GAYA PENULISAN & STRUKTUR:
+1. SUB-HEADING DINAMIS & SESUAI TOPIK CERITA (SANGAT PENTING):
+   - JANGAN PERNAH gunakan sub-heading template yang seragam dan kaku seperti "Fakta dan Kronologi Kejadian" atau "Catatan Redaksi: Dampak bagi Masyarakat".
+   - SUB-HEADING (##) HARUS DINAMIS, KREATIF, DAN LANGSUNG MERUJUK PADA SUB-TOPIK BERITA YANG SEDANG DIBAHAS.
+   - Contoh untuk berita hukum/politik:
+     ## Menanti Putusan Majelis di Meja Hijau
+     ## Konstelasi Baru dan Implikasi Terhadap Publik
+   - Contoh untuk berita ekonomi/bisnis:
+     ## Lonjakan Harga dan Dampaknya Terhadap Konsumsi Rumah Tangga
+     ## Respon Pelaku Usaha Menghadapi Kebijakan Moneter Baru
+   - Contoh untuk berita bola:
+     ## Taktik Serangan Balik dan Evaluasi Lini Belakang
+     ## Peluang Menembus Putaran Final
+
+2. RITME KALIMAT ALAMI (Burstiness & Human Flow):
+   - Variasikan panjang kalimat. Gunakan kalimat pendek yang lugas, diselingi kalimat majemuk. Hindari kalimat monoton yang seragam.
+   - DILARANG KERAS MENGGUNAKAN KATA KLISE AI: JANGAN gunakan "Di era digital ini...", "Kesimpulannya...", "Penting untuk diingat bahwa...", "Tentu saja...", "Mari kita telusuri...".
+   - Gunakan gaya bahasa jurnalisme investigatif yang hidup dan mengalir alami.
+
+3. KUTIPAN NARASUMBER:
+   - Sisipkan setidaknya satu kutipan narasumber/pernyataan resmi dalam format blockquote Markdown:
      > *"Pernyataan atau kutipan penting narasumber di sini,"* tegas pihak terkait.
-   - Sub-heading 2 (## Catatan Redaksi: Dampak bagi Masyarakat): Tulis analisis sudut pandang mendalam mengapa isu ini penting bagi publik.
-   - Paragraf Penutup & Diskusi: Pertanyaan interaktif memancing komentar pembaca blog.
-   - DILARANG MENAMPILKAN LINK URL MENTAH APAPUN. Untuk sumber di baris akhir, cukup tulis rapi:
+
+4. LABEL RESMI (PILIH HANYA DARI DAFTAR BERIKUT):
+   - "Berita" : Berita umum, nasional, politik, hukum, peristiwa, kriminal.
+   - "Bisnis" : Ekonomi, keuangan, perbankan, pasar modal, industri, UMKM.
+   - "Bola"   : Sepak bola, liga dunia, timnas Indonesia, olahraga.
+   - "Hot"    : Topik viral yang sedang hangat dibicarakan di media sosial.
+   - "Travel" : Wisata, daerah, budaya, perjalanan.
+   *Pilih 1 sampai 3 label yang paling relevan dari daftar di atas.*
+
+5. DESKRIPSI PENELUSURAN (Search Description SEO):
+   - Buat `description`: Ringkasan padat dan menarik sepanjang 130-150 karakter untuk kolom Deskripsi Penelusuran Blogger (SEO Google).
+
+6. THUMBNAIL VISUAL REALISTIS:
+   - Buat `image_prompt`: Deskripsi gambar jurnalistik realistis dalam bahasa Inggris (15-20 kata) yang menggambarkan momen spesifik berita tersebut (photojournalism, realistic lighting, 8k).
+
+7. PENUTUP & SUMBER:
+   - Akhiri artikel dengan satu pertanyaan reflektif atau diskusi untuk memancing komentar pembaca.
+   - Di baris paling bawah, cantumkan kredit sumber rapi:
      *Referensi: Dirangkum dari liputan berita resmi {source_label}.*
-4. TENTUKAN THUMBNAIL VISUAL:
-   - Buat `image_prompt`: Deskripsi gambar jurnalistik realistis dalam bahasa Inggris (15-20 kata) yang menggambarkan peristiwa tersebut secara visual dan dramatis (contoh: "indonesian news journalism photography of government press conference, realistic high resolution, 8k").
-5. TENTUKAN LABEL ARTIKEL (WAJIB HANYA MEMILIH DARI DAFTAR LABEL BLOG RESMI BERIKUT):
-   Daftar label yang diizinkan untuk blog Paduka Sambas:
-   - "Berita" : Untuk berita umum, nasional, politik, hukum, peristiwa, kriminal.
-   - "Bisnis" : Untuk ekonomi, keuangan, perbankan, pasar uang, bisnis, UMKM.
-   - "Bola"   : Untuk sepak bola, olahraga, timnas Indonesia, kompetisi/liga.
-   - "Hot"    : Untuk topik atau peristiwa viral yang sedang menjadi sorotan hangat netizen.
-   - "Travel" : Untuk pariwisata, destinasi wisata, keindahan daerah, perjalanan.
-   *Pilih 1 sampai 3 label yang paling sesuai dari daftar di atas (JANGAN membuat label baru di luar daftar ini).*
-6. TENTUKAN DESKRIPSI PENELUSURAN (Search Description):
-   - Buat `description`: Ringkasan padat dan menarik sepanjang 130-150 karakter untuk kolom Deskripsi Penelusuran Blogger (SEO Google Snippet).
 
 FORMAT OUTPUT HANYA JSON MURNI TANPA BACKTICKS (```json ... ```):
 {{
   "title": "Judul Baru yang Menggugah dan Berbobot",
-  "labels": ["Kategori1", "Kategori2", "Kategori3"],
-  "description": "Ringkasan padat 130-150 karakter untuk deskripsi penelusuran Google SEO...",
+  "labels": ["Kategori1", "Kategori2"],
+  "description": "Ringkasan padat 130-150 karakter untuk deskripsi penelusuran...",
   "image_prompt": "English descriptive prompt for realistic news photo thumbnail...",
-  "content": "Isi artikel lengkap dalam format Markdown..."
+  "content": "Isi artikel lengkap dalam format Markdown dengan heading ## yang dinamis dan relevan..."
 }}
 """
 
