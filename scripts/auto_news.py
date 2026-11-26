@@ -622,6 +622,23 @@ def slugify(text):
     return text[:50].strip("-")
 
 
+def send_telegram_alert(title, category):
+    token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+    if not token or not chat_id:
+        return
+    try:
+        msg = f"📰 *DRAF ARTIKEL BARU TERSEDIA*\n\n📌 *Judul:* {title}\n🏷️ *Kategori:* {category}\n⏳ *Status:* Draf Tersimpan di Blogger\n\n_Silakan tinjau dan klik Publikasikan di Blogger jika sudah sesuai!_"
+        req = urllib.request.Request(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            data=urllib.parse.urlencode({"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"}).encode("utf-8")
+        )
+        with urllib.request.urlopen(req, timeout=10):
+            print("[+] Notifikasi Telegram berhasil dikirim ke Pimpinan Redaksi!")
+    except Exception as e:
+        print(f"[!] Gagal kirim notifikasi Telegram: {e}")
+
+
 def main():
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
@@ -763,6 +780,7 @@ source: "{source_name}"
                 used_list.append(chosen_bg)
         save_history(history)
         print(f"\n🎉 Berita viral '{title}' dengan THUMBNAIL OTOMATIS berhasil dipublikasikan ke Blogspot!")
+        send_telegram_alert(title, chosen_cat)
     else:
         print("\n[!] Gagal menerbitkan artikel ke Blogspot.")
         sys.exit(1)
