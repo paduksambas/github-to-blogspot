@@ -75,11 +75,28 @@ def generate_queue_report():
     # Urutkan published berdasarkan mtime terbaru
     published.sort(key=lambda x: x["mtime"], reverse=True)
 
-    # Slot jadwal tayang harian
-    time_slots = ["07:30 WIB", "12:30 WIB", "17:30 WIB", "20:30 WIB"]
+    # Hitung 4 slot penayangan berikutnya yang valid dari waktu sekarang (WIB)
+    wib_tz = timezone(timedelta(hours=7))
+    now_dt = datetime.now(wib_tz)
+    daily_slots = [(7, 30), (12, 30), (17, 30), (20, 30)]
+    upcoming_slots = []
+    
+    for day_offset in range(7):
+        target_d = now_dt.date() + timedelta(days=day_offset)
+        for h, m in daily_slots:
+            slot_dt = datetime(target_d.year, target_d.month, target_d.day, h, m, tzinfo=wib_tz)
+            if slot_dt > now_dt:
+                day_label = "Hari Ini" if day_offset == 0 else ("Besok" if day_offset == 1 else slot_dt.strftime("%d %b"))
+                date_str = slot_dt.strftime("%d/%m")
+                time_str = slot_dt.strftime("%H:%M")
+                upcoming_slots.append(f"{day_label} ({date_str}), {time_str} WIB")
+                if len(upcoming_slots) == 4:
+                    break
+        if len(upcoming_slots) == 4:
+            break
 
-    scheduled_today = drafts[:4]
-    waiting_queue = drafts[4:]
+    scheduled_next = drafts[:len(upcoming_slots)]
+    waiting_queue = drafts[len(upcoming_slots):]
 
     wib_now = get_wib_now()
 
@@ -87,12 +104,12 @@ def generate_queue_report():
     lines.append("📋 *STATUS ANTREAN DRAF REDAKSI PADUKA SAMBAS*")
     lines.append(f"⏰ _Pembaruan: {wib_now} WIB_\n")
 
-    lines.append("🗓️ *ANTREAN JADWAL TAYANG UTAMA (4 SLOT/HARI):*")
-    if scheduled_today:
-        for idx, item in enumerate(scheduled_today):
-            slot = time_slots[idx] if idx < len(time_slots) else "Slot Tambahan"
+    lines.append("🗓️ *ANTREAN JADWAL TAYANG BERIKUTNYA:*")
+    if scheduled_next:
+        for idx, item in enumerate(scheduled_next):
+            slot = upcoming_slots[idx] if idx < len(upcoming_slots) else "Slot Berikutnya"
             lbl = f"[{item['labels'][0]}] " if item["labels"] else ""
-            lines.append(f"*{idx+1}. {slot}* — {lbl}{item['title']}")
+            lines.append(f"*{idx+1}. {slot}*\n   ↳ {lbl}{item['title']}")
     else:
         lines.append("_(Tidak ada draf yang sedang menunggu jadwal)_")
 
