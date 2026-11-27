@@ -212,8 +212,25 @@ def render_and_compile_reels_video(article, script_text, audio_path, cues, outpu
 
     # Muat Aset Maskot Singa Berjas (Tutup Mulut & Buka Mulut)
     assets_dir = os.path.join(REPO_ROOT, "assets")
-    closed_path = os.path.join(assets_dir, "lion_anchor_closed.jpg")
-    open_path = os.path.join(assets_dir, "lion_anchor_speaking.jpg")
+    # Muat Aset Maskot Singa Dinamis Sesuai Topik Berita
+    assets_dir = os.path.join(REPO_ROOT, "assets")
+    mascot_map = {
+        "finance": ("lion_finance_closed.jpg", "lion_finance_speaking.jpg", "📊 ANALIS EKONOMI SAMBAS"),
+        "justice": ("lion_justice_closed.jpg", "lion_justice_speaking.jpg", "⚖️ REPORTER INVESTIGASI"),
+        "daerah": ("lion_daerah_closed.jpg", "lion_daerah_speaking.jpg", "🌴 DUTA KABAR SAMBAS"),
+        "tech": ("lion_tech_closed.jpg", "lion_tech_speaking.jpg", "💻 PRESENTER SAINS & AI"),
+        "breaking": ("lion_anchor_closed.jpg", "lion_anchor_speaking.jpg", "🦁 PRESENTER UTAMA SAMBAS"),
+    }
+    closed_file, open_file, presenter_label = mascot_map.get(theme, mascot_map["breaking"])
+    closed_path = os.path.join(assets_dir, closed_file)
+    open_path = os.path.join(assets_dir, open_file)
+
+    # Fallback ke maskot default jika pasangan tema belum lengkap
+    if not (os.path.exists(closed_path) and os.path.exists(open_path)):
+        closed_path = os.path.join(assets_dir, "lion_anchor_closed.jpg")
+        open_path = os.path.join(assets_dir, "lion_anchor_speaking.jpg")
+
+    print(f"[+] Maskot Presenter Terpilih: {presenter_label} (Tema: {theme})")
 
     lion_size = (620, 620)
     if os.path.exists(closed_path) and os.path.exists(open_path):
@@ -276,12 +293,16 @@ def render_and_compile_reels_video(article, script_text, audio_path, cues, outpu
         [lion_pos_x - 8, lion_pos_y - 8, lion_pos_x + lion_size[0] + 8, lion_pos_y + lion_size[1] + 8],
         radius=50, fill=accent
     )
-    # Badge Nama Presenter
+    # Badge Nama Presenter Dinamis
+    f_badge = get_system_font("bold", 24)
     draw_base.rounded_rectangle(
-        [lion_pos_x + 120, lion_pos_y + lion_size[1] - 30, lion_pos_x + lion_size[0] - 120, lion_pos_y + lion_size[1] + 15],
+        [lion_pos_x + 90, lion_pos_y + lion_size[1] - 30, lion_pos_x + lion_size[0] - 90, lion_pos_y + lion_size[1] + 15],
         radius=15, fill=(10, 15, 30), outline=accent, width=3
     )
-    draw_base.text((lion_pos_x + 155, lion_pos_y + lion_size[1] - 25), "🦁 PRESENTER SAMBAS", font=get_system_font("bold", 24), fill=accent)
+    bbox_p = f_badge.getbbox(presenter_label)
+    pw = bbox_p[2] - bbox_p[0]
+    px = lion_pos_x + (lion_size[0] - pw) // 2
+    draw_base.text((px, lion_pos_y + lion_size[1] - 24), presenter_label, font=f_badge, fill=accent)
 
     # Footer CTA (1820 - 1920 px)
     draw_base.rectangle([0, 1820, w, 1920], fill=theme_bg)
