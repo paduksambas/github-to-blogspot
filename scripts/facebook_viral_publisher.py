@@ -43,13 +43,15 @@ try:
     from scripts.generate_facebook_post import (
         generate_facebook_news_card,
         generate_facebook_caption,
-        publish_to_facebook
+        publish_to_facebook,
+        detect_card_theme
     )
 except ImportError:
     from generate_facebook_post import (
         generate_facebook_news_card,
         generate_facebook_caption,
-        publish_to_facebook
+        publish_to_facebook,
+        detect_card_theme
     )
 
 # URL Katalog Feed MD-V14 di GitHub (fallback jika folder lokal tidak ada)
@@ -512,8 +514,10 @@ def run_hourly_facebook_publisher(dry_run=False, force=False):
     timestamp_id = int(datetime.now().timestamp())
     card_output_path = os.path.join(draft_dir, f"fb_viral_card_{timestamp_id}.png")
 
+    detected_theme = detect_card_theme(card_data.get("title", ""), card_data.get("badge_gold", ""))
+    print(f"[*] Template Visual Terpilih Otomatis: {detected_theme.upper()} (Sesuai Karakteristik Berita)")
     print(f"[*] Merender Kartu Berita Visual Model MD V19.1 ke {card_output_path}...")
-    generate_facebook_news_card(card_data, card_output_path)
+    generate_facebook_news_card(card_data, card_output_path, theme=detected_theme)
 
     caption_text = generate_facebook_caption(card_data)
     caption_output_path = os.path.join(draft_dir, f"fb_viral_caption_{timestamp_id}.txt")
@@ -548,6 +552,7 @@ def run_hourly_facebook_publisher(dry_run=False, force=False):
             "url": chosen["url"],
             "source": chosen["source_name"],
             "score": chosen["virality_score"],
+            "theme": detected_theme,
             "published_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S WIB"),
             "image_card": card_output_path,
             "region": card_data.get("badge_red", "BERITA UTAMA")

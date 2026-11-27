@@ -58,16 +58,29 @@ def get_system_font(font_type="bold", size=24):
 
 
 def detect_card_theme(title, category=""):
-    """Mendeteksi template tema visual kartu secara otomatis berdasarkan topik & kata kunci."""
+    """Mendeteksi template tema visual kartu secara otomatis berdasarkan hierarki topik & kata kunci."""
     text = f"{title} {category}".lower()
+    
+    # 1. Prioritas Utama: Breaking News, Serangan, Perang & Bencana (The Crimson Striker)
+    if any(k in text for k in ["perang", "rudal", "nuklir", "serangan", "tewas", "meledak", "bencana", "gempa", "tsunami", "gaza", "militer"]):
+        return "breaking"
+        
+    # 2. Berita Daerah Sambas & Kalimantan Barat (The Sambas Emerald)
     if any(k in text for k in ["sambas", "kalbar", "pontianak", "singkawang", "desa", "bupati", "pemkab", "dinas"]):
         return "daerah"
-    if any(k in text for k in ["rupiah", "ihsg", "saham", "bank", "ekonomi", "bbm", "pajak", "tarif", "inflasi", "bisnis", "keuangan", "gaji", "perdagangan"]):
-        return "finance"
-    if any(k in text for k in ["kpk", "korupsi", "ditangkap", "tersangka", "sidang", "vonis", "kejaksaan", "polisi", "skandal", "hukum", "etik", "kasus"]):
+        
+    # 3. Isu Hukum, Korupsi, KPK, Sidang & Vonis (The Obsidian Justice)
+    if any(k in text for k in ["kpk", "korupsi", "ditangkap", "tersangka", "sidang", "vonis", "kejaksaan", "polisi", "skandal", "hukum", "etik", "penjara", "kasus"]):
         return "justice"
+        
+    # 4. Finansial, Ekonomi, Pasar Modal & Kebijakan Rakyat (The Royal Finance)
+    if any(k in text for k in ["rupiah", "ihsg", "saham", "bank", "ekonomi", "bbm", "pajak", "tarif", "inflasi", "bisnis", "keuangan", "gaji", "perdagangan", "harga"]):
+        return "finance"
+        
+    # 5. Teknologi, AI, Sains & Inovasi Digital (The Cyber Horizon)
     if any(k in text for k in ["ai", "teknologi", "satelit", "internet", "sains", "gadget", "otomotif", "digital", "robot", "inovasi"]):
         return "tech"
+        
     return "breaking"
 
 
