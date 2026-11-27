@@ -2,8 +2,9 @@
 title: "Misteri 'Pasal Selundupan' di Balik Pencalonan Gibran: Pengakuan Mengejutkan di Ruang Sidang DKPP"
 labels: ["Berita", "Hot"]
 description: ""
-status: "draft"
-date: "2026-11-26"
+status: "publish"
+blogger_url: "https://padukasambas.blogspot.com/2026/11/misteri-pasal-selundupan-di-balik.html"
+date: "2026-11-27"
 thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-misteri-pasal-selundupan-di-balik-pencalonan-gibra.jpg"
 ---
 
