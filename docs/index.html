@@ -585,13 +585,21 @@
             if (r.ok) {
               const raw = await r.json();
               if (p.isBlogger) {
-                historiesCache[p.id] = Object.values(raw).map(v => ({
-                  title: v.published_title || v.file || "(tanpa judul)",
-                  published_at: v.date ? formatISOToWIB(v.date) : "-",
-                  url: v.original_url || "#",
-                  thumbnail: v.thumbnail || null,
-                  file: v.file || ""
-                })).sort((a, b) => a.published_at > b.published_at ? 1 : -1);
+                historiesCache[p.id] = Object.values(raw).map(v => {
+                  let pubTime = v.published_at;
+                  if (!pubTime && v.date) {
+                    pubTime = formatISOToWIB(v.date);
+                  }
+                  return {
+                    title: v.title || v.published_title || v.file || "(tanpa judul)",
+                    published_at: pubTime || "-",
+                    raw_time: v.published_at || v.date || "",
+                    url: v.blogger_url || v.original_url || "#",
+                    is_live: Boolean(v.blogger_url),
+                    thumbnail: v.thumbnail || null,
+                    file: v.file || ""
+                  };
+                }).sort((a, b) => (a.raw_time > b.raw_time ? 1 : -1));
               } else {
                 historiesCache[p.id] = raw;
               }
