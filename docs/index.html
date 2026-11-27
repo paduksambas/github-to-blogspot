@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Paduka Sambas — Live Automation & Schedule Monitor</title>
+  <title>Paduka Sambas — Live Automation & Analytics Monitor</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <style>
     :root {
       --bg: #0b0f19;
@@ -22,11 +23,7 @@
       --amber-bg: rgba(245, 158, 11, 0.14);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -37,12 +34,8 @@
       min-height: 100vh;
     }
 
-    .container {
-      max-width: 1180px;
-      margin: 0 auto;
-    }
+    .container { max-width: 1220px; margin: 0 auto; }
 
-    /* Header */
     header {
       display: flex;
       flex-wrap: wrap;
@@ -53,45 +46,45 @@
       background: linear-gradient(135deg, #161f33 0%, #0f172a 100%);
       border: 1px solid var(--card-border);
       border-radius: 16px;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
+    .brand { display: flex; align-items: center; gap: 14px; }
 
     .brand-icon {
-      width: 48px;
-      height: 48px;
+      width: 50px;
+      height: 50px;
       border-radius: 12px;
       background: linear-gradient(135deg, #facc15, #eab308);
       color: #0f172a;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 800;
       box-shadow: 0 4px 14px rgba(250, 204, 21, 0.25);
     }
 
-    .brand h1 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .brand p {
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
+    .brand h1 { font-size: 1.25rem; font-weight: 700; color: #fff; }
+    .brand p { font-size: 0.85rem; color: var(--muted); }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       flex-wrap: wrap;
+    }
+
+    .token-pill {
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.85);
     }
 
     .clock-box {
@@ -109,10 +102,7 @@
       font-variant-numeric: tabular-nums;
     }
 
-    .clock-date {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
+    .clock-date { font-size: 0.75rem; color: var(--muted); }
 
     .btn-refresh {
       background: var(--blue);
@@ -128,12 +118,8 @@
       gap: 6px;
       transition: opacity 0.2s;
     }
+    .btn-refresh:hover { opacity: 0.9; }
 
-    .btn-refresh:hover {
-      opacity: 0.9;
-    }
-
-    /* Section Title */
     .section-title {
       font-size: 1rem;
       font-weight: 700;
@@ -143,6 +129,25 @@
       align-items: center;
       gap: 8px;
     }
+
+    /* Metrics Strip */
+    .metrics-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .metric-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .metric-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+    .metric-val { font-size: 1.6rem; font-weight: 800; color: #fff; margin-top: 4px; }
+    .metric-sub { font-size: 0.74rem; color: var(--green); margin-top: 2px; }
 
     /* Grid 4 Pillars */
     .grid-4 {
@@ -161,10 +166,7 @@
       justify-content: space-between;
       transition: border-color 0.2s;
     }
-
-    .card:hover {
-      border-color: #3b4b70;
-    }
+    .card:hover { border-color: #3b4b70; }
 
     .card-head {
       display: flex;
@@ -173,14 +175,7 @@
       margin-bottom: 12px;
     }
 
-    .card-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .card-title { font-size: 0.95rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
 
     .badge {
       font-size: 0.72rem;
@@ -190,17 +185,12 @@
       text-transform: uppercase;
       letter-spacing: 0.03em;
     }
-
     .badge-green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
     .badge-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(59, 130, 246, 0.3); }
     .badge-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
     .badge-red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); }
 
-    .schedule-info {
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
+    .schedule-info { font-size: 0.82rem; color: var(--muted); margin-bottom: 10px; }
 
     .countdown-box {
       background: rgba(11, 15, 25, 0.65);
@@ -209,26 +199,10 @@
       padding: 10px 12px;
       margin-bottom: 12px;
     }
+    .countdown-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; }
+    .countdown-val { font-size: 1rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
 
-    .countdown-label {
-      font-size: 0.72rem;
-      color: var(--muted);
-      text-transform: uppercase;
-    }
-
-    .countdown-val {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--accent);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .last-post {
-      font-size: 0.8rem;
-      border-top: 1px solid var(--card-border);
-      padding-top: 10px;
-    }
-
+    .last-post { font-size: 0.8rem; border-top: 1px solid var(--card-border); padding-top: 10px; }
     .last-post-title {
       color: #cbd5e1;
       font-weight: 500;
@@ -238,12 +212,50 @@
       overflow: hidden;
       margin-bottom: 4px;
     }
+    .last-post-meta { font-size: 0.73rem; color: var(--muted); display: flex; justify-content: space-between; }
 
-    .last-post-meta {
-      font-size: 0.73rem;
-      color: var(--muted);
+    /* Analytics & Preview Row */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.1fr 0.9fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 960px) {
+      .analytics-grid { grid-template-columns: 1fr; }
+    }
+
+    .chart-box {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px;
+      min-height: 290px;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
+    }
+
+    .chart-title { font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 12px; }
+    .chart-wrap { position: relative; flex: 1; min-height: 220px; }
+
+    .preview-box {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .preview-img {
+      width: 100%;
+      max-width: 240px;
+      border-radius: 10px;
+      border: 2px solid var(--card-border);
+      margin-bottom: 10px;
+      object-fit: cover;
     }
 
     /* Tables */
@@ -254,12 +266,7 @@
       overflow-x: auto;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
-
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
     th {
       text-align: left;
       padding: 12px 16px;
@@ -270,33 +277,12 @@
       text-transform: uppercase;
       border-bottom: 1px solid var(--card-border);
     }
+    td { padding: 12px 16px; border-bottom: 1px solid #1e293b; color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+    a { color: #60a5fa; text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
-    td {
-      padding: 12px 16px;
-      border-bottom: 1px solid #1e293b;
-      color: var(--text);
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    a {
-      color: #60a5fa;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .footer-note {
-      margin-top: 32px;
-      text-align: center;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
+    .footer-note { margin-top: 32px; text-align: center; font-size: 0.8rem; color: var(--muted); }
     .dot-pulse {
       display: inline-block;
       width: 8px;
@@ -315,26 +301,75 @@
         <div class="brand-icon">🦁</div>
         <div>
           <h1>Paduka Sambas — Live Automation Monitor</h1>
-          <p><span class="dot-pulse"></span>Sistem Pemantauan Jadwal & Publikasi Cloud Real-Time</p>
+          <p><span class="dot-pulse"></span>Sistem Pemantauan Jadwal, Metrik Pengikut & Kesehatan Token</p>
         </div>
       </div>
       <div class="header-right">
+        <div class="token-pill" id="token-pill">
+          <span>🛡️ Meta Token:</span>
+          <span class="badge badge-amber">MEMERIKSA</span>
+        </div>
         <div class="clock-box">
           <div class="clock-time" id="wib-time">--:--:-- WIB</div>
           <div class="clock-date" id="wib-date">Memuat tanggal...</div>
         </div>
-        <button class="btn-refresh" onclick="loadAllData()">🔄 Segarkan Data</button>
+        <button class="btn-refresh" onclick="loadAllData()">🔄 Segarkan</button>
       </div>
     </header>
 
+    <!-- METRICS STRIP -->
+    <div class="metrics-strip">
+      <div class="metric-card">
+        <div class="metric-label">👥 Pengikut Halaman</div>
+        <div class="metric-val" id="m-followers">948</div>
+        <div class="metric-sub" id="m-followers-sub">Target: 1.000+ Pengikut</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">🖼️ Kartu Berita (4:5)</div>
+        <div class="metric-val" id="m-photo">0</div>
+        <div class="metric-sub">Jadwal: Tiap 1 Jam (:17)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">📱 Facebook Story</div>
+        <div class="metric-val" id="m-story">0</div>
+        <div class="metric-sub">Jadwal: 08:12 & 21:12 WIB</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">💬 Teks Diskusi</div>
+        <div class="metric-val" id="m-text">0</div>
+        <div class="metric-sub">Jadwal: 12:30 WIB</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">🎬 Reels Singa AI</div>
+        <div class="metric-val" id="m-reels">0</div>
+        <div class="metric-sub">Jadwal: 18:30 WIB</div>
+      </div>
+    </div>
+
     <!-- 4 PILLARS -->
-    <div class="section-title">📊 Status 4 Pilar Konten Otomatis Facebook Page</div>
-    <div class="grid-4" id="pillars-grid">
-      <!-- Populated by JS -->
+    <div class="section-title">📊 Status & Hitungan Mundur 4 Pilar Otomatisasi</div>
+    <div class="grid-4" id="pillars-grid"></div>
+
+    <!-- ANALYTICS & CARD PREVIEW -->
+    <div class="section-title">📈 Grafik Performa & Pratinjau Kartu Terakhir</div>
+    <div class="analytics-grid">
+      <div class="chart-box">
+        <div class="chart-title">Distribusi Produksi Konten (Semua Format)</div>
+        <div class="chart-wrap"><canvas id="formatChart"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">Komposisi Tema Berita (Master Card)</div>
+        <div class="chart-wrap"><canvas id="themeChart"></canvas></div>
+      </div>
+      <div class="preview-box">
+        <div class="chart-title" style="width:100%; text-align:left;">🖼️ Kartu Terbaru di Facebook</div>
+        <img id="latest-card-img" class="preview-img" src="" alt="Pratinjau Kartu Terbaru" style="display:none;" />
+        <div id="latest-card-caption" style="font-size:0.78rem; color:var(--muted);">Memuat pratinjau kartu...</div>
+      </div>
     </div>
 
     <!-- ACTIVE WORKFLOWS -->
-    <div class="section-title">⚙️ Daftar Semua Mesin Penjadwalan Aktif (GitHub Actions)</div>
+    <div class="section-title">⚙️ Daftar Mesin Penjadwalan Aktif (GitHub Actions)</div>
     <div class="table-wrap">
       <table>
         <thead>
@@ -352,7 +387,7 @@
     </div>
 
     <!-- RECENT RUNS -->
-    <div class="section-title">🕒 Riwayat Eksekusi Cloud Terbaru (Live Logs)</div>
+    <div class="section-title">🕒 Riwayat Eksekusi Cloud Terbaru (Live Logs & Deteksi Error)</div>
     <div class="table-wrap">
       <table>
         <thead>
@@ -371,7 +406,7 @@
     </div>
 
     <div class="footer-note">
-      Paduka Sambas Cloud Control Center • Pembaruan otomatis tiap 60 detik •
+      Paduka Sambas Cloud Control Center • Pembaruan otomatis tiap 60 detik • Alarm Telegram Aktif •
       <a href="https://www.facebook.com/128057603730117" target="_blank">Facebook Page</a> •
       <a href="https://padukasambas.blogspot.com/" target="_blank">Blog Portal</a>
     </div>
@@ -393,9 +428,7 @@
           const now = getWIBDate();
           const next = new Date(now);
           next.setSeconds(0, 0);
-          if (now.getMinutes() >= 17) {
-            next.setHours(next.getHours() + 1);
-          }
+          if (now.getMinutes() >= 17) next.setHours(next.getHours() + 1);
           next.setMinutes(17);
           return next;
         }
@@ -475,8 +508,6 @@
       const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
       const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
       document.getElementById("wib-date").textContent = `${days[wib.getDay()]}, ${wib.getDate()} ${months[wib.getMonth()]} ${wib.getFullYear()}`;
-
-      // Update countdowns live
       PILLARS.forEach(p => {
         const el = document.getElementById(`cd-${p.id}`);
         if (el) el.textContent = formatCountdown(p.nextTimesWIB());
@@ -486,23 +517,21 @@
     let workflowsCache = [];
     let runsCache = [];
     let historiesCache = {};
+    let metricsCache = {};
+    let formatChartObj = null;
+    let themeChartObj = null;
 
     async function loadAllData() {
       try {
-        const [wfRes, runRes] = await Promise.all([
+        const [wfRes, runRes, metRes] = await Promise.all([
           fetch(`https://api.github.com/repos/${REPO}/actions/workflows`),
-          fetch(`https://api.github.com/repos/${REPO}/actions/runs?per_page=15`)
+          fetch(`https://api.github.com/repos/${REPO}/actions/runs?per_page=15`),
+          fetch(`${RAW_BASE}/facebook_metrics.json?t=${Date.now()}`)
         ]);
-        if (wfRes.ok) {
-          const wfJson = await wfRes.json();
-          workflowsCache = wfJson.workflows || [];
-        }
-        if (runRes.ok) {
-          const runJson = await runRes.json();
-          runsCache = runJson.workflow_runs || [];
-        }
+        if (wfRes.ok) workflowsCache = (await wfRes.json()).workflows || [];
+        if (runRes.ok) runsCache = (await runRes.json()).workflow_runs || [];
+        if (metRes.ok) metricsCache = await metRes.json();
 
-        // Load history JSONs
         await Promise.all(PILLARS.map(async p => {
           try {
             const r = await fetch(`${RAW_BASE}/${p.historyFile}?t=${Date.now()}`);
@@ -510,12 +539,36 @@
           } catch (e) {}
         }));
 
+        renderTokenAndMetrics();
         renderPillars();
+        renderCharts();
+        renderCardPreview();
         renderWorkflows();
         renderRuns();
       } catch (err) {
         console.error("Error fetching monitor data:", err);
       }
+    }
+
+    function renderTokenAndMetrics() {
+      const pill = document.getElementById("token-pill");
+      const status = metricsCache.token_status || "CHECKING";
+      if (status === "ONLINE") {
+        pill.innerHTML = `<span>🛡️ Meta Token:</span> <span class="badge badge-green">ONLINE</span>`;
+      } else if (status === "EXPIRED" || status === "ERROR") {
+        pill.innerHTML = `<span>🛡️ Meta Token:</span> <span class="badge badge-red">${status}</span>`;
+      } else {
+        pill.innerHTML = `<span>🛡️ Meta Token:</span> <span class="badge badge-amber">${status}</span>`;
+      }
+
+      document.getElementById("m-followers").textContent = metricsCache.followers_count || 948;
+      if (metricsCache.checked_at && metricsCache.checked_at !== "-") {
+        document.getElementById("m-followers-sub").textContent = `Dicek: ${metricsCache.checked_at}`;
+      }
+      document.getElementById("m-photo").textContent = (historiesCache.photo || []).length;
+      document.getElementById("m-story").textContent = (historiesCache.story || []).length;
+      document.getElementById("m-text").textContent = (historiesCache.text || []).length;
+      document.getElementById("m-reels").textContent = (historiesCache.reels || []).length;
     }
 
     function renderPillars() {
@@ -557,6 +610,86 @@
       }).join("");
     }
 
+    function renderCharts() {
+      const counts = [
+        (historiesCache.photo || []).length,
+        (historiesCache.story || []).length,
+        (historiesCache.text || []).length,
+        (historiesCache.reels || []).length
+      ];
+
+      const ctx1 = document.getElementById("formatChart").getContext("2d");
+      if (formatChartObj) formatChartObj.destroy();
+      formatChartObj = new Chart(ctx1, {
+        type: "bar",
+        data: {
+          labels: ["Foto Card", "Story 9:16", "Teks Diskusi", "Reels Singa"],
+          datasets: [{
+            label: "Total Terbit",
+            data: counts,
+            backgroundColor: ["#ef4444", "#3b82f6", "#10b981", "#facc15"],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: "#94a3b8", stepSize: 1 }, grid: { color: "#1e293b" } },
+            x: { ticks: { color: "#e2e8f0" }, grid: { display: false } }
+          }
+        }
+      });
+
+      const themeCounts = { breaking: 0, finance: 0, justice: 0, daerah: 0, tech: 0 };
+      (historiesCache.photo || []).forEach(item => {
+        const t = (item.theme || "breaking").toLowerCase();
+        if (themeCounts[t] !== undefined) themeCounts[t]++;
+        else themeCounts.breaking++;
+      });
+
+      const ctx2 = document.getElementById("themeChart").getContext("2d");
+      if (themeChartObj) themeChartObj.destroy();
+      themeChartObj = new Chart(ctx2, {
+        type: "doughnut",
+        data: {
+          labels: ["Breaking", "Finance", "Justice", "Daerah", "Tech"],
+          datasets: [{
+            data: [themeCounts.breaking, themeCounts.finance, themeCounts.justice, themeCounts.daerah, themeCounts.tech],
+            backgroundColor: ["#ef4444", "#3b82f6", "#64748b", "#10b981", "#06b6d4"],
+            borderColor: "#131a2a",
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom", labels: { color: "#e2e8f0", boxWidth: 12 } }
+          }
+        }
+      });
+    }
+
+    function renderCardPreview() {
+      const photos = historiesCache.photo || [];
+      const imgEl = document.getElementById("latest-card-img");
+      const capEl = document.getElementById("latest-card-caption");
+      if (photos.length === 0) {
+        capEl.textContent = "Belum ada kartu berita yang diarsipkan.";
+        return;
+      }
+      const latest = photos[photos.length - 1];
+      const rawPath = latest.image_card || "";
+      const fileName = rawPath.split(/[\\/]/).pop();
+      if (fileName) {
+        imgEl.src = `${RAW_BASE}/posts/facebook_drafts/${fileName}`;
+        imgEl.style.display = "block";
+      }
+      capEl.innerHTML = `<strong>${latest.title}</strong><br/><span style="color:var(--accent)">Skor Viral: ${latest.score || "-"} • ${latest.published_at}</span>`;
+    }
+
     function renderWorkflows() {
       const tbody = document.getElementById("workflows-tbody");
       if (!workflowsCache.length) {
@@ -589,7 +722,7 @@
         if (r.status === "completed") {
           badge = r.conclusion === "success"
             ? `<span class="badge badge-green">SUKSES</span>`
-            : `<span class="badge badge-red">${r.conclusion.toUpperCase()}</span>`;
+            : `<span class="badge badge-red">${(r.conclusion || "ERROR").toUpperCase()}</span>`;
         } else if (r.status === "in_progress") {
           badge = `<span class="badge badge-amber">SEDANG JALAN</span>`;
         }

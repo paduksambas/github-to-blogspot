@@ -79,3 +79,11 @@ jobs:
             git push origin main
             echo "[+] Berhasil memperbarui riwayat Story Facebook ke repository."
           fi
+
+      - name: Notify Telegram on Failure
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python scripts/telegram_notifier.py --workflow "${{ github.workflow }}" --status "FAILURE" --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
