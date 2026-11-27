@@ -657,7 +657,7 @@
     </div>
 
     <!-- RECENT RUNS -->
-    <div class="section-title">🕒 Riwayat Eksekusi Cloud Terbaru (Live Logs & Deteksi Error)</div>
+    <div class="section-title">🕒 Riwayat Eksekusi Cloud Terbaru (Live Logs & Deteksi Error) <span id="runs-last-sync" style="font-size:0.75rem; color:#64748b; font-weight:400; margin-left:8px;"></span></div>
     <div class="table-wrap">
       <table>
         <thead>
@@ -886,9 +886,14 @@
         if (metRes.ok) metricsCache = await metRes.json();
 
         try {
+          const token = localStorage.getItem('ps_gh_token');
+          const ghHeaders = { "Accept": "application/vnd.github.v3+json" };
+          if (token && token.trim()) {
+            ghHeaders["Authorization"] = `token ${token.trim()}`;
+          }
           const [wfRes, runRes] = await Promise.all([
-            fetch(`https://api.github.com/repos/${REPO}/actions/workflows`),
-            fetch(`https://api.github.com/repos/${REPO}/actions/runs?per_page=15`)
+            fetch(`https://api.github.com/repos/${REPO}/actions/workflows`, { headers: ghHeaders }),
+            fetch(`https://api.github.com/repos/${REPO}/actions/runs?per_page=15`, { headers: ghHeaders })
           ]);
           if (wfRes.ok) workflowsCache = (await wfRes.json()).workflows || workflowsCache;
           if (runRes.ok) runsCache = (await runRes.json()).workflow_runs || runsCache;
@@ -1341,6 +1346,12 @@
 
     function renderRuns() {
       const tbody = document.getElementById("runs-tbody");
+      const syncEl = document.getElementById("runs-last-sync");
+      const nowWib = getWIBDate();
+      const pad = n => String(n).padStart(2, '0');
+      const timeStr = `${pad(nowWib.getHours())}:${pad(nowWib.getMinutes())}:${pad(nowWib.getSeconds())} WIB`;
+      if (syncEl) syncEl.textContent = `• Sinkron: ${timeStr} (Auto-refresh 60 detik)`;
+
       if (!runsCache.length) {
         tbody.innerHTML = `<tr><td colspan="5">Belum ada eksekusi tercatat.</td></tr>`;
         return;
