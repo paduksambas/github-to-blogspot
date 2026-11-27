@@ -349,7 +349,7 @@
       <div class="metric-card" style="border-left: 3px solid #ff6b35;">
         <div class="metric-label">📝 Artikel Blogger</div>
         <div class="metric-val" id="m-blogger">0</div>
-        <div class="metric-sub">4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)</div>
+        <div class="metric-sub" id="m-blogger-sub">4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)</div>
       </div>
     </div>
 
@@ -376,19 +376,20 @@
     </div>
 
     <!-- BLOGGER HISTORY TABLE -->
-    <div class="section-title">📝 Riwayat Artikel Blogger Terbaru (padukasambas.blogspot.com)</div>
+    <div class="section-title">📝 Riwayat Artikel Blogger (padukasambas.blogspot.com)</div>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
             <th>#</th>
+            <th>Status</th>
             <th>Judul Artikel</th>
-            <th>Waktu Terbit (WIB)</th>
-            <th>Tautan</th>
+            <th>Waktu Terbit / Draf (WIB)</th>
+            <th>Tautan / Aksi</th>
           </tr>
         </thead>
         <tbody id="blogger-history-tbody">
-          <tr><td colspan="4">Memuat riwayat artikel Blogger...</td></tr>
+          <tr><td colspan="5">Memuat riwayat artikel Blogger...</td></tr>
         </tbody>
       </table>
     </div>
@@ -638,7 +639,13 @@
       document.getElementById("m-story").textContent = (historiesCache.story || []).length;
       document.getElementById("m-text").textContent = (historiesCache.text || []).length;
       document.getElementById("m-reels").textContent = (historiesCache.reels || []).length;
-      document.getElementById("m-blogger").textContent = (historiesCache.blogger || []).length;
+
+      const blogList = historiesCache.blogger || [];
+      const liveCount = blogList.filter(a => a.is_live).length;
+      const draftCount = blogList.filter(a => !a.is_live).length;
+      document.getElementById("m-blogger").textContent = `${liveCount} Live`;
+      const mSub = document.getElementById("m-blogger-sub");
+      if (mSub) mSub.textContent = `${draftCount} Draf Antrean • 4x Sehari`;
     }
 
     function renderPillars() {
@@ -651,15 +658,18 @@
           : `<span class="badge badge-amber">MEMERIKSA</span>`;
 
         const hist = historiesCache[p.id] || [];
-        const latest = hist.length > 0 ? hist[hist.length - 1] : null;
+        const liveArticles = p.isBlogger ? hist.filter(x => x.is_live) : hist;
+        const latest = liveArticles.length > 0 ? liveArticles[liveArticles.length - 1] : (hist.length > 0 ? hist[hist.length - 1] : null);
         const lastTitle = latest ? latest.title : "Belum ada riwayat tayang";
         const lastTime = latest ? latest.published_at : "-";
 
         const borderStyle = p.isBlogger ? ' style="border-left: 3px solid #ff6b35;"' : '';
         const lastLink = (p.isBlogger && latest && latest.url && latest.url !== '#')
-          ? `<a href="${latest.url}" target="_blank" style="color:#ff6b35; font-size:0.72rem;">Buka Artikel ↗</a>`
+          ? `<a href="${latest.url}" target="_blank" style="color:#ff6b35; font-size:0.75rem; font-weight:700;">Buka Blogspot ↗</a>`
           : '';
-        const totalLabel = p.isBlogger ? 'artikel' : 'pos';
+        const totalLabel = p.isBlogger
+          ? `<strong>${liveArticles.length}</strong> live (<strong>${hist.length - liveArticles.length}</strong> draf)`
+          : `<strong>${hist.length}</strong> pos`;
 
         return `
           <div class="card"${borderStyle}>
@@ -769,22 +779,39 @@
 
     function renderBloggerHistory() {
       const tbody = document.getElementById("blogger-history-tbody");
-      const articles = (historiesCache.blogger || []).slice().reverse();
+      const articles = (historiesCache.blogger || []).slice().sort((a, b) => {
+        if (a.is_live !== b.is_live) return a.is_live ? -1 : 1; // Prioritaskan LIVE di paling atas
+        return a.raw_time > b.raw_time ? -1 : 1;
+      });
+
       if (!articles.length) {
-        tbody.innerHTML = `<tr><td colspan="4" style="color:var(--muted);">Belum ada artikel Blogger yang tercatat.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="color:var(--muted);">Belum ada artikel Blogger yang tercatat.</td></tr>`;
         return;
       }
-      tbody.innerHTML = articles.slice(0, 15).map((a, i) => {
-        const linkHtml = (a.url && a.url !== '#')
-          ? `<a href="${a.url}" target="_blank" style="color:#ff6b35;">Buka ↗</a>`
-          : '<span style="color:var(--muted);">-</span>';
+      tbody.innerHTML = articles.map((a, i) => {
+        let statusBadge = '';
+        let linkHtml = '';
+
+        if (a.is_live) {
+          statusBadge = `<span class="badge badge-green" style="white-space:nowrap;">🟢 LIVE BLOGSPOT</span>`;
+          linkHtml = `<a href="${a.url}" target="_blank" style="color:#ff6b35; font-weight:700;">Buka Blogspot ↗</a>`;
+        } else {
+          statusBadge = `<span class="badge badge-amber" style="white-space:nowrap;">🟡 DRAF ANTREAN</span>`;
+          linkHtml = (a.url && a.url !== '#')
+            ? `<a href="${a.url}" target="_blank" style="color:var(--muted); font-size:0.75rem;">Sumber Berita ↗</a>`
+            : '<span style="color:var(--muted);">-</span>';
+        }
+
         return `
           <tr>
             <td style="color:var(--muted); width:40px;">${i + 1}</td>
+            <td style="width:140px;">${statusBadge}</td>
             <td style="max-width:420px;">
-              <div style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#cbd5e1;">${a.title}</div>
+              <div style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#cbd5e1;font-weight:${a.is_live ? '600' : '400'};">
+                ${a.title}
+              </div>
             </td>
-            <td style="white-space:nowrap; color:var(--muted);">${a.published_at}</td>
+            <td style="white-space:nowrap; color:var(--muted); font-size:0.8rem;">${a.published_at}</td>
             <td>${linkHtml}</td>
           </tr>
         `;
