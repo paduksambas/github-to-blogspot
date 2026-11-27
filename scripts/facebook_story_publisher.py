@@ -269,8 +269,8 @@ def publish_story_to_facebook(image_path, page_id=None, page_token=None):
                 return False
             print(f"[+] Foto Story terunggah dengan ID: {photo_id}")
 
-        # Tahap 2: Terbitkan sebagai Facebook Story
-        story_url = f"https://graph.facebook.com/v19.0/{page_id}/fb_stories"
+        # Tahap 2: Terbitkan sebagai Facebook Photo Story
+        story_url = f"https://graph.facebook.com/v19.0/{page_id}/photo_stories"
         story_payload = urllib.parse.urlencode({
             "photo_id": photo_id,
             "access_token": page_token
