@@ -87,6 +87,7 @@
       gap: 8px;
       border: 1px solid var(--card-border);
       background: rgba(15, 23, 42, 0.85);
+      user-select: none;
     }
 
     .clock-box {
@@ -204,6 +205,34 @@
     .countdown-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; }
     .countdown-val { font-size: 1rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
 
+    /* SMART RUN BUTTON (Auto-appears only when overdue) */
+    .btn-smart-run {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      border: 1px solid #f87171;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      width: 100%;
+      justify-content: center;
+      animation: pulse-glow 2s infinite;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    .btn-smart-run:hover { opacity: 0.95; transform: scale(1.02); }
+    .btn-smart-run:active { transform: scale(0.98); }
+    .btn-smart-run:disabled { opacity: 0.6; cursor: not-allowed; animation: none; }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 18px rgba(239, 68, 68, 0.85); }
+    }
+
     .last-post { font-size: 0.8rem; border-top: 1px solid var(--card-border); padding-top: 10px; }
     .last-post-title {
       color: #cbd5e1;
@@ -308,8 +337,12 @@
       </div>
       <div class="header-right">
         <div class="token-pill" id="token-pill">
-          <span>🛡️ Meta Token:</span>
+          <span>🛡️ Meta:</span>
           <span class="badge badge-amber">MEMERIKSA</span>
+        </div>
+        <div class="token-pill" id="gh-token-pill" onclick="promptGithubToken()" style="cursor:pointer;" title="Klik untuk mengatur GitHub Token agar bisa eksekusi 1-Klik saat server tertunda">
+          <span>🔑 1-Klik:</span>
+          <span class="badge badge-amber" id="gh-token-badge">ATUR TOKEN</span>
         </div>
         <div class="clock-box">
           <div class="clock-time" id="wib-time">--:--:-- WIB</div>
@@ -448,8 +481,15 @@
         icon: "🖼️",
         title: "Master News Card (4:5)",
         workflowName: "Hourly Facebook Viral News Publisher",
+        workflowFile: "facebook_hourly.yml",
         scheduleText: "06:17–22:17 WIB (Tiap 2 Jam)",
         historyFile: "facebook_published_history.json",
+        minIntervalMinutes: 100, // Minimal 100 menit jeda aman
+        slots: [
+          {h: 6, m: 17}, {h: 8, m: 17}, {h: 10, m: 17},
+          {h: 12, m: 17}, {h: 14, m: 17}, {h: 16, m: 17},
+          {h: 18, m: 17}, {h: 20, m: 17}, {h: 22, m: 17}
+        ],
         nextTimesWIB: () => getNextDailyTime([
           {h: 6, m: 17}, {h: 8, m: 17}, {h: 10, m: 17},
           {h: 12, m: 17}, {h: 14, m: 17}, {h: 16, m: 17},
@@ -461,8 +501,11 @@
         icon: "📱",
         title: "Facebook Story (9:16)",
         workflowName: "Daily Facebook Story Publisher",
+        workflowFile: "facebook_daily_story.yml",
         scheduleText: "2x Sehari (08:12 & 21:12 WIB)",
         historyFile: "facebook_story_history.json",
+        minIntervalMinutes: 300,
+        slots: [{h: 8, m: 12}, {h: 21, m: 12}],
         nextTimesWIB: () => getNextDailyTime([{h: 8, m: 12}, {h: 21, m: 12}])
       },
       {
@@ -470,8 +513,11 @@
         icon: "💬",
         title: "Teks Diskusi Warga",
         workflowName: "Daily Facebook Text Discussion Publisher",
+        workflowFile: "facebook_daily_text.yml",
         scheduleText: "1x Sehari (12:30 WIB)",
         historyFile: "facebook_text_history.json",
+        minIntervalMinutes: 600,
+        slots: [{h: 12, m: 30}],
         nextTimesWIB: () => getNextDailyTime([{h: 12, m: 30}])
       },
       {
@@ -479,8 +525,11 @@
         icon: "🎬",
         title: "Reels Singa + Subtitle",
         workflowName: "Daily Facebook Reels Publisher",
+        workflowFile: "facebook_daily_reels.yml",
         scheduleText: "1x Sehari (18:30 WIB)",
         historyFile: "facebook_reels_history.json",
+        minIntervalMinutes: 600,
+        slots: [{h: 18, m: 30}],
         nextTimesWIB: () => getNextDailyTime([{h: 18, m: 30}])
       },
       {
@@ -488,9 +537,14 @@
         icon: "📝",
         title: "Blog Paduka Sambas",
         workflowName: "Scheduled Draft Publisher (Blogger & Facebook)",
+        workflowFile: "scheduled_publisher.yml",
         scheduleText: "4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)",
         historyFile: "published_history.json",
+        minIntervalMinutes: 180,
         isBlogger: true,
+        slots: [
+          {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
+        ],
         nextTimesWIB: () => getNextDailyTime([
           {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
         ])
@@ -548,6 +602,54 @@
         const el = document.getElementById(`cd-${p.id}`);
         if (el) el.textContent = formatCountdown(p.nextTimesWIB());
       });
+    }
+
+    /* SMART OVERDUE DETECTOR (Only show button when schedule has passed by 5+ mins and min interval reached) */
+    function checkIsOverdue(pillar, hist) {
+      if (!pillar.slots || !pillar.slots.length) return false;
+      const now = getWIBDate();
+
+      let mostRecentSlot = null;
+      for (const s of pillar.slots) {
+        const cand = new Date(now);
+        cand.setHours(s.h, s.m, 0, 0);
+        if (cand <= now) {
+          if (!mostRecentSlot || cand > mostRecentSlot) {
+            mostRecentSlot = cand;
+          }
+        }
+      }
+
+      if (!mostRecentSlot) return false;
+
+      const liveList = pillar.isBlogger ? hist.filter(x => x.is_live) : hist;
+      if (!liveList.length) return true;
+
+      const latest = liveList[liveList.length - 1];
+      let lastPostTime = null;
+
+      if (latest.published_at && latest.published_at !== "-") {
+        const cleaned = latest.published_at.replace(" WIB", "").trim().replace(" ", "T");
+        const d = new Date(cleaned);
+        if (!isNaN(d.getTime())) {
+          lastPostTime = d;
+        }
+      }
+
+      if (!lastPostTime) return false;
+
+      // 1. Beri toleransi 5 menit untuk GitHub cron jalan sendiri secara alami
+      const minutesSinceSlot = (now - mostRecentSlot) / (60 * 1000);
+      if (minutesSinceSlot < 5) return false;
+
+      // 2. Jika postingan terakhir dibuat setelah slot jadwal tersebut, artinya jadwal SUDAH terpenuhi
+      if (lastPostTime >= mostRecentSlot) return false;
+
+      // 3. Jeda aman minimal antar postingan (agar aman anti-spam)
+      const minutesSinceLastPost = (now - lastPostTime) / (60 * 1000);
+      if (minutesSinceLastPost < (pillar.minIntervalMinutes || 60)) return false;
+
+      return true;
     }
 
     let workflowsCache = [];
@@ -621,6 +723,7 @@
         renderBloggerHistory();
         renderWorkflows();
         renderRuns();
+        updateGhTokenBadge();
       } catch (err) {
         console.error("Error fetching monitor data:", err);
       }
@@ -630,11 +733,11 @@
       const pill = document.getElementById("token-pill");
       const status = metricsCache.token_status || "CHECKING";
       if (status === "ONLINE") {
-        pill.innerHTML = `<span>🛡️ Meta Token:</span> <span class="badge badge-green">ONLINE</span>`;
+        pill.innerHTML = `<span>🛡️ Meta:</span> <span class="badge badge-green">ONLINE</span>`;
       } else if (status === "EXPIRED" || status === "ERROR") {
-        pill.innerHTML = `<span>🛡️ Meta Token:</span> <span class="badge badge-red">${status}</span>`;
+        pill.innerHTML = `<span>🛡️ Meta:</span> <span class="badge badge-red">${status}</span>`;
       } else {
-        pill.innerHTML = `<span>🛡️ Meta Token:</span> <span class="badge badge-amber">${status}</span>`;
+        pill.innerHTML = `<span>🛡️ Meta:</span> <span class="badge badge-amber">${status}</span>`;
       }
 
       document.getElementById("m-followers").textContent = metricsCache.followers_count || 948;
@@ -677,6 +780,12 @@
           ? `<strong>${liveArticles.length}</strong> live (<strong>${hist.length - liveArticles.length}</strong> draf)`
           : `<strong>${hist.length}</strong> pos`;
 
+        // Smart Overdue Detector: Muncul HANYA jika waktu jadwal sudah lewat tapi server belum upload
+        const isOverdue = checkIsOverdue(p, hist);
+        const manualBtnHtml = isOverdue
+          ? `<button class="btn-smart-run" onclick="triggerWorkflow('${p.workflowFile}', '${p.id}', this)" title="Jadwal sudah lewat tapi server tertunda. Klik untuk eksekusi langsung sekarang!">⚡ Terbitkan Sekarang (Manual Bypass)</button>`
+          : '';
+
         return `
           <div class="card"${borderStyle}>
             <div>
@@ -688,12 +797,13 @@
               <div class="countdown-box">
                 <div class="countdown-label">Jadwal Tayang Berikutnya</div>
                 <div class="countdown-val" id="cd-${p.id}">${formatCountdown(p.nextTimesWIB())}</div>
+                ${manualBtnHtml}
               </div>
             </div>
             <div class="last-post">
               <div class="last-post-title" title="${lastTitle}">📌 Terakhir: ${lastTitle}</div>
               <div class="last-post-meta">
-                <span>Total: <strong>${hist.length}</strong> ${totalLabel}</span>
+                <span>Total: ${totalLabel}</span>
                 <span>${lastLink || lastTime}</span>
               </div>
             </div>
@@ -786,7 +896,7 @@
     function renderBloggerHistory() {
       const tbody = document.getElementById("blogger-history-tbody");
       const articles = (historiesCache.blogger || []).slice().sort((a, b) => {
-        if (a.is_live !== b.is_live) return a.is_live ? -1 : 1; // Prioritaskan LIVE di paling atas
+        if (a.is_live !== b.is_live) return a.is_live ? -1 : 1;
         return a.raw_time > b.raw_time ? -1 : 1;
       });
 
@@ -871,6 +981,90 @@
           </tr>
         `;
       }).join("");
+    }
+
+    /* GITHUB DISPATCH TRIGGER & TOKEN MANAGEMENT */
+    async function triggerWorkflow(workflowFile, pillarId, btnElement) {
+      let token = localStorage.getItem('ps_gh_token');
+      if (!token) {
+        token = prompt("Masukkan GitHub Personal Access Token (PAT) Anda untuk mengaktifkan eksekusi 1-Klik:\n\n- Dibuat di GitHub > Settings > Developer Settings > Personal Access Tokens\n- Izin yang dibutuhkan: 'repo' atau 'actions:write'\n- Token hanya disimpan secara aman di browser perangkat Anda!");
+        if (!token || !token.trim()) {
+          // Fallback: buka halaman GitHub Actions langsung
+          window.open(`https://github.com/${REPO}/actions/workflows/${workflowFile}`, '_blank');
+          return;
+        }
+        localStorage.setItem('ps_gh_token', token.trim());
+        updateGhTokenBadge();
+      }
+
+      if (btnElement) {
+        btnElement.disabled = true;
+        btnElement.innerHTML = `⏳ Memicu Server...`;
+      }
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/${workflowFile}/dispatches`, {
+          method: "POST",
+          headers: {
+            "Authorization": `token ${token.trim()}`,
+            "Accept": "application/vnd.github.v3+json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ ref: "main" })
+        });
+
+        if (res.status === 204 || res.ok) {
+          alert("🚀 Berhasil dipicu! Server GitHub Actions sedang memproses dan menerbitkan postingan. Data akan otomatis terupdate dalam ~1 menit.");
+          setTimeout(loadAllData, 6000);
+        } else if (res.status === 401 || res.status === 403) {
+          alert("❌ Token GitHub tidak valid atau tidak memiliki izin 'Actions: Write'. Silakan periksa kembali token Anda.");
+          localStorage.removeItem('ps_gh_token');
+          updateGhTokenBadge();
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          alert(`⚠️ Respon Server GitHub: ${errData.message || res.statusText}`);
+        }
+      } catch (err) {
+        alert(`❌ Gagal terhubung ke GitHub API: ${err.message}`);
+      } finally {
+        if (btnElement) {
+          btnElement.disabled = false;
+          btnElement.innerHTML = `⚡ Terbitkan Sekarang (Manual Bypass)`;
+        }
+      }
+    }
+
+    function promptGithubToken() {
+      const current = localStorage.getItem('ps_gh_token') || '';
+      const input = prompt(
+        "Pengaturan GitHub Access Token (1-Klik Bypass):\n\n" +
+        "Token disimpan secara aman di browser perangkat Anda (localStorage).\n" +
+        "Izin yang dibutuhkan: 'repo' atau 'actions:write'.\n\n" +
+        "(Kosongkan teks lalu tekan OK jika ingin menghapus token tersimpan)",
+        current ? current : ""
+      );
+      if (input === null) return;
+      if (!input.trim()) {
+        localStorage.removeItem('ps_gh_token');
+        alert("Token GitHub telah dihapus dari perangkat ini.");
+      } else {
+        localStorage.setItem('ps_gh_token', input.trim());
+        alert("Token GitHub berhasil disimpan! Fitur 1-Klik Bypass kini aktif.");
+      }
+      updateGhTokenBadge();
+    }
+
+    function updateGhTokenBadge() {
+      const badge = document.getElementById("gh-token-badge");
+      if (!badge) return;
+      const token = localStorage.getItem('ps_gh_token');
+      if (token) {
+        badge.className = "badge badge-green";
+        badge.textContent = "AKTIF";
+      } else {
+        badge.className = "badge badge-amber";
+        badge.textContent = "ATUR TOKEN";
+      }
     }
 
     setInterval(updateClock, 1000);
