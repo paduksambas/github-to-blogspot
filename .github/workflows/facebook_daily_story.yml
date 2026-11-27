@@ -1,0 +1,81 @@
+name: Daily Facebook Story Publisher
+
+on:
+  schedule:
+    # Berjalan 2 kali sehari:
+    # 1. 08:00 WIB (01:00 UTC) - Jam Perjalanan & Pagi Hari
+    # 2. 21:00 WIB (14:00 UTC) - Jam Santai Malam Hari
+    - cron: '0 1,14 * * *'
+
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Mode Uji Coba (Dry-Run): buat kartu Story 9:16 tanpa posting ke Facebook'
+        type: boolean
+        required: false
+        default: false
+      force:
+        description: 'Paksa posting (abaikan riwayat pernah tayang)'
+        type: boolean
+        required: false
+        default: false
+
+concurrency:
+  group: facebook-daily-story-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish_daily_story:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Daily Facebook Story Publisher
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+        run: |
+          CMD="python scripts/facebook_story_publisher.py"
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            CMD="$CMD --dry-run"
+          fi
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            CMD="$CMD --force"
+          fi
+          echo "[*] Menjalankan: $CMD"
+          eval $CMD
+
+      - name: Commit and push history updates
+        if: always()
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Tambahkan riwayat Story Facebook
+          git add facebook_story_history.json || true
+          
+          if git diff --staged --quiet; then
+            echo "[*] Tidak ada pembaruan riwayat Story yang perlu di-commit."
+          else
+            git commit -m "chore(facebook): sync daily story history [skip ci]"
+            git pull --rebase origin main || true
+            git push origin main
+            echo "[+] Berhasil memperbarui riwayat Story Facebook ke repository."
+          fi
