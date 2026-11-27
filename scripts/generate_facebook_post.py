@@ -226,9 +226,19 @@ def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_ca
     draw.ellipse([30, 1166, 68, 1204], fill=(215, 25, 25))
     draw.text((45, 1172), "i", font=get_system_font("bold", 24), fill=(255, 255, 255))
 
-    badge_cat = data.get("badge_gold", "BERITA DAERAH").upper()
-    source_cr = data.get("source_credit", "Redaksi Paduka Sambas").upper()
-    sub_text = f"{badge_cat}  •  SUMBER: {source_cr}  •  SAMBAS, KALBAR"
+    badge_cat = data.get("badge_gold", "TRENDING").upper()
+    source_cr = data.get("source_credit", "Redaksi Media").upper()
+    
+    # Deteksi jangkauan wilayah (Global / Nasional / Daerah)
+    title_upper = (data.get("title", "") + " " + badge_cat).upper()
+    if any(k in title_upper for k in ["DUNIA", "GLOBAL", "INTERNASIONAL", "AS", "AMERIKA", "CHINA", "TIMUR TENGAH", "RUSIA"]):
+        region_tag = "BERITA GLOBAL"
+    elif any(k in title_upper for k in ["KALBAR", "SAMBAS", "PONTIANAK"]):
+        region_tag = "KALIMANTAN BARAT"
+    else:
+        region_tag = "BERITA NASIONAL"
+
+    sub_text = f"{badge_cat}  •  SUMBER: {source_cr}  •  {region_tag}"
     draw.text((85, 1176), sub_text, font=get_system_font("bold", 21), fill=(240, 240, 240))
 
     # Aksen Dots Kanan
@@ -247,7 +257,7 @@ def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_ca
     f_foot = get_system_font("impact", 44)
     foot_1 = "PADUKA SAMBAS"
     foot_sep = " | "
-    foot_2 = "BERITA KALBAR"
+    foot_2 = region_tag
 
     b1 = f_foot.getbbox(foot_1)
     b_s = f_foot.getbbox(foot_sep)

@@ -20,17 +20,27 @@ except ImportError:
 
 HISTORY_FILE = "published_history.json"
 
-# Sumber RSS berita Indonesia terpercaya & terupdate (Prioritas portal dengan foto jurnalistik asli)
+# Sumber RSS berita Nasional & Global terpercaya (Fokus pada isu berdampak luas, trending & potensi view tinggi)
 RSS_FEEDS = [
-    "https://www.antaranews.com/rss/terkini.xml",
-    "https://www.cnnindonesia.com/nasional/rss",
+    # --- ISU GLOBAL / INTERNASIONAL & GEOPOLITIK ---
+    "https://www.cnnindonesia.com/internasional/rss",
+    "https://www.antaranews.com/rss/dunia.xml",
+    "https://news.detik.com/internasional/rss",
+    "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1YlY4U0FtVnVHZ0pWVXlnQVAB?hl=id&gl=ID&ceid=ID:id",
+    # --- ISU BISNIS, FINANSIAL & KOMODITAS GLOBAL/NASIONAL ---
+    "https://www.cnbcindonesia.com/news/rss",
+    "https://finance.detik.com/rss",
     "https://www.antaranews.com/rss/ekonomi.xml",
     "https://www.cnnindonesia.com/ekonomi/rss",
-    "https://www.antaranews.com/rss/sepak-bola.xml",
+    # --- ISU NASIONAL STRATEGIS & BREAKING NEWS ---
+    "https://www.cnnindonesia.com/nasional/rss",
     "https://news.detik.com/rss",
-    "https://finance.detik.com/rss",
-    "https://sepakbola.detik.com/rss",
+    "https://www.antaranews.com/rss/terkini.xml",
     "https://www.cna.id/api/v1/rss-outbound-feed?_format=xml",
+    # --- OLAHRAGA INTERNASIONAL & SEPAK BOLA DUNIA ---
+    "https://sepakbola.detik.com/rss",
+    "https://www.antaranews.com/rss/sepak-bola.xml",
+    # --- GOOGLE NEWS TRENDING ---
     "https://news.google.com/rss?hl=id&gl=ID&ceid=ID:id"
 ]
 
@@ -185,14 +195,86 @@ def is_duplicate_event(candidate_title, candidate_link, history):
     return False
 
 
+def calculate_virality_score(article, all_candidates):
+    """
+    Menghitung skor potensi jangkauan pembaca (Virality & Attention Potential).
+    Memfilter berita dengan potensi view tinggi (Global, Nasional, Geopolitik, Tokoh Utama, Isu Strategis).
+    """
+    score = 10.0
+    title_lower = article["title"].lower()
+
+    # Kata kunci bernilai tinggi (Global, Geopolitik, Isu Strategis, Tokoh Kunci)
+    high_impact_keywords = [
+        # Geopolitik & Berita Global
+        "china", "tiongkok", "amerika", "as", "rusia", "ukraina", "timur tengah", "israel", "iran",
+        "trump", "putin", "xi jinping", "biden", "global", "dunia", "internasional", "pbb", "nato",
+        # Isu Strategis, Proyek Raksasa & Pasar Finansial
+        "raksasa", "investasi", "triliun", "miliar", "kereta", "tambang", "emas", "minyak",
+        "saham", "ihsg", "rupiah", "dolar", "bumn", "danantara", "ekonomi",
+        # Tokoh Utama & Politik Nasional
+        "presiden", "prabowo", "gibran", "menteri", "kapolri", "kpk", "kejagung", "dpr", "mk",
+        "dkpp", "sidang", "etik", "haji isam",
+        # Peristiwa Besar & Sensasional
+        "tersangka", "ditahan", "vonis", "korupsi", "skandal", "tragedi", "tewas", "mogok", "pecah", "darurat", "viral"
+    ]
+    for kw in high_impact_keywords:
+        if kw in title_lower:
+            score += 15.0
+
+    # Prioritas ekstra untuk isu Global / Internasional
+    if any(k in title_lower for k in ["china", "amerika", "as", "dunia", "global", "rusia", "internasional", "timur tengah"]):
+        score += 25.0
+
+    # Cross-Source Trending Bonus (Topik yang diliput oleh beberapa media sekaligus)
+    clean_words = set(re.findall(r"\w{4,}", title_lower)) - {"dari", "pada", "yang", "untuk", "dengan", "dalam", "resmi", "soal", "usai"}
+    matches = 0
+    for other in all_candidates:
+        if other["link"] != article["link"]:
+            other_words = set(re.findall(r"\w{4,}", other["title"].lower()))
+            if len(clean_words.intersection(other_words)) >= 2:
+                matches += 1
+    score += (matches * 10.0)
+
+    return score
+
+
 def get_fresh_article(history):
+    """
+    Mengumpulkan kandidat berita dari seluruh feed (Nasional & Global),
+    memfilter topik duplikat, lalu memilih artikel dengan skor potensi view tertinggi.
+    """
+    all_raw_articles = []
     for feed in RSS_FEEDS:
         print(f"[*] Memeriksa sumber berita: {feed}")
         items = fetch_news_from_rss(feed)
-        for it in items:
-            if not is_duplicate_event(it["title"], it["link"], history):
-                return it
-    return None
+        all_raw_articles.extend(items)
+
+    # Filter kandidat yang belum pernah diposting
+    unique_candidates = []
+    for it in all_raw_articles:
+        if not is_duplicate_event(it["title"], it["link"], history):
+            unique_candidates.append(it)
+
+    if not unique_candidates:
+        print("[!] Tidak ada artikel baru yang belum pernah dipublikasikan.")
+        return None
+
+    # Berikan skor virality pada setiap kandidat
+    scored_candidates = []
+    for cand in unique_candidates:
+        score = calculate_virality_score(cand, unique_candidates)
+        scored_candidates.append((score, cand))
+
+    # Urutkan dari skor tertinggi (potensi view paling besar)
+    scored_candidates.sort(key=lambda x: x[0], reverse=True)
+
+    best_score, best_article = scored_candidates[0]
+    print(f"\n[★] Artikel terpilih dengan potensi view tertinggi (Skor: {best_score:.1f}):")
+    print(f"    Judul : {best_article['title']}")
+    print(f"    Sumber: {best_article.get('source_name', 'Media')}")
+    print(f"    Link  : {best_article['link']}\n")
+
+    return best_article
 
 
 def rewrite_with_gemini(api_key, original_news, existing_articles=None):
