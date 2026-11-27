@@ -2,8 +2,9 @@
 title: "Mangkirnya Listyo Sigit dari Sidang Etik Dugaan Penyadapan: Polri Pastikan Proses Hukum Jalan Terus"
 labels: ["Berita"]
 description: "Sorotan publik tertuju pada mangkirnya Listyo Sigit dari sidang etik dugaan penyadapan. Polri pastikan proses penindakan hukum tetap berjalan."
-status: "draft"
-date: "2026-11-26"
+status: "publish"
+blogger_url: "https://padukasambas.blogspot.com/2026/11/mangkirnya-listyo-sigit-dari-sidang.html"
+date: "2026-11-27"
 thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-mangkirnya-listyo-sigit-dari-sidang-etik-dugaan-pe.jpg"
 ---
 
