@@ -132,12 +132,29 @@ ATURAN NASKAH:
     return fallback_script
 
 
-async def create_voiceover(text, output_audio_path, voice="id-ID-ArdiNeural"):
-    """Menghasilkan file audio MP3 narasi suara menggunakan edge-tts."""
+async def create_voiceover_and_cues(text, output_audio_path, voice="id-ID-ArdiNeural"):
+    """
+    Menghasilkan file audio MP3 narasi suara menggunakan edge-tts,
+    sekaligus mengekstrak penanda waktu per kalimat (cues) untuk subtitle & sinkronisasi animasi bibir.
+    """
     import edge_tts
     communicate = edge_tts.Communicate(text, voice)
-    await communicate.save(output_audio_path)
+    cues = []
+    with open(output_audio_path, "wb") as f:
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                f.write(chunk["data"])
+            elif chunk["type"] == "SentenceBoundary":
+                start_sec = chunk["offset"] / 10000000.0
+                dur_sec = chunk["duration"] / 10000000.0
+                cues.append({
+                    "start": start_sec,
+                    "end": start_sec + dur_sec,
+                    "text": chunk["text"]
+                })
     print(f"[+] Audio narasi suara berhasil dibuat: {output_audio_path}")
+    print(f"[+] Penanda waktu subtitle ({len(cues)} kalimat) berhasil diekstrak.")
+    return cues
 
 
 def get_audio_duration(audio_path):
@@ -147,73 +164,85 @@ def get_audio_duration(audio_path):
     ]
     try:
         proc = subprocess.run(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
-        # Cari Duration: 00:00:15.34
         m = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.?\d*)", proc.stderr)
         if m:
             hours, mins, secs = float(m.group(1)), float(m.group(2)), float(m.group(3))
             return hours * 3600 + mins * 60 + secs
     except Exception:
         pass
-    return 15.0  # Default 15 detik
+    return 15.0
 
 
-def render_reels_base_frame(article, output_frame_path):
+def render_and_compile_reels_video(article, script_text, audio_path, cues, output_video_path):
     """
-    Membuat bingkai grafis dasar 1080 x 1920 (9:16) untuk video Reels:
-    - Zona Atas: Badge "PADUKA SAMBAS REELS | BERITA VIRAL"
-    - Zona Tengah: Foto Berita Resolusi Tinggi 16:9
-    - Zona Bawah: Headline Berita Bold & Subtitle Box
+    Merender video Reels 1080x1920 (9:16) interaktif lengkap:
+    1. Header Studio Siaran Paduka Sambas
+    2. Foto Berita Utama Liputan Aktual (atas)
+    3. Live Subtitle Box menyala (tengah) yang berganti otomatis sesuai kalimat yang diucapkan
+    4. Maskot Singa Berjas (Lion Anchor) di studio bawah dengan animasi mulut bergerak (lip-sync)
+    5. Footer CTA interaktif
+    Mengalirkan frame secara efisien ke FFmpeg stdin tanpa membebani disk/RAM.
     """
+    import textwrap
     w, h = 1080, 1920
+    fps = 10  # 10 fps sangat mulus untuk animasi maskot dan takarir teks
+
+    duration = get_audio_duration(audio_path) + 0.6
+    total_frames = int(duration * fps)
     theme = detect_card_theme(article.get("title", ""), article.get("category", ""))
 
+    print(f"[*] Merender {total_frames} frame animasi video Reels ({duration:.1f} detik)...")
+
+    # Palet Warna Sesuai Tema Berita
     if theme == "finance":
         theme_bg = (12, 28, 58)
         accent = (0, 220, 255)
-        box_bg = (245, 245, 245)
-        box_fg = (10, 20, 40)
     elif theme == "justice":
         theme_bg = (22, 24, 28)
         accent = (220, 38, 38)
-        box_bg = (235, 235, 238)
-        box_fg = (15, 15, 20)
     elif theme == "daerah":
         theme_bg = (11, 55, 35)
         accent = (250, 195, 30)
-        box_bg = (250, 195, 30)
-        box_fg = (10, 35, 20)
     elif theme == "tech":
         theme_bg = (15, 23, 42)
         accent = (6, 182, 212)
-        box_bg = (226, 232, 240)
-        box_fg = (15, 23, 42)
-    else:  # 'breaking'
+    else:  # breaking
         theme_bg = (215, 25, 25)
         accent = (255, 215, 0)
-        box_bg = (255, 215, 0)
-        box_fg = (10, 10, 10)
 
-    frame = Image.new("RGB", (w, h), (14, 14, 16))
-    draw = ImageDraw.Draw(frame)
+    # Muat Aset Maskot Singa Berjas (Tutup Mulut & Buka Mulut)
+    assets_dir = os.path.join(REPO_ROOT, "assets")
+    closed_path = os.path.join(assets_dir, "lion_anchor_closed.jpg")
+    open_path = os.path.join(assets_dir, "lion_anchor_speaking.jpg")
 
-    # 1. Header (0 - 260 px)
-    draw.rectangle([0, 0, w, 260], fill=theme_bg)
-    for i in range(4):
-        x = w - 160 + (i * 32)
-        draw.polygon([(x, 0), (x + 18, 0), (x - 30, 260), (x - 48, 260)], fill=accent)
+    lion_size = (620, 620)
+    if os.path.exists(closed_path) and os.path.exists(open_path):
+        lion_closed = Image.open(closed_path).convert("RGB").resize(lion_size, Image.Resampling.LANCZOS)
+        lion_open = Image.open(open_path).convert("RGB").resize(lion_size, Image.Resampling.LANCZOS)
+    else:
+        # Fallback jika aset belum ada
+        lion_closed = Image.new("RGB", lion_size, (25, 35, 55))
+        lion_open = Image.new("RGB", lion_size, (35, 45, 65))
 
-    draw.rounded_rectangle([35, 45, 35 + 260, 45 + 105], radius=18, fill=accent, outline=(0, 0, 0), width=3)
-    f_b1 = get_system_font("impact", 30)
-    f_b2 = get_system_font("impact", 24)
-    draw.text((55, 55), "PADUKA SAMBAS", font=f_b1, fill=(0, 0, 0))
-    draw.text((55, 92), "REELS UPDATE", font=f_b2, fill=(0, 0, 0))
+    # Masking Rounded Corner untuk Presenter
+    lion_mask = Image.new("L", lion_size, 0)
+    mask_draw = ImageDraw.Draw(lion_mask)
+    mask_draw.rounded_rectangle([0, 0, lion_size[0], lion_size[1]], radius=45, fill=255)
 
-    f_cat = get_system_font("bold", 28)
-    draw.text((320, 70), "KILAS BERITA VIRAL", font=f_cat, fill=(255, 255, 255))
-    f_sub = get_system_font("regular", 22)
-    draw.text((320, 110), "Tonton Ringkasan Berita Cepat & Beri Pendapat", font=f_sub, fill=accent)
+    # 1. Bangun Frame Dasar (Base Background)
+    base_bg = Image.new("RGB", (w, h), (14, 18, 28))
+    draw_base = ImageDraw.Draw(base_bg)
 
-    # 2. Foto Berita Tengah (260 - 1200 px)
+    # Header Bar (0 - 200 px)
+    draw_base.rectangle([0, 0, w, 200], fill=theme_bg)
+    draw_base.rounded_rectangle([35, 45, 35 + 280, 45 + 105], radius=18, fill=accent, outline=(0, 0, 0), width=3)
+    draw_base.text((55, 55), "PADUKA SAMBAS", font=get_system_font("impact", 28), fill=(0, 0, 0))
+    draw_base.text((55, 95), "REELS PRESENTATION", font=get_system_font("impact", 20), fill=(0, 0, 0))
+    draw_base.text((345, 65), "KILAS BERITA AKTUAL", font=get_system_font("bold", 30), fill=(255, 255, 255))
+    draw_base.text((345, 108), "🔴 LIVE BERITA UTAMA SAMBAS", font=get_system_font("bold", 22), fill=accent)
+    draw_base.line([(0, 200), (w, 200)], fill=(0, 0, 0), width=6)
+
+    # Foto Berita Utama (200 - 950 px)
     photo_url = article.get("image_url", "")
     p_img = None
     if photo_url and photo_url.startswith("http"):
@@ -224,67 +253,118 @@ def render_reels_base_frame(article, output_frame_path):
         except Exception:
             pass
     if not p_img:
-        p_img = Image.new("RGB", (w, 940), (35, 40, 50))
+        p_img = Image.new("RGB", (w, 750), (35, 40, 50))
     else:
-        p_img = ImageOps.fit(p_img, (w, 940), method=Image.Resampling.LANCZOS)
+        p_img = ImageOps.fit(p_img, (w, 750), method=Image.Resampling.LANCZOS)
 
-    frame.paste(p_img, (0, 260))
+    base_bg.paste(p_img, (0, 200))
+    draw_base.line([(0, 950), (w, 950)], fill=accent, width=5)
 
-    # Aksen Garis
-    draw.line([(0, 260), (w, 260)], fill=(0, 0, 0), width=6)
-    draw.line([(0, 1200), (w, 1200)], fill=(0, 0, 0), width=6)
+    # Overlay Judul Berita Singkat di atas Foto (800 - 950 px)
+    overlay_title = Image.new("RGBA", (w, 150), (0, 0, 0, 205))
+    base_bg.paste(overlay_title, (0, 800), overlay_title)
+    draw_base.text((35, 815), "TOPIK HARI INI:", font=get_system_font("bold", 22), fill=accent)
+    title_short = article.get("title", "")[:60]
+    draw_base.text((35, 855), title_short, font=get_system_font("bold", 28), fill=(255, 255, 255))
 
-    # 3. Box Headline (1200 - 1650 px)
-    import textwrap
-    draw.rectangle([0, 1200, w, 1650], fill=box_bg)
-    f_ht = get_system_font("bold", 45)
-    lines = textwrap.wrap(article.get("title", ""), width=34)
-    y_pos = 1240
-    for l in lines[:3]:
-        draw.text((50, y_pos), l, font=f_ht, fill=box_fg)
-        y_pos += 62
+    # Posisi Presenter Singa (1170 - 1790 px)
+    lion_pos_x = (w - lion_size[0]) // 2
+    lion_pos_y = 1170
 
-    # Sumber & Tagar
-    f_src = get_system_font("bold", 24)
-    src_text = f"Sumber: {article.get('source_name', 'Redaksi')}  •  PADUKA SAMBAS REELS"
-    draw.text((50, 1570), src_text, font=f_src, fill=(80, 80, 80) if theme in ["finance", "justice", "tech"] else (40, 40, 40))
+    # Bingkai Emas Presenter
+    draw_base.rounded_rectangle(
+        [lion_pos_x - 8, lion_pos_y - 8, lion_pos_x + lion_size[0] + 8, lion_pos_y + lion_size[1] + 8],
+        radius=50, fill=accent
+    )
+    # Badge Nama Presenter
+    draw_base.rounded_rectangle(
+        [lion_pos_x + 120, lion_pos_y + lion_size[1] - 30, lion_pos_x + lion_size[0] - 120, lion_pos_y + lion_size[1] + 15],
+        radius=15, fill=(10, 15, 30), outline=accent, width=3
+    )
+    draw_base.text((lion_pos_x + 155, lion_pos_y + lion_size[1] - 25), "🦁 PRESENTER SAMBAS", font=get_system_font("bold", 24), fill=accent)
 
-    # 4. Footer CTA (1650 - 1920 px)
-    draw.rectangle([0, 1650, w, 1920], fill=theme_bg)
-    draw.line([(0, 1650), (w, 1650)], fill=accent, width=5)
+    # Footer CTA (1820 - 1920 px)
+    draw_base.rectangle([0, 1820, w, 1920], fill=theme_bg)
+    draw_base.text((w // 2 - 250, 1855), "IKUTI @PADUKASAMBAS • DISKUSI DI KOMENTAR", font=get_system_font("bold", 26), fill=(255, 255, 255))
 
-    f_cta = get_system_font("impact", 36)
-    f_cta2 = get_system_font("bold", 24)
-    draw.text((w // 2 - 250, 1720), "IKUTI @PADUKASAMBAS", font=f_cta, fill=(255, 255, 255))
-    draw.text((w // 2 - 290, 1785), "💬 Tuliskan Pendapat Anda di Kolom Komentar 👇", font=f_cta2, fill=accent)
-
-    frame.save(output_frame_path, "PNG")
-    print(f"[+] Frame visual Reels siap: {output_frame_path}")
-    return output_frame_path
-
-
-def compile_reels_video(frame_path, audio_path, output_video_path):
-    """
-    Menggabungkan frame grafis dan audio narasi menjadi video MP4 1080x1920 H.264/AAC.
-    """
-    duration = get_audio_duration(audio_path)
-    print(f"[*] Durasi video Reels: {duration:.1f} detik. Memproses kompilasi MP4...")
-
+    # 2. Buka Pipa Kompilasi FFmpeg
     cmd = [
         FFMPEG_EXE, "-y",
-        "-loop", "1", "-i", frame_path,
+        "-f", "rawvideo",
+        "-vcodec", "rawvideo",
+        "-s", f"{w}x{h}",
+        "-pix_fmt", "rgb24",
+        "-r", str(fps),
+        "-i", "-",  # Pipe input dari Python
         "-i", audio_path,
         "-c:v", "libx264",
-        "-tune", "stillimage",
+        "-preset", "veryfast",
+        "-pix_fmt", "yuv420p",
         "-c:a", "aac",
         "-b:a", "192k",
-        "-pix_fmt", "yuv420p",
-        "-t", str(duration + 0.8),
+        "-shortest",
         output_video_path
     ]
 
-    subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    print(f"[+] Video MP4 Reels berhasil dirender: {output_video_path} ({os.path.getsize(output_video_path)} bytes)")
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    f_sub = get_system_font("bold", 34)
+
+    # 3. Render Setiap Frame Berdasarkan Waktu t
+    for frame_idx in range(total_frames):
+        t = frame_idx / float(fps)
+
+        # Cari kalimat subtitle aktif pada detik ke-t
+        is_speaking = False
+        active_subtitle = ""
+        for cue in cues:
+            if cue["start"] <= t <= cue["end"]:
+                is_speaking = True
+                active_subtitle = cue["text"]
+                break
+
+        # Tentukan gerakan mulut (lip-sync flapping saat bersuara, tertutup saat hening)
+        mouth_open = is_speaking and (int(t * 7) % 2 == 1)
+        current_lion = lion_open if mouth_open else lion_closed
+
+        # Salin base background
+        current_frame = base_bg.copy()
+
+        # Tempel Presenter Singa
+        current_frame.paste(current_lion, (lion_pos_x, lion_pos_y), lion_mask)
+
+        # Gambar Live Subtitle Box (960 - 1140 px)
+        if active_subtitle:
+            draw_curr = ImageDraw.Draw(current_frame)
+            lines = textwrap.wrap(active_subtitle, width=32)
+
+            box_h = 46 * len(lines) + 30
+            box_y = 1060 - (box_h // 2)
+
+            # Kotak transparan gelap dengan outline tema
+            sub_overlay = Image.new("RGBA", (w - 100, box_h), (10, 15, 25, 230))
+            sub_d = ImageDraw.Draw(sub_overlay)
+            sub_d.rounded_rectangle([0, 0, w - 100, box_h], radius=20, outline=accent, width=4)
+            current_frame.paste(sub_overlay, (50, box_y), sub_overlay)
+
+            # Teks subtitle kuning/emas menyala
+            text_y = box_y + 15
+            for line in lines:
+                bbox = f_sub.getbbox(line)
+                lw = bbox[2] - bbox[0]
+                lx = (w - lw) // 2
+                # Shadow teks hitam
+                draw_curr.text((lx + 2, text_y + 2), line, font=f_sub, fill=(0, 0, 0))
+                draw_curr.text((lx, text_y), line, font=f_sub, fill=(255, 240, 0))
+                text_y += 46
+
+        # Tulis frame raw RGB bytes ke FFmpeg stdin
+        proc.stdin.write(current_frame.tobytes())
+
+    proc.stdin.close()
+    proc.wait()
+
+    print(f"[+] Video Reels Animasi Singa Berjas + Subtitle berhasil dirender: {output_video_path} ({os.path.getsize(output_video_path)} bytes)")
     return output_video_path
 
 
@@ -438,20 +518,16 @@ def run_reels_publisher(dry_run=False, force=False):
     os.makedirs(draft_dir, exist_ok=True)
     timestamp_id = int(datetime.now().timestamp())
 
-    # 2. Susun Naskah & Hasilkan Suara Narator AI
+    # 2. Susun Naskah & Hasilkan Suara Narator AI + Timestamps Subtitle
     gemini_key = os.environ.get("GEMINI_API_KEY", "")
     reels_script = generate_reels_script_with_gemini(chosen, gemini_key)
     audio_path = os.path.join(draft_dir, f"reel_voice_{timestamp_id}.mp3")
 
-    asyncio.run(create_voiceover(reels_script, audio_path, voice="id-ID-ArdiNeural"))
+    cues = asyncio.run(create_voiceover_and_cues(reels_script, audio_path, voice="id-ID-ArdiNeural"))
 
-    # 3. Buat Frame Grafis
-    frame_path = os.path.join(draft_dir, f"reel_frame_{timestamp_id}.png")
-    render_reels_base_frame(chosen, frame_path)
-
-    # 4. Render Video MP4
+    # 3. Render Video MP4 dengan Animasi Maskot Singa Berjas & Subtitle Bergerak
     video_output_path = os.path.join(draft_dir, f"reel_video_{timestamp_id}.mp4")
-    compile_reels_video(frame_path, audio_path, video_output_path)
+    render_and_compile_reels_video(chosen, reels_script, audio_path, cues, video_output_path)
 
     caption = f"📌 {chosen['title']}\n\n{reels_script}\n\n(Sumber: {chosen['source_name']})\n\n#PadukaSambas #ReelsViral #BeritaTerkini #KabarDunia #FYP"
 
