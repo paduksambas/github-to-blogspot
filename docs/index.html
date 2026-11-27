@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
@@ -21,6 +21,9 @@
       --red-bg: rgba(239, 68, 68, 0.14);
       --amber: #f59e0b;
       --amber-bg: rgba(245, 158, 11, 0.14);
+    /* Blogger Section */
+    --blogger: #ff6b35;
+    --blogger-bg: rgba(255, 107, 53, 0.14);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -345,6 +348,11 @@
         <div class="metric-sub">Jadwal: 18:30 WIB</div>
       </div>
     </div>
+      <div class="metric-card" style="border-left: 3px solid #ff6b35;">
+        <div class="metric-label">📝 Artikel Blogger</div>
+        <div class="metric-val" id="m-blogger">0</div>
+        <div class="metric-sub">4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)</div>
+      </div>
 
     <!-- 4 PILLARS -->
     <div class="section-title">📊 Status & Hitungan Mundur 4 Pilar Otomatisasi</div>
@@ -368,6 +376,24 @@
       </div>
     </div>
 
+
+    <!-- BLOGGER HISTORY TABLE -->
+    <div class="section-title">📝 Riwayat Artikel Blogger Terbaru (padukasambas.blogspot.com)</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Judul Artikel</th>
+            <th>Waktu Terbit (WIB)</th>
+            <th>Tautan</th>
+          </tr>
+        </thead>
+        <tbody id="blogger-history-tbody">
+          <tr><td colspan="4">Memuat riwayat artikel Blogger...</td></tr>
+        </tbody>
+      </table>
+    </div>
     <!-- ACTIVE WORKFLOWS -->
     <div class="section-title">⚙️ Daftar Mesin Penjadwalan Aktif (GitHub Actions)</div>
     <div class="table-wrap">
@@ -456,6 +482,18 @@
         scheduleText: "1x Sehari (18:30 WIB)",
         historyFile: "facebook_reels_history.json",
         nextTimesWIB: () => getNextDailyTime([{h: 18, m: 30}])
+      },
+      {
+        id: "blogger",
+        icon: "📝",
+        title: "Blog Paduka Sambas (Blogger)",
+        workflowName: "Scheduled Draft Publisher (Blogger & Facebook)",
+        scheduleText: "4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)",
+        historyFile: "published_history.json",
+        isBlogger: true,
+        nextTimesWIB: () => getNextDailyTime([
+          {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
+        ])
       }
     ];
 
@@ -502,8 +540,34 @@
       const wib = getWIBDate();
       const pad = n => String(n).padStart(2, '0');
       document.getElementById("wib-time").textContent = `${pad(wib.getHours())}:${pad(wib.getMinutes())}:${pad(wib.getSeconds())} WIB`;
-      const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-      const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+      const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu",
+      {
+        id: "blogger",
+        icon: "📝",
+        title: "Blog Paduka Sambas (Blogger)",
+        workflowName: "Scheduled Draft Publisher (Blogger & Facebook)",
+        scheduleText: "4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)",
+        historyFile: "published_history.json",
+        isBlogger: true,
+        nextTimesWIB: () => getNextDailyTime([
+          {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
+        ])
+      }
+    ];
+      const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
+      {
+        id: "blogger",
+        icon: "📝",
+        title: "Blog Paduka Sambas (Blogger)",
+        workflowName: "Scheduled Draft Publisher (Blogger & Facebook)",
+        scheduleText: "4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)",
+        historyFile: "published_history.json",
+        isBlogger: true,
+        nextTimesWIB: () => getNextDailyTime([
+          {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
+        ])
+      }
+    ];
       document.getElementById("wib-date").textContent = `${days[wib.getDay()]}, ${wib.getDate()} ${months[wib.getMonth()]} ${wib.getFullYear()}`;
       PILLARS.forEach(p => {
         const el = document.getElementById(`cd-${p.id}`);
@@ -511,8 +575,34 @@
       });
     }
 
-    let workflowsCache = [];
-    let runsCache = [];
+    let workflowsCache = [,
+      {
+        id: "blogger",
+        icon: "📝",
+        title: "Blog Paduka Sambas (Blogger)",
+        workflowName: "Scheduled Draft Publisher (Blogger & Facebook)",
+        scheduleText: "4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)",
+        historyFile: "published_history.json",
+        isBlogger: true,
+        nextTimesWIB: () => getNextDailyTime([
+          {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
+        ])
+      }
+    ];
+    let runsCache = [,
+      {
+        id: "blogger",
+        icon: "📝",
+        title: "Blog Paduka Sambas (Blogger)",
+        workflowName: "Scheduled Draft Publisher (Blogger & Facebook)",
+        scheduleText: "4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)",
+        historyFile: "published_history.json",
+        isBlogger: true,
+        nextTimesWIB: () => getNextDailyTime([
+          {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
+        ])
+      }
+    ];
     let historiesCache = {};
     let metricsCache = {};
     let formatChartObj = null;
@@ -528,8 +618,34 @@
 
         if (actRes.ok) {
           const actJson = await actRes.json();
-          workflowsCache = actJson.workflows || [];
-          runsCache = actJson.runs || [];
+          workflowsCache = actJson.workflows || [,
+      {
+        id: "blogger",
+        icon: "📝",
+        title: "Blog Paduka Sambas (Blogger)",
+        workflowName: "Scheduled Draft Publisher (Blogger & Facebook)",
+        scheduleText: "4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)",
+        historyFile: "published_history.json",
+        isBlogger: true,
+        nextTimesWIB: () => getNextDailyTime([
+          {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
+        ])
+      }
+    ];
+          runsCache = actJson.runs || [,
+      {
+        id: "blogger",
+        icon: "📝",
+        title: "Blog Paduka Sambas (Blogger)",
+        workflowName: "Scheduled Draft Publisher (Blogger & Facebook)",
+        scheduleText: "4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)",
+        historyFile: "published_history.json",
+        isBlogger: true,
+        nextTimesWIB: () => getNextDailyTime([
+          {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
+        ])
+      }
+    ];
         }
         if (metRes.ok) metricsCache = await metRes.json();
 
@@ -546,7 +662,21 @@
         await Promise.all(PILLARS.map(async p => {
           try {
             const r = await fetch(`${RAW_BASE}/${p.historyFile}?t=${Date.now()}`);
-            if (r.ok) historiesCache[p.id] = await r.json();
+            if (r.ok) {
+              const raw = await r.json();
+              if (p.isBlogger) {
+                // Blogger history adalah objek keyed by judul -> konversi ke array
+                historiesCache[p.id] = Object.values(raw).map(v => ({
+                  title: v.published_title || v.file || "(tanpa judul)",
+                  published_at: v.date ? formatISOToWIB(v.date) : "-",
+                  url: v.original_url || "#",
+                  thumbnail: v.thumbnail || null,
+                  file: v.file || ""
+                })).sort((a, b) => a.published_at > b.published_at ? 1 : -1);
+              } else {
+                historiesCache[p.id] = raw;
+              }
+            }
           } catch (e) {}
         }));
 
@@ -554,6 +684,7 @@
         renderPillars();
         renderCharts();
         renderCardPreview();
+        renderBloggerHistory();
         renderWorkflows();
         renderRuns();
       } catch (err) {
@@ -580,6 +711,7 @@
       document.getElementById("m-story").textContent = (historiesCache.story || []).length;
       document.getElementById("m-text").textContent = (historiesCache.text || []).length;
       document.getElementById("m-reels").textContent = (historiesCache.reels || []).length;
+      document.getElementById("m-blogger").textContent = (historiesCache.blogger || []).length;
     }
 
     function renderPillars() {
@@ -591,13 +723,31 @@
           ? `<span class="badge badge-green">AKTIF</span>`
           : `<span class="badge badge-amber">MEMERIKSA</span>`;
 
-        const hist = historiesCache[p.id] || [];
+        const hist = historiesCache[p.id] || [,
+      {
+        id: "blogger",
+        icon: "📝",
+        title: "Blog Paduka Sambas (Blogger)",
+        workflowName: "Scheduled Draft Publisher (Blogger & Facebook)",
+        scheduleText: "4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)",
+        historyFile: "published_history.json",
+        isBlogger: true,
+        nextTimesWIB: () => getNextDailyTime([
+          {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
+        ])
+      }
+    ];
         const latest = hist.length > 0 ? hist[hist.length - 1] : null;
         const lastTitle = latest ? latest.title : "Belum ada riwayat tayang";
         const lastTime = latest ? latest.published_at : "-";
 
+        const borderStyle = p.isBlogger ? ' style="border-left: 3px solid #ff6b35;"' : '';
+        const lastLink = (p.isBlogger && latest && latest.url && latest.url !== '#')
+          ? `<a href="${latest.url}" target="_blank" style="color:#ff6b35; font-size:0.72rem;">Buka Artikel ↗</a>`
+          : '';
+        const totalLabel = p.isBlogger ? 'artikel' : 'pos';
         return `
-          <div class="card">
+          <div class="card"${borderStyle}>
             <div>
               <div class="card-head">
                 <div class="card-title">${p.icon} ${p.title}</div>
@@ -612,8 +762,8 @@
             <div class="last-post">
               <div class="last-post-title" title="${lastTitle}">📌 Terakhir: ${lastTitle}</div>
               <div class="last-post-meta">
-                <span>Total: <strong>${hist.length}</strong> pos</span>
-                <span>${lastTime}</span>
+                <span>Total: <strong>${hist.length}</strong> ${totalLabel}</span>
+                <span>${lastLink || lastTime}</span>
               </div>
             </div>
           </div>
@@ -626,19 +776,31 @@
         (historiesCache.photo || []).length,
         (historiesCache.story || []).length,
         (historiesCache.text || []).length,
-        (historiesCache.reels || []).length
-      ];
+        (historiesCache.reels || []).length,
+      {
+        id: "blogger",
+        icon: "📝",
+        title: "Blog Paduka Sambas (Blogger)",
+        workflowName: "Scheduled Draft Publisher (Blogger & Facebook)",
+        scheduleText: "4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)",
+        historyFile: "published_history.json",
+        isBlogger: true,
+        nextTimesWIB: () => getNextDailyTime([
+          {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
+        ])
+      }
+    ];
 
       const ctx1 = document.getElementById("formatChart").getContext("2d");
       if (formatChartObj) formatChartObj.destroy();
       formatChartObj = new Chart(ctx1, {
         type: "bar",
         data: {
-          labels: ["Foto Card", "Story 9:16", "Teks Diskusi", "Reels Singa"],
+          labels: ["Foto Card", "Story 9:16", "Teks Diskusi", "Reels Singa", "Blog Artikel"],
           datasets: [{
             label: "Total Terbit",
             data: counts,
-            backgroundColor: ["#ef4444", "#3b82f6", "#10b981", "#facc15"],
+            backgroundColor: ["#ef4444", "#3b82f6", "#10b981", "#facc15", "#ff6b35"],
             borderRadius: 8
           }]
         },
@@ -684,14 +846,40 @@
     }
 
     function renderCardPreview() {
-      const photos = historiesCache.photo || [];
+      const photos = historiesCache.photo || [,
+      {
+        id: "blogger",
+        icon: "📝",
+        title: "Blog Paduka Sambas (Blogger)",
+        workflowName: "Scheduled Draft Publisher (Blogger & Facebook)",
+        scheduleText: "4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)",
+        historyFile: "published_history.json",
+        isBlogger: true,
+        nextTimesWIB: () => getNextDailyTime([
+          {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
+        ])
+      }
+    ];
       const imgEl = document.getElementById("latest-card-img");
       const capEl = document.getElementById("latest-card-caption");
       if (photos.length === 0) {
         capEl.textContent = "Belum ada kartu berita yang diarsipkan.";
         return;
       }
-      const latest = photos[photos.length - 1];
+      const latest = photos[photos.length - 1,
+      {
+        id: "blogger",
+        icon: "📝",
+        title: "Blog Paduka Sambas (Blogger)",
+        workflowName: "Scheduled Draft Publisher (Blogger & Facebook)",
+        scheduleText: "4x Sehari (07:30, 12:30, 17:30, 20:30 WIB)",
+        historyFile: "published_history.json",
+        isBlogger: true,
+        nextTimesWIB: () => getNextDailyTime([
+          {h: 7, m: 30}, {h: 12, m: 30}, {h: 17, m: 30}, {h: 20, m: 30}
+        ])
+      }
+    ];
       const rawPath = latest.image_card || "";
       const fileName = rawPath.split(/[\\/]/).pop();
       if (fileName) {
@@ -750,6 +938,30 @@
       }).join("");
     }
 
+
+    function renderBloggerHistory() {
+      const tbody = document.getElementById("blogger-history-tbody");
+      const articles = (historiesCache.blogger || []).slice().reverse(); // terbaru dulu
+      if (!articles.length) {
+        tbody.innerHTML = `<tr><td colspan="4" style="color:var(--muted);">Belum ada artikel Blogger yang tercatat.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = articles.slice(0, 15).map((a, i) => {
+        const linkHtml = (a.url && a.url !== '#')
+          ? `<a href="${a.url}" target="_blank" style="color:#ff6b35;">Buka ↗</a>`
+          : '<span style="color:var(--muted);">-</span>';
+        return `
+          <tr>
+            <td style="color:var(--muted); width:40px;">${i + 1}</td>
+            <td style="max-width:420px;">
+              <div style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#cbd5e1;">${a.title}</div>
+            </td>
+            <td style="white-space:nowrap; color:var(--muted);">${a.published_at}</td>
+            <td>${linkHtml}</td>
+          </tr>
+        `;
+      }).join("");
+    }
     setInterval(updateClock, 1000);
     setInterval(loadAllData, 60000);
     updateClock();
@@ -757,3 +969,13 @@
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
