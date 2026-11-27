@@ -82,10 +82,8 @@ jobs:
             CMD="$CMD --file \"${{ github.event.inputs.file }}\""
           fi
 
-          # Opsi skip Facebook
-          if [ "${{ github.event.inputs.skip_fb }}" = "true" ]; then
-            CMD="$CMD --skip-fb"
-          fi
+          # Facebook ditangani mandiri secara berkala setiap 1 jam oleh facebook_hourly.yml
+          CMD="$CMD --skip-fb"
 
           # Opsi skip Telegram
           if [ "${{ github.event.inputs.skip_telegram }}" = "true" ]; then
