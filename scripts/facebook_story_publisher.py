@@ -20,7 +20,10 @@ import textwrap
 import urllib.request
 import urllib.parse
 import urllib.error
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+def get_wib_now():
+    return datetime.now(timezone(timedelta(hours=7)))
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 try:
@@ -299,7 +302,7 @@ def run_story_publisher(dry_run=False, force=False):
     """Menjalankan siklus penerbitan Story Facebook."""
     print("\n" + "=" * 70)
     print("PADUKA SAMBAS — FACEBOOK STORIES (9:16) PUBLISHER")
-    print(f"Waktu Eksekusi: {datetime.now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
+    print(f"Waktu Eksekusi: {get_wib_now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
     print("=" * 70)
 
     history = load_story_history()
@@ -376,7 +379,7 @@ def run_story_publisher(dry_run=False, force=False):
         record = {
             "title": chosen["title"],
             "url": chosen["url"],
-            "published_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S WIB"),
+            "published_at": get_wib_now().strftime("%Y-%m-%d %H:%M:%S WIB"),
             "story_id": story_id,
             "type": "story_916"
         }

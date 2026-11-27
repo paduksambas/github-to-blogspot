@@ -30,6 +30,10 @@ import urllib.error
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone, timedelta
 
+def get_wib_now():
+    return datetime.now(timezone(timedelta(hours=7)))
+
+
 # SSL context yang aman & toleran terhadap sertifikat lokal/Windows
 SSL_CONTEXT = ssl.create_default_context()
 SSL_CONTEXT.check_hostname = False
@@ -556,7 +560,7 @@ def run_hourly_facebook_publisher(dry_run=False, force=False):
     """
     print("\n" + "=" * 70)
     print("PADUKA SAMBAS — HOURLY FACEBOOK VIRAL NEWS PUBLISHER")
-    print(f"Waktu Eksekusi: {datetime.now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
+    print(f"Waktu Eksekusi: {get_wib_now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
     print("=" * 70)
 
     # 1. Muat riwayat postingan Facebook
@@ -683,7 +687,7 @@ def run_hourly_facebook_publisher(dry_run=False, force=False):
             "source": chosen["source_name"],
             "score": chosen["virality_score"],
             "theme": detected_theme,
-            "published_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S WIB"),
+            "published_at": get_wib_now().strftime("%Y-%m-%d %H:%M:%S WIB"),
             "image_card": card_output_path,
             "region": card_data.get("badge_red", "BERITA UTAMA")
         }

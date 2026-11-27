@@ -18,7 +18,10 @@ import random
 import urllib.request
 import urllib.parse
 import urllib.error
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+def get_wib_now():
+    return datetime.now(timezone(timedelta(hours=7)))
 
 # Impor fungsi pengambil feed dan penyaring keamanan dari facebook_viral_publisher
 try:
@@ -171,7 +174,7 @@ def run_daily_text_publisher(dry_run=False, force=False):
     """Menjalankan siklus postingan teks diskusi harian."""
     print("\n" + "=" * 70)
     print("PADUKA SAMBAS — DAILY FACEBOOK TEXT DISCUSSION PUBLISHER")
-    print(f"Waktu Eksekusi: {datetime.now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
+    print(f"Waktu Eksekusi: {get_wib_now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
     print("=" * 70)
 
     history = load_text_history()
@@ -244,7 +247,7 @@ def run_daily_text_publisher(dry_run=False, force=False):
         record = {
             "title": chosen["title"],
             "url": chosen["url"],
-            "published_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S WIB"),
+            "published_at": get_wib_now().strftime("%Y-%m-%d %H:%M:%S WIB"),
             "post_id": post_id,
             "type": "text_discussion"
         }

@@ -20,7 +20,10 @@ import subprocess
 import urllib.request
 import urllib.parse
 import urllib.error
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+def get_wib_now():
+    return datetime.now(timezone(timedelta(hours=7)))
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 try:
@@ -485,7 +488,7 @@ def run_reels_publisher(dry_run=False, force=False):
     """Menjalankan siklus otomatisasi Facebook Reels."""
     print("\n" + "=" * 70)
     print("PADUKA SAMBAS — FACEBOOK REELS (9:16) PUBLISHER")
-    print(f"Waktu Eksekusi: {datetime.now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
+    print(f"Waktu Eksekusi: {get_wib_now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
     print("=" * 70)
 
     history = load_reels_history()
@@ -581,7 +584,7 @@ def run_reels_publisher(dry_run=False, force=False):
             "title": chosen["title"],
             "url": chosen["url"],
             "video_id": video_id,
-            "published_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S WIB"),
+            "published_at": get_wib_now().strftime("%Y-%m-%d %H:%M:%S WIB"),
             "video_file": video_output_path
         }
         save_reels_history(record)
