@@ -495,6 +495,13 @@ def create_branded_thumbnail(title, category, rss_image="", used_images=None, ou
     # Resize dan crop proporsional 16:9
     bg_img = ImageOps.fit(bg_img, (target_w, target_h), method=Image.Resampling.LANCZOS)
 
+    # Simpan foto mentah bersih tanpa teks untuk keperluan News Card Facebook
+    try:
+        raw_out_path = os.path.join(os.path.dirname(output_path), "raw_" + os.path.basename(output_path))
+        bg_img.convert("RGB").save(raw_out_path, "JPEG", quality=95)
+    except Exception as e:
+        print(f"[!] Info simpan foto mentah: {e}")
+
     # Layer gradien gelap
     overlay = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
     draw_ov = ImageDraw.Draw(overlay)

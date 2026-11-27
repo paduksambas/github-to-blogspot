@@ -20,7 +20,16 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 def get_system_font(font_type="bold", size=24):
     """Mencari font sistem yang tersedia di Windows maupun Linux (GitHub Actions)."""
-    if font_type == "bold":
+    if font_type == "impact":
+        candidate_paths = [
+            "C:/Windows/Fonts/impact.ttf",
+            "/usr/share/fonts/truetype/msttcorefonts/Impact.ttf",
+            "C:/Windows/Fonts/arialbd.ttf",
+            "C:/Windows/Fonts/segoeuib.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
+        ]
+    elif font_type == "bold":
         candidate_paths = [
             "C:/Windows/Fonts/arialbd.ttf",
             "C:/Windows/Fonts/segoeuib.ttf",
@@ -50,172 +59,212 @@ def get_system_font(font_type="bold", size=24):
 
 def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_card.png"):
     """
-    Menghasilkan gambar Master News Card 4:5 (1080 x 1350 px) berstandar resmi Paduka Sambas.
-    Mendukung dua mode otomatis:
-    - Mode A: Berita Berbasis Data / Angka
-    - Mode B: Berita Peristiwa / Non-Angka
+    Menghasilkan Master News Card 4:5 (1080 x 1350 px) Berstandar Viral Media Sosial Paduka Sambas:
+    - Zona Atas   : Banner Merah dengan Headline Utama Besar Putih & Emas + Badge Resmi
+    - Zona Tengah : Frame Foto Khusus Proporsional 16:9 (Foto jernih, tajam, tidak terpotong)
+    - Zona Bawah  : Box Judul Kuning Terang Berkontras Tinggi (Sangat mudah dibaca di Feed)
+    - Metadata    : Info Bar Kategori & Sumber
+    - Footer      : Branding Elegan PADUKA SAMBAS | BERITA KALBAR
     """
+    import textwrap
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     w, h = 1080, 1350
-    margin_x = 84
 
-    # 1. Unduh / Buka Foto Latar Belakang
-    bg_img = None
+    card = Image.new("RGB", (w, h), (14, 14, 14))
+    draw = ImageDraw.Draw(card)
+
+    # -------------------------------------------------------------
+    # 1. ZONA ATAS (HEADER MERAH & BRANDING: 0 - 250 px)
+    # -------------------------------------------------------------
+    draw.rectangle([0, 0, w, 250], fill=(215, 25, 25))
+
+    # Aksen Garis Diagonal Kuning di Kanan Atas
+    for i in range(4):
+        x = w - 160 + (i * 32)
+        draw.polygon([(x, 0), (x + 18, 0), (x - 30, 250), (x - 48, 250)], fill=(255, 215, 0))
+
+    # Aksen Dot Matrix Kanan Atas
+    for r in range(4):
+        for c in range(6):
+            cx = w - 190 - (c * 16)
+            cy = 35 + (r * 16)
+            draw.ellipse([cx, cy, cx + 6, cy + 6], fill=(255, 215, 0))
+
+    # Badge Logo Kiri Atas (Kuning Lengkung)
+    badge_w, badge_h = 240, 95
+    draw.rounded_rectangle([25, 20, 25 + badge_w, 20 + badge_h], radius=18, fill=(255, 215, 0), outline=(0, 0, 0), width=3)
+    f_badge1 = get_system_font("impact", 28)
+    f_badge2 = get_system_font("impact", 24)
+    draw.text((42, 28), "PADUKA SAMBAS", font=f_badge1, fill=(0, 0, 0))
+    badge_sub = data.get("badge_red", "BERITA DAERAH")
+    if len(badge_sub) > 14:
+        badge_sub = "BERITA UTAMA"
+    draw.text((42, 60), badge_sub.upper(), font=f_badge2, fill=(195, 20, 20))
+
+    # Headline Utama Atas (Gaya Impact Tebal Bergaris Luar Hitam)
+    hl1 = data.get("headline_line1", "").strip().upper()
+    hl2_p = data.get("headline_line2_prefix", "").strip().upper()
+    hl2_k = data.get("keyword_highlight", "").strip().upper()
+    hl2 = f"{hl2_p} {hl2_k}".strip()
+
+    if not hl1:
+        # Fallback dari judul jika ekstraksi kosong
+        full_title = data.get("title", "")
+        parts = full_title.split(":") if ":" in full_title else full_title.split(" - ")
+        if len(parts) > 1:
+            hl1 = parts[0][:22].upper()
+            hl2 = parts[1][:22].upper()
+        else:
+            words = full_title.split()
+            hl1 = " ".join(words[:len(words)//2])[:22].upper()
+            hl2 = " ".join(words[len(words)//2:])[:22].upper()
+
+    font_top = get_system_font("impact", 66)
+    avail_x = 285
+    avail_w = w - avail_x - 110
+
+    b_hl1 = font_top.getbbox(hl1)
+    w_hl1 = b_hl1[2] - b_hl1[0]
+    x_hl1 = avail_x + max(0, (avail_w - w_hl1) // 2)
+
+    b_hl2 = font_top.getbbox(hl2)
+    w_hl2 = b_hl2[2] - b_hl2[0]
+    x_hl2 = avail_x + max(0, (avail_w - w_hl2) // 2)
+
+    draw.text((x_hl1, 30), hl1, font=font_top, fill=(255, 255, 255), stroke_width=6, stroke_fill=(0, 0, 0))
+    draw.text((x_hl2, 115), hl2, font=font_top, fill=(255, 225, 0), stroke_width=6, stroke_fill=(0, 0, 0))
+
+    # Garis Pembatas Header Hitam
+    draw.line([(0, 250), (w, 250)], fill=(0, 0, 0), width=6)
+
+    # -------------------------------------------------------------
+    # 2. ZONA TENGAH (FRAME FOTO KHUSUS PROPORSIONAL 16:9: 250 - 890 px)
+    # -------------------------------------------------------------
+    photo_box_h = 640
     photo_url = data.get("photo_url", "")
-    if photo_url and os.path.exists(photo_url):
+    p_img = None
+
+    # Prioritaskan foto mentah bersih tanpa watermark teks jika tersedia
+    if photo_url:
+        bn = os.path.basename(photo_url)
+        raw_cand = os.path.join("posts/images", "raw_" + bn)
+        if os.path.exists(raw_cand):
+            try:
+                p_img = Image.open(raw_cand).convert("RGB")
+                print(f"[+] Menggunakan foto mentah bersih: {raw_cand}")
+            except Exception:
+                pass
+
+    if not p_img and photo_url and os.path.exists(photo_url):
         try:
-            bg_img = Image.open(photo_url).convert("RGBA")
+            p_img = Image.open(photo_url).convert("RGB")
         except Exception as e:
             print(f"[!] Gagal buka foto lokal {photo_url}: {e}")
-    elif photo_url and photo_url.startswith("http"):
-        # Cek jika URL merujuk ke berkas lokal yang sudah ada di posts/images
+    elif not p_img and photo_url and photo_url.startswith("http"):
         local_cand = os.path.join("posts/images", os.path.basename(photo_url))
         if os.path.exists(local_cand):
             try:
-                bg_img = Image.open(local_cand).convert("RGBA")
+                p_img = Image.open(local_cand).convert("RGB")
             except Exception:
                 pass
-        if not bg_img:
+        if not p_img:
             try:
                 req = urllib.request.Request(photo_url, headers={"User-Agent": "Mozilla/5.0"})
                 with urllib.request.urlopen(req, timeout=10) as resp:
-                    bg_img = Image.open(io.BytesIO(resp.read())).convert("RGBA")
+                    p_img = Image.open(io.BytesIO(resp.read())).convert("RGB")
             except Exception as e:
                 print(f"[!] Gagal unduh foto latar {photo_url}: {e}")
 
-    if not bg_img:
-        # Fallback warna gelap jika foto tidak tersedia
-        bg_img = Image.new("RGBA", (w, h), (15, 23, 42, 255))
-
-    # Resize dan crop proporsional ke 4:5
-    bg_img = ImageOps.fit(bg_img, (w, h), method=Image.Resampling.LANCZOS)
-
-    # 2. Lapisan Vignette Scrim (Hijau Zamrud Gelap Melayu Sambas #0B251C)
-    overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    draw_ov = ImageDraw.Draw(overlay)
-
-    # Gradien atas untuk badge & logo
-    for y in range(0, 220):
-        alpha = int((1 - (y / 220)) * 180)
-        draw_ov.line([(0, y), (w, y)], fill=(8, 14, 18, alpha))
-
-    # Gradien bawah untuk judul dan blok data
-    for y in range(500, h):
-        prog = (y - 500) / (h - 500)
-        alpha = int((prog ** 1.35) * 252)
-        draw_ov.line([(0, y), (w, y)], fill=(8, 22, 18, alpha))
-
-    final_img = Image.alpha_composite(bg_img, overlay).convert("RGB")
-    draw = ImageDraw.Draw(final_img)
-
-    # 3. Muat Font Resmi
-    font_logo = get_system_font("bold", 22)
-    font_badge = get_system_font("bold", 20)
-    font_kicker = get_system_font("bold", 22)
-    font_headline = get_system_font("bold", 56)
-    font_sub = get_system_font("regular", 25)
-    font_meta = get_system_font("bold", 19)
-
-    is_data_mode = data.get("is_data_mode", False)
-
-    # 4. ZONA ATAS (Header & Branding)
-    # Badge Kiri: Urgensi (Merah) & Topik (Emas)
-    badge_red_text = data.get("badge_red", "INFO SAMBAS")
-    bbox_br = font_badge.getbbox(badge_red_text)
-    br_w = bbox_br[2] - bbox_br[0]
-    draw.rounded_rectangle([margin_x, 70, margin_x + br_w + 35, 118], radius=8, fill=(217, 45, 32))
-    draw.text((margin_x + 18, 80), badge_red_text, font=font_badge, fill=(255, 255, 255))
-
-    badge_gold_text = data.get("badge_gold", "BERITA TERBARU")
-    bbox_bg = font_badge.getbbox(badge_gold_text)
-    bg_w = bbox_bg[2] - bbox_bg[0]
-    start_gold_x = margin_x + br_w + 50
-    draw.rounded_rectangle([start_gold_x, 70, start_gold_x + bg_w + 35, 118], radius=8, fill=(11, 37, 28, 220), outline=(244, 196, 48), width=1)
-    draw.text((start_gold_x + 18, 80), badge_gold_text, font=font_badge, fill=(244, 196, 48))
-
-    # Logo Resmi Kanan Atas
-    logo_text = "PADUKA SAMBAS"
-    bbox_logo = font_logo.getbbox(logo_text)
-    lw = bbox_logo[2] - bbox_logo[0]
-    logo_x0 = w - margin_x - lw - 40
-    draw.rounded_rectangle([logo_x0, 70, w - margin_x, 118], radius=8, fill=(15, 23, 42, 230), outline=(51, 65, 85), width=1)
-    draw.text((logo_x0 + 20, 80), logo_text, font=font_logo, fill=(255, 255, 255))
-
-    # 5. ZONA BAWAH (Lower-Third Headline & Kotak Informasi)
-    y_anchor = 720
-    # Garis Aksen Emas Melayu
-    draw.line([(margin_x, y_anchor), (margin_x + 90, y_anchor)], fill=(244, 196, 48), width=5)
-
-    kicker_text = data.get("kicker", "KABAR DAERAH SAMBAS").upper()
-    draw.text((margin_x + 105, y_anchor - 12), kicker_text, font=font_kicker, fill=(244, 196, 48))
-
-    # Headline Baris 1
-    head_line1 = data.get("headline_line1", "")
-    y_head = y_anchor + 35
-    draw.text((margin_x, y_head), head_line1, font=font_headline, fill=(255, 255, 255))
-
-    # Headline Baris 2 dengan Keyword Highlighting Emas
-    head_line2_prefix = data.get("headline_line2_prefix", "")
-    head_keyword = data.get("keyword_highlight", "")
-    y_head2 = y_head + 72
-
-    draw.text((margin_x, y_head2), head_line2_prefix, font=font_headline, fill=(255, 255, 255))
-    bbox_prefix = font_headline.getbbox(head_line2_prefix)
-    x_kw = margin_x + (bbox_prefix[2] - bbox_prefix[0])
-    draw.text((x_kw, y_head2), head_keyword, font=font_headline, fill=(244, 196, 48))
-
-    # 6. DUA KOTAK METRIK / FAKTA KUNCI
-    y_box = y_head2 + 100
-    box_w = (w - (2 * margin_x) - 25) // 2
-    box_h = 110
-
-    if is_data_mode:
-        # Mode Data Angka: Angka besar di atas, label di bawah
-        font_box_val = get_system_font("bold", 40)
-        font_box_lbl = get_system_font("bold", 19)
-
-        # Kotak 1 (Emas)
-        draw.rounded_rectangle([margin_x, y_box, margin_x + box_w, y_box + box_h], radius=14, fill=(11, 37, 28, 235), outline=(244, 196, 48, 160), width=2)
-        draw.text((margin_x + 25, y_box + 18), data.get("box1_val", "0%"), font=font_box_val, fill=(244, 196, 48))
-        draw.text((margin_x + 25, y_box + 66), data.get("box1_lbl", ""), font=font_box_lbl, fill=(203, 213, 225))
-
-        # Kotak 2 (Cyan)
-        draw.rounded_rectangle([margin_x + box_w + 25, y_box, w - margin_x, y_box + box_h], radius=14, fill=(11, 37, 28, 235), outline=(56, 189, 248, 140), width=1)
-        draw.text((margin_x + box_w + 45, y_box + 18), data.get("box2_val", "UNGGULAN"), font=font_box_val, fill=(56, 189, 248))
-        draw.text((margin_x + box_w + 45, y_box + 66), data.get("box2_lbl", ""), font=font_box_lbl, fill=(203, 213, 225))
+    if not p_img:
+        p_img = Image.new("RGB", (w, photo_box_h), (25, 30, 40))
+        draw_p = ImageDraw.Draw(p_img)
+        draw_p.text((w // 4, photo_box_h // 2), "DOKUMENTASI FOTO REDAKSI", font=get_system_font("bold", 32), fill=(180, 180, 180))
     else:
-        # Mode Non-Angka / Peristiwa: Judul kategori status di atas, isi teks di bawah
-        font_box_title = get_system_font("bold", 22)
-        font_box_body = get_system_font("bold", 28)
+        # Resize proporsional dengan metode Lanczos tajam
+        p_img = ImageOps.fit(p_img, (w, photo_box_h), method=Image.Resampling.LANCZOS)
 
-        # Kotak 1 (Emas)
-        draw.rounded_rectangle([margin_x, y_box, margin_x + box_w, y_box + box_h], radius=14, fill=(11, 37, 28, 235), outline=(244, 196, 48, 160), width=2)
-        draw.text((margin_x + 25, y_box + 18), data.get("box1_title", "STATUS"), font=font_box_title, fill=(244, 196, 48))
-        draw.text((margin_x + 25, y_box + 56), data.get("box1_body", "Penanganan Berjalan"), font=font_box_body, fill=(255, 255, 255))
+    card.paste(p_img, (0, 250))
 
-        # Kotak 2 (Cyan)
-        draw.rounded_rectangle([margin_x + box_w + 25, y_box, w - margin_x, y_box + box_h], radius=14, fill=(11, 37, 28, 235), outline=(56, 189, 248, 140), width=1)
-        draw.text((margin_x + box_w + 45, y_box + 18), data.get("box2_title", "DAMPAK / SOLUSI"), font=font_box_title, fill=(56, 189, 248))
-        draw.text((margin_x + box_w + 45, y_box + 56), data.get("box2_body", "Normal Kembali"), font=font_box_body, fill=(255, 255, 255))
+    # Aksen Diagonal Stripes pada Sudut Bawah Foto
+    for i in range(3):
+        ox = 0 + (i * 26)
+        col = (255, 215, 0) if i % 2 == 0 else (215, 25, 25)
+        draw.polygon([(ox, 890), (ox + 16, 890), (ox + 75, 800), (ox + 59, 800)], fill=col)
 
-    # Sub-keterangan 1 baris
-    y_sub = y_box + box_h + 20
-    sub_text = data.get("subtext", "")
-    draw.text((margin_x, y_sub), sub_text, font=font_sub, fill=(226, 232, 240))
+    for i in range(3):
+        ox = w - 10 + (i * 26)
+        col = (255, 215, 0) if i % 2 == 0 else (215, 25, 25)
+        draw.polygon([(ox - 60, 890), (ox - 44, 890), (ox, 800), (ox - 16, 800)], fill=col)
 
-    # Footer Baris Bawah
-    y_foot = 1235
-    draw.line([(margin_x, y_foot), (w - margin_x, y_foot)], fill=(45, 70, 60), width=1)
-    draw.text((margin_x, y_foot + 20), "f  Halaman Resmi: Paduka Sambas", font=font_meta, fill=(241, 245, 249))
+    # -------------------------------------------------------------
+    # 3. ZONA BAWAH (BOX JUDUL KUNING TERANG: 890 - 1150 px)
+    # -------------------------------------------------------------
+    draw.rectangle([0, 890, w, 1150], fill=(255, 215, 0))
+    draw.line([(0, 890), (w, 890)], fill=(0, 0, 0), width=5)
 
-    source_text = f"Foto / Sumber: {data.get('source_credit', 'Paduka Sambas')}"
-    bbox_src = font_meta.getbbox(source_text)
-    src_w = bbox_src[2] - bbox_src[0]
-    draw.text((w - margin_x - src_w, y_foot + 20), source_text, font=font_meta, fill=(148, 163, 184))
+    # Aksen Garis Merah di Sisi Kiri Box Kuning
+    for i in range(3):
+        ox = 18 + (i * 26)
+        draw.polygon([(ox, 1150), (ox + 15, 1150), (ox + 65, 890), (ox + 50, 890)], fill=(215, 25, 25))
 
-    # Ekspor ke PNG tanpa kompresi pecah
-    final_img.save(output_path, "PNG")
-    print(f"[+] Master News Card 4:5 berhasil dibuat: {output_path}")
+    # Judul Berita Lengkap & Jelas
+    title_text = data.get("title", "")
+    f_title = get_system_font("bold", 43)
+    lines = textwrap.wrap(title_text, width=37)
+    y_t = 915 if len(lines) <= 2 else 905
+    line_spacing = 58 if len(lines) <= 2 else 52
+    for line in lines[:3]:
+        draw.text((140, y_t), line, font=f_title, fill=(10, 10, 10))
+        y_t += line_spacing
+
+    # -------------------------------------------------------------
+    # 4. METADATA SUB-BAR (1150 - 1225 px)
+    # -------------------------------------------------------------
+    draw.rectangle([0, 1150, w, 1225], fill=(20, 20, 22))
+
+    # Ikon Info (i)
+    draw.ellipse([30, 1166, 68, 1204], fill=(215, 25, 25))
+    draw.text((45, 1172), "i", font=get_system_font("bold", 24), fill=(255, 255, 255))
+
+    badge_cat = data.get("badge_gold", "BERITA DAERAH").upper()
+    source_cr = data.get("source_credit", "Redaksi Paduka Sambas").upper()
+    sub_text = f"{badge_cat}  •  SUMBER: {source_cr}  •  SAMBAS, KALBAR"
+    draw.text((85, 1176), sub_text, font=get_system_font("bold", 21), fill=(240, 240, 240))
+
+    # Aksen Dots Kanan
+    for c in range(5):
+        for r in range(2):
+            cx = w - 40 - (c * 14)
+            cy = 1178 + (r * 14)
+            draw.ellipse([cx, cy, cx + 5, cy + 5], fill=(255, 215, 0))
+
+    # -------------------------------------------------------------
+    # 5. FOOTER RESMI (1225 - 1350 px)
+    # -------------------------------------------------------------
+    draw.rectangle([0, 1225, w, 1350], fill=(8, 8, 8))
+    draw.line([(0, 1225), (w, 1225)], fill=(255, 215, 0), width=4)
+
+    f_foot = get_system_font("impact", 44)
+    foot_1 = "PADUKA SAMBAS"
+    foot_sep = " | "
+    foot_2 = "BERITA KALBAR"
+
+    b1 = f_foot.getbbox(foot_1)
+    b_s = f_foot.getbbox(foot_sep)
+    b2 = f_foot.getbbox(foot_2)
+
+    tot_w = (b1[2] - b1[0]) + (b_s[2] - b_s[0]) + (b2[2] - b2[0])
+    x_pos = (w - tot_w) // 2
+
+    draw.text((x_pos, 1255), foot_1, font=f_foot, fill=(255, 215, 0))
+    x_pos += (b1[2] - b1[0])
+    draw.text((x_pos, 1255), foot_sep, font=f_foot, fill=(255, 255, 255))
+    x_pos += (b_s[2] - b_s[0])
+    draw.text((x_pos, 1255), foot_2, font=f_foot, fill=(255, 255, 255))
+
+    # Simpan dalam format PNG tanpa kompresi pecah
+    card.save(output_path, "PNG")
+    print(f"[+] Master News Card 4:5 Gaya Viral berhasil dibuat: {output_path}")
     return output_path
 
 
