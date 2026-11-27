@@ -366,7 +366,15 @@ Aturan JSON:
 
 Hanya kirimkan blok kode JSON tanpa komentar lain."""
 
-            candidate_models = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"]
+            gemini_api_key = str(gemini_api_key).strip().strip('"\'')
+            candidate_models = [
+                "gemini-3.5-flash-lite",
+                "gemini-3.1-flash-lite",
+                "gemini-3.8-flash",
+                "gemini-2.5-flash",
+                "gemini-2.0-flash",
+                "gemini-1.5-flash"
+            ]
             for model in candidate_models:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_api_key}"
                 payload = {

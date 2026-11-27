@@ -304,8 +304,11 @@ def publish_to_facebook(image_path, caption, page_id=None, page_token=None):
     """
     Mengunggah foto dan caption berita secara otomatis ke Halaman Facebook via Meta Graph API.
     """
-    page_id = page_id or os.environ.get("FB_PAGE_ID")
-    page_token = page_token or os.environ.get("FB_PAGE_ACCESS_TOKEN")
+    raw_page_id = page_id or os.environ.get("FB_PAGE_ID", "")
+    raw_page_token = page_token or os.environ.get("FB_PAGE_ACCESS_TOKEN", "")
+
+    page_id = str(raw_page_id).strip().strip('"\'')
+    page_token = str(raw_page_token).strip().strip('"\'')
 
     if not page_id or not page_token:
         print("[!] Gagal: FB_PAGE_ID atau FB_PAGE_ACCESS_TOKEN belum disetel di environment.")
