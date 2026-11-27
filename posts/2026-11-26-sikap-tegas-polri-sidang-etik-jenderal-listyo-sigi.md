@@ -2,8 +2,9 @@
 title: "Sikap Tegas Polri: Sidang Etik Jenderal Listyo Sigit Tetap Berjalan Tanpa Kompromi"
 labels: ["Berita"]
 description: "Polri pastikan sidang etik Jenderal Listyo Sigit terus berlanjut meski mangkir. Penegakan hukum internal Polri tidak pandang bulu dalam kasus ini."
-status: "draft"
-date: "2026-11-26"
+status: "publish"
+blogger_url: "https://padukasambas.blogspot.com/2026/11/sikap-tegas-polri-sidang-etik-jenderal.html"
+date: "2026-11-28"
 thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-sikap-tegas-polri-sidang-etik-jenderal-listyo-sigi.jpg"
 ---
 
