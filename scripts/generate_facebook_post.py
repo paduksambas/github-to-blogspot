@@ -57,14 +57,29 @@ def get_system_font(font_type="bold", size=24):
         return None
 
 
-def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_card.png"):
+def detect_card_theme(title, category=""):
+    """Mendeteksi template tema visual kartu secara otomatis berdasarkan topik & kata kunci."""
+    text = f"{title} {category}".lower()
+    if any(k in text for k in ["sambas", "kalbar", "pontianak", "singkawang", "desa", "bupati", "pemkab", "dinas"]):
+        return "daerah"
+    if any(k in text for k in ["rupiah", "ihsg", "saham", "bank", "ekonomi", "bbm", "pajak", "tarif", "inflasi", "bisnis", "keuangan", "gaji", "perdagangan"]):
+        return "finance"
+    if any(k in text for k in ["kpk", "korupsi", "ditangkap", "tersangka", "sidang", "vonis", "kejaksaan", "polisi", "skandal", "hukum", "etik", "kasus"]):
+        return "justice"
+    if any(k in text for k in ["ai", "teknologi", "satelit", "internet", "sains", "gadget", "otomotif", "digital", "robot", "inovasi"]):
+        return "tech"
+    return "breaking"
+
+
+def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_card.png", theme="auto"):
     """
     Menghasilkan Master News Card 4:5 (1080 x 1350 px) Berstandar Viral Media Sosial Paduka Sambas:
-    - Zona Atas   : Banner Merah dengan Headline Utama Besar Putih & Emas + Badge Resmi
-    - Zona Tengah : Frame Foto Khusus Proporsional 16:9 (Foto jernih, tajam, tidak terpotong)
-    - Zona Bawah  : Box Judul Kuning Terang Berkontras Tinggi (Sangat mudah dibaca di Feed)
-    - Metadata    : Info Bar Kategori & Sumber
-    - Footer      : Branding Elegan PADUKA SAMBAS | BERITA KALBAR
+    Mendukung 5 Varian Tema Otomatis Berdasarkan Topik:
+    - breaking : Merah & Emas (Geopolitik, Breaking, Perang, Bencana)
+    - finance  : Royal Navy & Emerald Cyan (Ekonomi, Pasar, Finansial)
+    - justice  : Obsidian Charcoal & Blood Red (Hukum, KPK, Sidang)
+    - daerah   : Hijau Zamrud Tua & Kuning Melayu (Sambas, Kalbar, Budaya)
+    - tech     : Cyber Slate & Neon Cyan (Teknologi, AI, Sains)
     """
     import textwrap
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -73,42 +88,96 @@ def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_ca
     card = Image.new("RGB", (w, h), (14, 14, 14))
     draw = ImageDraw.Draw(card)
 
-    # -------------------------------------------------------------
-    # 1. ZONA ATAS (HEADER MERAH & BRANDING: 0 - 250 px)
-    # -------------------------------------------------------------
-    draw.rectangle([0, 0, w, 250], fill=(215, 25, 25))
+    # Resolusi Tema
+    if theme == "auto" or not theme:
+        theme = detect_card_theme(data.get("title", ""), data.get("badge_gold", ""))
 
-    # Aksen Garis Diagonal Kuning di Kanan Atas
+    if theme == "finance":
+        top_bg = (12, 28, 58)
+        accent_color = (0, 220, 255)
+        badge_bg = (0, 220, 255)
+        badge_fg = (5, 15, 30)
+        bottom_bg = (245, 245, 245)
+        bottom_fg = (10, 20, 40)
+        accent_stripes = (12, 28, 58)
+        sub_bar_bg = (7, 18, 38)
+        footer_bg = (5, 12, 25)
+    elif theme == "justice":
+        top_bg = (22, 24, 28)
+        accent_color = (220, 38, 38)
+        badge_bg = (220, 38, 38)
+        badge_fg = (255, 255, 255)
+        bottom_bg = (235, 235, 238)
+        bottom_fg = (15, 15, 20)
+        accent_stripes = (220, 38, 38)
+        sub_bar_bg = (15, 16, 20)
+        footer_bg = (8, 9, 12)
+    elif theme == "daerah":
+        top_bg = (11, 55, 35)
+        accent_color = (250, 195, 30)
+        badge_bg = (250, 195, 30)
+        badge_fg = (10, 40, 25)
+        bottom_bg = (250, 195, 30)
+        bottom_fg = (10, 35, 20)
+        accent_stripes = (11, 55, 35)
+        sub_bar_bg = (8, 38, 24)
+        footer_bg = (5, 25, 15)
+    elif theme == "tech":
+        top_bg = (15, 23, 42)
+        accent_color = (6, 182, 212)
+        badge_bg = (6, 182, 212)
+        badge_fg = (15, 23, 42)
+        bottom_bg = (226, 232, 240)
+        bottom_fg = (15, 23, 42)
+        accent_stripes = (6, 182, 212)
+        sub_bar_bg = (10, 15, 30)
+        footer_bg = (5, 8, 18)
+    else:  # Default: 'breaking'
+        top_bg = (215, 25, 25)
+        accent_color = (255, 215, 0)
+        badge_bg = (255, 215, 0)
+        badge_fg = (0, 0, 0)
+        bottom_bg = (255, 215, 0)
+        bottom_fg = (10, 10, 10)
+        accent_stripes = (215, 25, 25)
+        sub_bar_bg = (20, 20, 22)
+        footer_bg = (8, 8, 8)
+
+    # -------------------------------------------------------------
+    # 1. ZONA ATAS (HEADER BANNER & BRANDING: 0 - 250 px)
+    # -------------------------------------------------------------
+    draw.rectangle([0, 0, w, 250], fill=top_bg)
+
+    # Aksen Garis Diagonal di Kanan Atas
     for i in range(4):
         x = w - 160 + (i * 32)
-        draw.polygon([(x, 0), (x + 18, 0), (x - 30, 250), (x - 48, 250)], fill=(255, 215, 0))
+        draw.polygon([(x, 0), (x + 18, 0), (x - 30, 250), (x - 48, 250)], fill=accent_color)
 
     # Aksen Dot Matrix Kanan Atas
     for r in range(4):
         for c in range(6):
             cx = w - 190 - (c * 16)
             cy = 35 + (r * 16)
-            draw.ellipse([cx, cy, cx + 6, cy + 6], fill=(255, 215, 0))
+            draw.ellipse([cx, cy, cx + 6, cy + 6], fill=accent_color)
 
-    # Badge Logo Kiri Atas (Kuning Lengkung)
+    # Badge Logo Kiri Atas
     badge_w, badge_h = 240, 95
-    draw.rounded_rectangle([25, 20, 25 + badge_w, 20 + badge_h], radius=18, fill=(255, 215, 0), outline=(0, 0, 0), width=3)
+    draw.rounded_rectangle([25, 20, 25 + badge_w, 20 + badge_h], radius=18, fill=badge_bg, outline=(0, 0, 0), width=3)
     f_badge1 = get_system_font("impact", 28)
     f_badge2 = get_system_font("impact", 24)
-    draw.text((42, 28), "PADUKA SAMBAS", font=f_badge1, fill=(0, 0, 0))
-    badge_sub = data.get("badge_red", "BERITA DAERAH")
+    draw.text((42, 28), "PADUKA SAMBAS", font=f_badge1, fill=badge_fg)
+    badge_sub = data.get("badge_red", "BERITA UTAMA")
     if len(badge_sub) > 14:
         badge_sub = "BERITA UTAMA"
-    draw.text((42, 60), badge_sub.upper(), font=f_badge2, fill=(195, 20, 20))
+    draw.text((42, 60), badge_sub.upper(), font=f_badge2, fill=badge_fg)
 
-    # Headline Utama Atas (Gaya Impact Tebal Bergaris Luar Hitam)
+    # Headline Utama Atas
     hl1 = data.get("headline_line1", "").strip().upper()
     hl2_p = data.get("headline_line2_prefix", "").strip().upper()
     hl2_k = data.get("keyword_highlight", "").strip().upper()
     hl2 = f"{hl2_p} {hl2_k}".strip()
 
     if not hl1:
-        # Fallback dari judul jika ekstraksi kosong
         full_title = data.get("title", "")
         parts = full_title.split(":") if ":" in full_title else full_title.split(" - ")
         if len(parts) > 1:
@@ -132,7 +201,7 @@ def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_ca
     x_hl2 = avail_x + max(0, (avail_w - w_hl2) // 2)
 
     draw.text((x_hl1, 30), hl1, font=font_top, fill=(255, 255, 255), stroke_width=6, stroke_fill=(0, 0, 0))
-    draw.text((x_hl2, 115), hl2, font=font_top, fill=(255, 225, 0), stroke_width=6, stroke_fill=(0, 0, 0))
+    draw.text((x_hl2, 115), hl2, font=font_top, fill=accent_color, stroke_width=6, stroke_fill=(0, 0, 0))
 
     # Garis Pembatas Header Hitam
     draw.line([(0, 250), (w, 250)], fill=(0, 0, 0), width=6)
@@ -188,24 +257,24 @@ def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_ca
     # Aksen Diagonal Stripes pada Sudut Bawah Foto
     for i in range(3):
         ox = 0 + (i * 26)
-        col = (255, 215, 0) if i % 2 == 0 else (215, 25, 25)
+        col = accent_color if i % 2 == 0 else top_bg
         draw.polygon([(ox, 890), (ox + 16, 890), (ox + 75, 800), (ox + 59, 800)], fill=col)
 
     for i in range(3):
         ox = w - 10 + (i * 26)
-        col = (255, 215, 0) if i % 2 == 0 else (215, 25, 25)
+        col = accent_color if i % 2 == 0 else top_bg
         draw.polygon([(ox - 60, 890), (ox - 44, 890), (ox, 800), (ox - 16, 800)], fill=col)
 
     # -------------------------------------------------------------
-    # 3. ZONA BAWAH (BOX JUDUL KUNING TERANG: 890 - 1150 px)
+    # 3. ZONA BAWAH (BOX JUDUL: 890 - 1150 px)
     # -------------------------------------------------------------
-    draw.rectangle([0, 890, w, 1150], fill=(255, 215, 0))
+    draw.rectangle([0, 890, w, 1150], fill=bottom_bg)
     draw.line([(0, 890), (w, 890)], fill=(0, 0, 0), width=5)
 
-    # Aksen Garis Merah di Sisi Kiri Box Kuning
+    # Aksen Garis di Sisi Kiri Box
     for i in range(3):
         ox = 18 + (i * 26)
-        draw.polygon([(ox, 1150), (ox + 15, 1150), (ox + 65, 890), (ox + 50, 890)], fill=(215, 25, 25))
+        draw.polygon([(ox, 1150), (ox + 15, 1150), (ox + 65, 890), (ox + 50, 890)], fill=accent_stripes)
 
     # Judul Berita Lengkap & Jelas
     title_text = data.get("title", "")
@@ -214,17 +283,17 @@ def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_ca
     y_t = 915 if len(lines) <= 2 else 905
     line_spacing = 58 if len(lines) <= 2 else 52
     for line in lines[:3]:
-        draw.text((140, y_t), line, font=f_title, fill=(10, 10, 10))
+        draw.text((140, y_t), line, font=f_title, fill=bottom_fg)
         y_t += line_spacing
 
     # -------------------------------------------------------------
     # 4. METADATA SUB-BAR (1150 - 1225 px)
     # -------------------------------------------------------------
-    draw.rectangle([0, 1150, w, 1225], fill=(20, 20, 22))
+    draw.rectangle([0, 1150, w, 1225], fill=sub_bar_bg)
 
     # Ikon Info (i)
-    draw.ellipse([30, 1166, 68, 1204], fill=(215, 25, 25))
-    draw.text((45, 1172), "i", font=get_system_font("bold", 24), fill=(255, 255, 255))
+    draw.ellipse([30, 1166, 68, 1204], fill=accent_color)
+    draw.text((45, 1172), "i", font=get_system_font("bold", 24), fill=(0, 0, 0) if theme in ["breaking", "daerah"] else (255, 255, 255))
 
     badge_cat = data.get("badge_gold", "TRENDING").upper()
     source_cr = data.get("source_credit", "Redaksi Media").upper()
@@ -246,13 +315,13 @@ def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_ca
         for r in range(2):
             cx = w - 40 - (c * 14)
             cy = 1178 + (r * 14)
-            draw.ellipse([cx, cy, cx + 5, cy + 5], fill=(255, 215, 0))
+            draw.ellipse([cx, cy, cx + 5, cy + 5], fill=accent_color)
 
     # -------------------------------------------------------------
     # 5. FOOTER RESMI (1225 - 1350 px)
     # -------------------------------------------------------------
-    draw.rectangle([0, 1225, w, 1350], fill=(8, 8, 8))
-    draw.line([(0, 1225), (w, 1225)], fill=(255, 215, 0), width=4)
+    draw.rectangle([0, 1225, w, 1350], fill=footer_bg)
+    draw.line([(0, 1225), (w, 1225)], fill=accent_color, width=4)
 
     f_foot = get_system_font("impact", 44)
     foot_1 = "PADUKA SAMBAS"
@@ -266,7 +335,7 @@ def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_ca
     tot_w = (b1[2] - b1[0]) + (b_s[2] - b_s[0]) + (b2[2] - b2[0])
     x_pos = (w - tot_w) // 2
 
-    draw.text((x_pos, 1255), foot_1, font=f_foot, fill=(255, 215, 0))
+    draw.text((x_pos, 1255), foot_1, font=f_foot, fill=accent_color)
     x_pos += (b1[2] - b1[0])
     draw.text((x_pos, 1255), foot_sep, font=f_foot, fill=(255, 255, 255))
     x_pos += (b_s[2] - b_s[0])
