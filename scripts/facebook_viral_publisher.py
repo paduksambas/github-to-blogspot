@@ -119,6 +119,85 @@ def is_meta_compliant(article):
     return True, "Safe"
 
 
+def load_all_facebook_published_history():
+    """
+    Memuat gabungan riwayat tayang dari SEMUA format (Foto, Story, Teks, Reels)
+    untuk mencegah duplikasi topik yang sama di hari yang sama (Anti-Repetitive Content).
+    """
+    all_urls = set()
+    all_titles = set()
+    history_files = [
+        "facebook_published_history.json",
+        "facebook_text_history.json",
+        "facebook_story_history.json",
+        "facebook_reels_history.json"
+    ]
+    for fname in history_files:
+        fpath = os.path.join(REPO_ROOT, fname)
+        if os.path.exists(fpath):
+            try:
+                with open(fpath, "r", encoding="utf-8") as f:
+                    items = json.load(f)
+                    for item in items:
+                        if item.get("url"):
+                            all_urls.add(item["url"])
+                        if item.get("title"):
+                            all_titles.add(item["title"].strip().lower())
+            except Exception:
+                continue
+    return all_urls, all_titles
+
+
+def sanitize_caption_anti_clickbait(text):
+    """
+    Membersihkan kata-kata clickbait sensasional & tanda seru berlebih agar tidak terkena
+    algoritma Sensationalism / Clickbait Demotion dari Meta.
+    """
+    if not text:
+        return ""
+    import random
+    # Ganti tanda seru bertumpuk (!! atau !!!) menjadi 1 saja
+    cleaned = re.sub(r"!{2,}", "!", text)
+    # Ganti frasa clickbait sensasional
+    replacements = [
+        (r"(?i)\b(geger|heboh|menggemparkan|gempar)\b", "menjadi sorotan"),
+        (r"(?i)\b(viral|terbongkar|mengejutkan)\b", "ramai diperbincangkan"),
+        (r"(?i)\bwajib\s+(baca|tonton|nonton|simak)\b", "simak selengkapnya"),
+        (r"(?i)#fyp\b", ""),
+        (r"(?i)#viral\b", ""),
+        (r"(?i)#beritaviral\b", "#KabarTerkini"),
+        (r"(?i)#reelsviral\b", "#ReelsBerita")
+    ]
+    for pattern, repl in replacements:
+        cleaned = re.sub(pattern, repl, cleaned)
+    return re.sub(r" {2,}", " ", cleaned).strip()
+
+
+def get_dynamic_hashtags(theme="breaking", region_tag="BERITA NASIONAL"):
+    """
+    Menghasilkan 3-4 tagar relevan yang dirotasi secara dinamis sesuai tema
+    untuk menghindari penalti 'Repetitive Metadata' Meta.
+    """
+    import random
+    theme_pools = {
+        "finance": ["EkonomiIndonesia", "InfoBisnis", "KabarEkonomi", "Keuangan", "PasarGlobal"],
+        "justice": ["InfoHukum", "KabarNasional", "PenegakanHukum", "SorotanPublik", "BeritaHukum"],
+        "daerah": ["InfoSambas", "KabarKalbar", "KalimantanBarat", "SambasTerkini", "InfoDaerah"],
+        "tech": ["InfoTeknologi", "SainsDigital", "Inovasi", "TeknologiTerkini", "DuniaDigital"],
+        "breaking": ["KabarTerkini", "BeritaHariIni", "SorotanUtama", "UpdateBerita", "InfoTerbaru"]
+    }
+    pool = theme_pools.get(theme, theme_pools["breaking"])
+    chosen = random.sample(pool, k=min(2, len(pool)))
+    tags = ["PadukaSambas"] + chosen
+    if "GLOBAL" in region_tag.upper():
+        tags.append(random.choice(["KabarDunia", "BeritaInternasional"]))
+    elif "KALIMANTAN" in region_tag.upper():
+        tags.append("Sambas")
+    else:
+        tags.append(random.choice(["IndonesiaTerkini", "Nusantara"]))
+    return tags
+
+
 def load_mdv14_feed_catalog():
     """
     Mengambil katalog feed RSS langsung dari sistem MD-V14-PADUKA-SAMBAS.
@@ -403,7 +482,7 @@ def craft_facebook_payload_with_gemini(article, gemini_api_key=None):
         "body": summary[200:500] if len(summary) > 200 else "Peristiwa ini menjadi sorotan luas publik dan memicu beragam reaksi.",
         "impact": "Pantau terus perkembangan berita aktual dan isu-isu strategis terkini bersama Paduka Sambas.",
         "discussion_prompt": "Bagaimana tanggapan dan pandangan Anda mengenai peristiwa ini? Sampaikan pendapat Anda di kolom komentar!",
-        "hashtags": ["PadukaSambas", "BeritaViral", "KabarTerkini", "BreakingNews", "DuniaHariIni" if "GLOBAL" in badge_red else "IndonesiaTerkini"]
+        "hashtags": get_dynamic_hashtags(detect_card_theme(title, category), badge_red)
     }
 
     # Optimasi dengan Gemini AI jika API KEY ada
@@ -570,7 +649,7 @@ def run_hourly_facebook_publisher(dry_run=False, force=False):
     print(f"[*] Merender Kartu Berita Visual Model MD V19.1 ke {card_output_path}...")
     generate_facebook_news_card(card_data, card_output_path, theme=detected_theme)
 
-    caption_text = generate_facebook_caption(card_data)
+    caption_text = sanitize_caption_anti_clickbait(generate_facebook_caption(card_data))
     caption_output_path = os.path.join(draft_dir, f"fb_viral_caption_{timestamp_id}.txt")
     with open(caption_output_path, "w", encoding="utf-8") as f:
         f.write(caption_text)

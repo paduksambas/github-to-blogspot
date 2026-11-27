@@ -30,7 +30,8 @@ try:
         is_meta_compliant,
         calculate_virality_score,
         extract_opengraph_image,
-        EDITORIAL_FALLBACK_IMAGES
+        EDITORIAL_FALLBACK_IMAGES,
+        load_all_facebook_published_history
     )
     from scripts.generate_facebook_post import get_system_font, detect_card_theme
 except ImportError:
@@ -40,7 +41,8 @@ except ImportError:
         is_meta_compliant,
         calculate_virality_score,
         extract_opengraph_image,
-        EDITORIAL_FALLBACK_IMAGES
+        EDITORIAL_FALLBACK_IMAGES,
+        load_all_facebook_published_history
     )
     from generate_facebook_post import get_system_font, detect_card_theme
 
@@ -303,6 +305,7 @@ def run_story_publisher(dry_run=False, force=False):
     history = load_story_history()
     published_urls = {h.get("url") for h in history if h.get("url")}
     published_titles = {h.get("title", "").strip().lower() for h in history if h.get("title")}
+    cross_urls, cross_titles = load_all_facebook_published_history()
 
     # 1. Ambil artikel dari katalog MD-V14
     feed_catalog = load_mdv14_feed_catalog()
@@ -342,7 +345,11 @@ def run_story_publisher(dry_run=False, force=False):
         return True
 
     candidates.sort(key=lambda x: x["score"], reverse=True)
-    chosen = candidates[0]
+    fresh_cross = [
+        c for c in candidates
+        if c.get("url", "") not in cross_urls and c.get("title", "").strip().lower() not in cross_titles
+    ]
+    chosen = fresh_cross[0] if fresh_cross else candidates[0]
 
     # Pastikan gambar tersedia
     final_img = chosen.get("image_url")

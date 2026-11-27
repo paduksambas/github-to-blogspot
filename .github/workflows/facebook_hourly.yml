@@ -2,8 +2,9 @@ name: Hourly Facebook Viral News Publisher
 
 on:
   schedule:
-    # Berjalan mandiri setiap 1 jam (menit ke-17 untuk menghindari antrean puncak GitHub di menit :00)
-    - cron: '17 * * * *'
+    # Berjalan hanya di Jam Aktif Manusia (06:17 - 22:17 WIB, tiap 2 jam sekali = 9x/hari)
+    # Bebas spam tengah malam agar skor interaksi halaman tetap tinggi & aman dari shadowban
+    - cron: '17 1,3,5,7,9,11,13,15,23 * * *'
 
   workflow_dispatch:
     inputs:

@@ -327,7 +327,7 @@
       <div class="metric-card">
         <div class="metric-label">🖼️ Kartu Berita (4:5)</div>
         <div class="metric-val" id="m-photo">0</div>
-        <div class="metric-sub">Jadwal: Tiap 1 Jam (:17)</div>
+        <div class="metric-sub">06:17–22:17 WIB (Tiap 2 Jam)</div>
       </div>
       <div class="metric-card">
         <div class="metric-label">📱 Facebook Story</div>
@@ -422,16 +422,13 @@
         icon: "🖼️",
         title: "Master News Card (4:5)",
         workflowName: "Hourly Facebook Viral News Publisher",
-        scheduleText: "Setiap 1 Jam (Menit ke-17)",
+        scheduleText: "06:17–22:17 WIB (Tiap 2 Jam)",
         historyFile: "facebook_published_history.json",
-        nextTimesWIB: () => {
-          const now = getWIBDate();
-          const next = new Date(now);
-          next.setSeconds(0, 0);
-          if (now.getMinutes() >= 17) next.setHours(next.getHours() + 1);
-          next.setMinutes(17);
-          return next;
-        }
+        nextTimesWIB: () => getNextDailyTime([
+          {h: 6, m: 17}, {h: 8, m: 17}, {h: 10, m: 17},
+          {h: 12, m: 17}, {h: 14, m: 17}, {h: 16, m: 17},
+          {h: 18, m: 17}, {h: 20, m: 17}, {h: 22, m: 17}
+        ])
       },
       {
         id: "story",

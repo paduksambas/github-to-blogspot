@@ -26,14 +26,18 @@ try:
         load_mdv14_feed_catalog,
         fetch_and_parse_feed,
         is_meta_compliant,
-        calculate_virality_score
+        calculate_virality_score,
+        load_all_facebook_published_history,
+        sanitize_caption_anti_clickbait
     )
 except ImportError:
     from facebook_viral_publisher import (
         load_mdv14_feed_catalog,
         fetch_and_parse_feed,
         is_meta_compliant,
-        calculate_virality_score
+        calculate_virality_score,
+        load_all_facebook_published_history,
+        sanitize_caption_anti_clickbait
     )
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -173,6 +177,7 @@ def run_daily_text_publisher(dry_run=False, force=False):
     history = load_text_history()
     published_urls = {h.get("url") for h in history if h.get("url")}
     published_titles = {h.get("title", "").strip().lower() for h in history if h.get("title")}
+    cross_urls, cross_titles = load_all_facebook_published_history()
 
     # 1. Muat artikel dari katalog MD-V14
     feed_catalog = load_mdv14_feed_catalog()
@@ -211,14 +216,18 @@ def run_daily_text_publisher(dry_run=False, force=False):
         print("[*] Semua topik terbaru sudah pernah diangkat. Tidak ada postingan teks baru.")
         return True
 
-    # Utamakan isu sosial, ekonomi rakyat, atau isu nasional/daerah yang relatable
+    # Utamakan isu yang belum tayang di format lain agar variasi konten terjaga
     candidates.sort(key=lambda x: x["score"], reverse=True)
-    chosen = candidates[0]
+    fresh_cross = [
+        c for c in candidates
+        if c.get("url", "") not in cross_urls and c.get("title", "").strip().lower() not in cross_titles
+    ]
+    chosen = fresh_cross[0] if fresh_cross else candidates[0]
 
     print(f"[★] Topik Diskusi Terpilih: {chosen['title']} ({chosen['source_name']})")
 
     gemini_key = os.environ.get("GEMINI_API_KEY", "")
-    message_text = generate_discussion_prompt_with_gemini(chosen, gemini_key)
+    message_text = sanitize_caption_anti_clickbait(generate_discussion_prompt_with_gemini(chosen, gemini_key))
 
     print("\n" + "=" * 50)
     print("PREVIEW TEKS STATUS DISKUSI:")
