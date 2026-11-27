@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paduka Sambas — Live Automation & Schedule Monitor</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #131a2a;
+      --card-border: #232d45;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #facc15;
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.14);
+      --blue: #3b82f6;
+      --blue-bg: rgba(59, 130, 246, 0.14);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.14);
+      --amber: #f59e0b;
+      --amber-bg: rgba(245, 158, 11, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #161f33 0%, #0f172a 100%);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #facc15, #eab308);
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 800;
+      box-shadow: 0 4px 14px rgba(250, 204, 21, 0.25);
+    }
+
+    .brand h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .brand p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .clock-box {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--card-border);
+      padding: 8px 14px;
+      border-radius: 10px;
+      text-align: right;
+    }
+
+    .clock-time {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .clock-date {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .btn-refresh {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.2s;
+    }
+
+    .btn-refresh:hover {
+      opacity: 0.9;
+    }
+
+    /* Section Title */
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 26px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Grid 4 Pillars */
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: #3b4b70;
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(59, 130, 246, 0.3); }
+    .badge-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .schedule-info {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .countdown-box {
+      background: rgba(11, 15, 25, 0.65);
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+
+    .countdown-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .countdown-val {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .last-post {
+      font-size: 0.8rem;
+      border-top: 1px solid var(--card-border);
+      padding-top: 10px;
+    }
+
+    .last-post-title {
+      color: #cbd5e1;
+      font-weight: 500;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .last-post-meta {
+      font-size: 0.73rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Tables */
+    .table-wrap {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 16px;
+      background: rgba(15, 23, 42, 0.7);
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1e293b;
+      color: var(--text);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .footer-note {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .dot-pulse {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      margin-right: 6px;
+      box-shadow: 0 0 8px var(--green);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">🦁</div>
+        <div>
+          <h1>Paduka Sambas — Live Automation Monitor</h1>
+          <p><span class="dot-pulse"></span>Sistem Pemantauan Jadwal & Publikasi Cloud Real-Time</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="clock-box">
+          <div class="clock-time" id="wib-time">--:--:-- WIB</div>
+          <div class="clock-date" id="wib-date">Memuat tanggal...</div>
+        </div>
+        <button class="btn-refresh" onclick="loadAllData()">🔄 Segarkan Data</button>
+      </div>
+    </header>
+
+    <!-- 4 PILLARS -->
+    <div class="section-title">📊 Status 4 Pilar Konten Otomatis Facebook Page</div>
+    <div class="grid-4" id="pillars-grid">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- ACTIVE WORKFLOWS -->
+    <div class="section-title">⚙️ Daftar Semua Mesin Penjadwalan Aktif (GitHub Actions)</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama Mesin Otomatis</th>
+            <th>File Konfigurasi</th>
+            <th>Status Mesin</th>
+            <th>Tautan</th>
+          </tr>
+        </thead>
+        <tbody id="workflows-tbody">
+          <tr><td colspan="4">Memuat daftar workflow...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RECENT RUNS -->
+    <div class="section-title">🕒 Riwayat Eksekusi Cloud Terbaru (Live Logs)</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Workflow</th>
+            <th>Pemicu</th>
+            <th>Status</th>
+            <th>Waktu Jalan (WIB)</th>
+            <th>Log</th>
+          </tr>
+        </thead>
+        <tbody id="runs-tbody">
+          <tr><td colspan="5">Memuat riwayat eksekusi...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer-note">
+      Paduka Sambas Cloud Control Center • Pembaruan otomatis tiap 60 detik •
+      <a href="https://www.facebook.com/128057603730117" target="_blank">Facebook Page</a> •
+      <a href="https://padukasambas.blogspot.com/" target="_blank">Blog Portal</a>
+    </div>
+  </div>
+
+  <script>
+    const REPO = "paduksambas/github-to-blogspot";
+    const RAW_BASE = `https://raw.githubusercontent.com/${REPO}/main`;
+
+    const PILLARS = [
+      {
+        id: "photo",
+        icon: "🖼️",
+        title: "Master News Card (4:5)",
+        workflowName: "Hourly Facebook Viral News Publisher",
+        scheduleText: "Setiap 1 Jam (Menit ke-17)",
+        historyFile: "facebook_published_history.json",
+        nextTimesWIB: () => {
+          const now = getWIBDate();
+          const next = new Date(now);
+          next.setSeconds(0, 0);
+          if (now.getMinutes() >= 17) {
+            next.setHours(next.getHours() + 1);
+          }
+          next.setMinutes(17);
+          return next;
+        }
+      },
+      {
+        id: "story",
+        icon: "📱",
+        title: "Facebook Story (9:16)",
+        workflowName: "Daily Facebook Story Publisher",
+        scheduleText: "2x Sehari (08:12 & 21:12 WIB)",
+        historyFile: "facebook_story_history.json",
+        nextTimesWIB: () => getNextDailyTime([{h: 8, m: 12}, {h: 21, m: 12}])
+      },
+      {
+        id: "text",
+        icon: "💬",
+        title: "Teks Diskusi Warga",
+        workflowName: "Daily Facebook Text Discussion Publisher",
+        scheduleText: "1x Sehari (12:30 WIB)",
+        historyFile: "facebook_text_history.json",
+        nextTimesWIB: () => getNextDailyTime([{h: 12, m: 30}])
+      },
+      {
+        id: "reels",
+        icon: "🎬",
+        title: "Reels Singa + Subtitle",
+        workflowName: "Daily Facebook Reels Publisher",
+        scheduleText: "1x Sehari (18:30 WIB)",
+        historyFile: "facebook_reels_history.json",
+        nextTimesWIB: () => getNextDailyTime([{h: 18, m: 30}])
+      }
+    ];
+
+    function getWIBDate() {
+      const now = new Date();
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      return new Date(utc + (7 * 3600000));
+    }
+
+    function getNextDailyTime(slots) {
+      const now = getWIBDate();
+      for (const s of slots) {
+        const cand = new Date(now);
+        cand.setHours(s.h, s.m, 0, 0);
+        if (cand > now) return cand;
+      }
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(slots[0].h, slots[0].m, 0, 0);
+      return tomorrow;
+    }
+
+    function formatCountdown(targetDate) {
+      const now = getWIBDate();
+      let diff = Math.max(0, Math.floor((targetDate - now) / 1000));
+      const h = Math.floor(diff / 3600);
+      diff %= 3600;
+      const m = Math.floor(diff / 60);
+      const s = diff % 60;
+      const hh = String(targetDate.getHours()).padStart(2, '0');
+      const mm = String(targetDate.getMinutes()).padStart(2, '0');
+      return `${h}j ${m}m ${s}d lagi (${hh}:${mm} WIB)`;
+    }
+
+    function formatISOToWIB(isoStr) {
+      if (!isoStr) return "-";
+      const d = new Date(isoStr);
+      const wib = new Date(d.getTime() + (d.getTimezoneOffset() * 60000) + (7 * 3600000));
+      const pad = n => String(n).padStart(2, '0');
+      return `${wib.getFullYear()}-${pad(wib.getMonth()+1)}-${pad(wib.getDate())} ${pad(wib.getHours())}:${pad(wib.getMinutes())} WIB`;
+    }
+
+    function updateClock() {
+      const wib = getWIBDate();
+      const pad = n => String(n).padStart(2, '0');
+      document.getElementById("wib-time").textContent = `${pad(wib.getHours())}:${pad(wib.getMinutes())}:${pad(wib.getSeconds())} WIB`;
+      const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+      document.getElementById("wib-date").textContent = `${days[wib.getDay()]}, ${wib.getDate()} ${months[wib.getMonth()]} ${wib.getFullYear()}`;
+
+      // Update countdowns live
+      PILLARS.forEach(p => {
+        const el = document.getElementById(`cd-${p.id}`);
+        if (el) el.textContent = formatCountdown(p.nextTimesWIB());
+      });
+    }
+
+    let workflowsCache = [];
+    let runsCache = [];
+    let historiesCache = {};
+
+    async function loadAllData() {
+      try {
+        const [wfRes, runRes] = await Promise.all([
+          fetch(`https://api.github.com/repos/${REPO}/actions/workflows`),
+          fetch(`https://api.github.com/repos/${REPO}/actions/runs?per_page=15`)
+        ]);
+        if (wfRes.ok) {
+          const wfJson = await wfRes.json();
+          workflowsCache = wfJson.workflows || [];
+        }
+        if (runRes.ok) {
+          const runJson = await runRes.json();
+          runsCache = runJson.workflow_runs || [];
+        }
+
+        // Load history JSONs
+        await Promise.all(PILLARS.map(async p => {
+          try {
+            const r = await fetch(`${RAW_BASE}/${p.historyFile}?t=${Date.now()}`);
+            if (r.ok) historiesCache[p.id] = await r.json();
+          } catch (e) {}
+        }));
+
+        renderPillars();
+        renderWorkflows();
+        renderRuns();
+      } catch (err) {
+        console.error("Error fetching monitor data:", err);
+      }
+    }
+
+    function renderPillars() {
+      const grid = document.getElementById("pillars-grid");
+      grid.innerHTML = PILLARS.map(p => {
+        const wf = workflowsCache.find(w => w.name === p.workflowName);
+        const isActive = wf && wf.state === "active";
+        const badgeHtml = isActive
+          ? `<span class="badge badge-green">AKTIF</span>`
+          : `<span class="badge badge-amber">MEMERIKSA</span>`;
+
+        const hist = historiesCache[p.id] || [];
+        const latest = hist.length > 0 ? hist[hist.length - 1] : null;
+        const lastTitle = latest ? latest.title : "Belum ada riwayat tayang";
+        const lastTime = latest ? latest.published_at : "-";
+
+        return `
+          <div class="card">
+            <div>
+              <div class="card-head">
+                <div class="card-title">${p.icon} ${p.title}</div>
+                ${badgeHtml}
+              </div>
+              <div class="schedule-info">⏰ Jadwal: <strong>${p.scheduleText}</strong></div>
+              <div class="countdown-box">
+                <div class="countdown-label">Jadwal Tayang Berikutnya</div>
+                <div class="countdown-val" id="cd-${p.id}">${formatCountdown(p.nextTimesWIB())}</div>
+              </div>
+            </div>
+            <div class="last-post">
+              <div class="last-post-title" title="${lastTitle}">📌 Terakhir: ${lastTitle}</div>
+              <div class="last-post-meta">
+                <span>Total: <strong>${hist.length}</strong> pos</span>
+                <span>${lastTime}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderWorkflows() {
+      const tbody = document.getElementById("workflows-tbody");
+      if (!workflowsCache.length) {
+        tbody.innerHTML = `<tr><td colspan="4">Tidak ada workflow ditemukan.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = workflowsCache.map(w => {
+        const stBadge = w.state === "active"
+          ? `<span class="badge badge-green">ACTIVE</span>`
+          : `<span class="badge badge-red">${w.state}</span>`;
+        return `
+          <tr>
+            <td><strong>${w.name}</strong></td>
+            <td><code>${w.path}</code></td>
+            <td>${stBadge}</td>
+            <td><a href="${w.html_url}" target="_blank">Buka Actions ↗</a></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderRuns() {
+      const tbody = document.getElementById("runs-tbody");
+      if (!runsCache.length) {
+        tbody.innerHTML = `<tr><td colspan="5">Belum ada eksekusi tercatat.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = runsCache.map(r => {
+        let badge = `<span class="badge badge-blue">${r.status}</span>`;
+        if (r.status === "completed") {
+          badge = r.conclusion === "success"
+            ? `<span class="badge badge-green">SUKSES</span>`
+            : `<span class="badge badge-red">${r.conclusion.toUpperCase()}</span>`;
+        } else if (r.status === "in_progress") {
+          badge = `<span class="badge badge-amber">SEDANG JALAN</span>`;
+        }
+        const trig = r.event === "schedule" ? "⏰ Jadwal Otomatis" : "👆 Manual / Push";
+        return `
+          <tr>
+            <td><strong>${r.name}</strong></td>
+            <td>${trig}</td>
+            <td>${badge}</td>
+            <td>${formatISOToWIB(r.created_at)}</td>
+            <td><a href="${r.html_url}" target="_blank">Lihat Log ↗</a></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    setInterval(updateClock, 1000);
+    setInterval(loadAllData, 60000);
+    updateClock();
+    loadAllData();
+  </script>
+</body>
+</html>
