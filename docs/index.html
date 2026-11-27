@@ -266,6 +266,184 @@
       50% { box-shadow: 0 0 18px rgba(37, 99, 235, 0.85); }
     }
 
+    /* TARGET PROGRESS BAR */
+    .target-box {
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+    }
+    .target-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.73rem;
+      margin-bottom: 5px;
+    }
+    .target-title {
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .target-count {
+      font-weight: 800;
+      color: #38bdf8;
+      font-variant-numeric: tabular-nums;
+    }
+    .target-bar {
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .target-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #10b981);
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    /* DAILY SLOTS CONTAINER */
+    .slots-container {
+      margin-top: 10px;
+      border-top: 1px solid var(--card-border);
+      padding-top: 8px;
+    }
+    .slots-header {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .slots-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .slots-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .slots-list::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+
+    /* INDIVIDUAL SLOT ITEM */
+    .slot-item {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 0.72rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      transition: all 0.2s ease;
+    }
+    .slot-item.is-live {
+      border-left: 3px solid #10b981;
+      background: rgba(16, 185, 129, 0.04);
+    }
+    .slot-item.is-missed {
+      border-left: 3px solid #ef4444;
+      background: rgba(239, 68, 68, 0.05);
+    }
+    .slot-item.is-scheduled {
+      border-left: 3px solid #475569;
+      opacity: 0.75;
+    }
+    .slot-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .slot-time {
+      font-weight: 700;
+      color: #f8fafc;
+      font-variant-numeric: tabular-nums;
+    }
+    .slot-badge-live {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+    .slot-badge-missed {
+      background: rgba(239, 68, 68, 0.18);
+      color: #f87171;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+    .slot-badge-sched {
+      background: rgba(100, 116, 139, 0.18);
+      color: #94a3b8;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 600;
+    }
+    .slot-post-title {
+      color: #cbd5e1;
+      font-size: 0.7rem;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .btn-slot-bypass {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      border: 1px solid #f87171;
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      margin-top: 3px;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.35);
+      transition: all 0.2s ease;
+    }
+    .btn-slot-bypass:hover:not(:disabled) {
+      opacity: 0.95;
+      transform: scale(1.02);
+    }
+    .btn-slot-bypass:disabled {
+      cursor: not-allowed;
+      opacity: 0.85;
+    }
+    .btn-slot-bypass.btn-dispatching {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border-color: #fbbf24;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+      animation: pulse-dispatch 1.5s infinite;
+    }
+    .btn-slot-bypass.btn-processing {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      border-color: #60a5fa;
+      box-shadow: 0 0 12px rgba(37, 99, 235, 0.6);
+      animation: pulse-processing 1.5s infinite;
+    }
+    .btn-slot-bypass.btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-color: #34d399;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+      animation: none;
+    }
+
     .last-post { font-size: 0.8rem; border-top: 1px solid var(--card-border); padding-top: 10px; }
     .last-post-title {
       color: #cbd5e1;
@@ -804,8 +982,97 @@
       if (mSub) mSub.textContent = `${draftCount} Draf Antrean • 4x Sehari`;
     }
 
+    /* MENGHITUNG KELENGKAPAN SLOT HARIAN PER PILAR */
+    function calculateDailySlotStatus(pillar, hist) {
+      const now = getWIBDate();
+      const pad = n => String(n).padStart(2, '0');
+      const todayPrefix = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+
+      const liveList = pillar.isBlogger ? hist.filter(x => x.is_live) : hist;
+      const todayPosts = liveList.filter(item => {
+        if (!item.published_at || item.published_at === '-') return false;
+        return item.published_at.startsWith(todayPrefix);
+      }).map(item => {
+        const cleaned = item.published_at.replace(' WIB', '').trim().replace(' ', 'T');
+        const d = new Date(cleaned);
+        return {
+          ...item,
+          dateObj: isNaN(d.getTime()) ? null : d
+        };
+      }).filter(x => x.dateObj !== null).sort((a, b) => a.dateObj - b.dateObj);
+
+      const slots = pillar.slots.map(s => {
+        const slotDate = new Date(now);
+        slotDate.setHours(s.h, s.m, 0, 0);
+        return {
+          h: s.h,
+          m: s.m,
+          slotDate,
+          timeStr: `${pad(s.h)}:${pad(s.m)} WIB`,
+          slotKey: `${pillar.id}_${s.h}_${s.m}`,
+          status: 'pending',
+          post: null
+        };
+      });
+
+      const matchedPosts = new Set();
+      const matchedSlots = new Set();
+
+      // Tahap 1: Cocokkan postingan yang terbit dekat dengan waktu slot (+/- 75 menit)
+      slots.forEach((s, sIdx) => {
+        todayPosts.forEach((p, pIdx) => {
+          if (matchedPosts.has(pIdx) || matchedSlots.has(sIdx)) return;
+          const diffMinutes = Math.abs(p.dateObj - s.slotDate) / (60 * 1000);
+          if (diffMinutes <= 75) {
+            s.status = 'live';
+            s.post = p;
+            matchedSlots.add(sIdx);
+            matchedPosts.add(pIdx);
+          }
+        });
+      });
+
+      // Tahap 2: Untuk postingan sisa (misal eksekusi bypass susulan), pasangkan ke slot masa lalu yang masih kosong
+      slots.forEach((s, sIdx) => {
+        if (matchedSlots.has(sIdx)) return;
+        if (s.slotDate <= now) {
+          todayPosts.forEach((p, pIdx) => {
+            if (matchedPosts.has(pIdx) || matchedSlots.has(sIdx)) return;
+            s.status = 'live';
+            s.post = p;
+            matchedSlots.add(sIdx);
+            matchedPosts.add(pIdx);
+          });
+        }
+      });
+
+      // Tahap 3: Tentukan slot yang tersisa (terjadwal atau tertunda)
+      slots.forEach((s, sIdx) => {
+        if (matchedSlots.has(sIdx)) return;
+        if (s.slotDate > now) {
+          s.status = 'scheduled';
+        } else {
+          const minutesPassed = (now - s.slotDate) / (60 * 1000);
+          if (minutesPassed >= 5) {
+            s.status = 'missed';
+          } else {
+            s.status = 'running';
+          }
+        }
+      });
+
+      const liveCount = slots.filter(s => s.status === 'live').length;
+      return {
+        slots,
+        liveCount,
+        totalSlots: slots.length,
+        pct: Math.round((liveCount / slots.length) * 100)
+      };
+    }
+
     function renderPillars() {
       const grid = document.getElementById("pillars-grid");
+      const pad = n => String(n).padStart(2, '0');
       grid.innerHTML = PILLARS.map(p => {
         const wf = workflowsCache.find(w => w.name === p.workflowName);
         const isActive = wf && wf.state === "active";
@@ -827,21 +1094,62 @@
           ? `<strong>${liveArticles.length}</strong> live (<strong>${hist.length - liveArticles.length}</strong> draf)`
           : `<strong>${hist.length}</strong> pos`;
 
-        // Smart Overdue Detector & Fail-Safe Button Lifecycle:
-        const job = activeJobs[p.id];
-        let manualBtnHtml = '';
-        if (job) {
-          if (job.status === 'dispatching') {
-            manualBtnHtml = `<button class="btn-smart-run btn-dispatching" disabled>⏳ Memicu Server GitHub...</button>`;
-          } else if (job.status === 'processing') {
-            manualBtnHtml = `<button class="btn-smart-run btn-processing" disabled>🔄 Sedang Diproses & Diunggah...</button>`;
-          } else if (job.status === 'success') {
-            const dest = p.isBlogger ? 'Blogspot' : 'Facebook';
-            manualBtnHtml = `<button class="btn-smart-run btn-success" disabled>✅ Berhasil Terbit ke ${dest}!</button>`;
+        // Analisis Slot Harian
+        const dailyData = calculateDailySlotStatus(p, hist);
+
+        const slotsHtml = dailyData.slots.map(s => {
+          if (s.status === 'live') {
+            const pubTime = s.post && s.post.dateObj
+              ? `${pad(s.post.dateObj.getHours())}:${pad(s.post.dateObj.getMinutes())} WIB`
+              : '';
+            const title = s.post ? s.post.title : 'Konten telah terbit';
+            return `
+              <div class="slot-item is-live">
+                <div class="slot-item-top">
+                  <span class="slot-time">${s.timeStr}</span>
+                  <span class="slot-badge-live">🟢 Terbit ${pubTime}</span>
+                </div>
+                <div class="slot-post-title" title="${title}">📌 ${title}</div>
+              </div>
+            `;
+          } else if (s.status === 'missed') {
+            let btnHtml = '';
+            const job = activeJobs[p.id];
+            if (job) {
+              if (job.slotKey === s.slotKey) {
+                if (job.status === 'dispatching') {
+                  btnHtml = `<button class="btn-slot-bypass btn-dispatching" disabled>⏳ Memicu Server...</button>`;
+                } else if (job.status === 'processing') {
+                  btnHtml = `<button class="btn-slot-bypass btn-processing" disabled>🔄 Sedang Diproses...</button>`;
+                } else if (job.status === 'success') {
+                  btnHtml = `<button class="btn-slot-bypass btn-success" disabled>✅ Berhasil Terbit!</button>`;
+                }
+              } else {
+                btnHtml = `<button class="btn-slot-bypass" disabled style="opacity:0.35;">⚡ Terbitkan Slot ${s.timeStr}</button>`;
+              }
+            } else {
+              btnHtml = `<button class="btn-slot-bypass" onclick="triggerWorkflow('${p.workflowFile}', '${p.id}', this, '${s.slotKey}')">⚡ Terbitkan Slot ${s.timeStr}</button>`;
+            }
+            return `
+              <div class="slot-item is-missed">
+                <div class="slot-item-top">
+                  <span class="slot-time">${s.timeStr}</span>
+                  <span class="slot-badge-missed">⚠️ Tertunda</span>
+                </div>
+                ${btnHtml}
+              </div>
+            `;
+          } else {
+            return `
+              <div class="slot-item is-scheduled">
+                <div class="slot-item-top">
+                  <span class="slot-time">${s.timeStr}</span>
+                  <span class="slot-badge-sched">⏳ Terjadwal</span>
+                </div>
+              </div>
+            `;
           }
-        } else if (checkIsOverdue(p, hist)) {
-          manualBtnHtml = `<button class="btn-smart-run" onclick="triggerWorkflow('${p.workflowFile}', '${p.id}', this)" title="Jadwal sudah lewat tapi server tertunda. Klik untuk eksekusi langsung sekarang!">⚡ Terbitkan Sekarang (Manual Bypass)</button>`;
-        }
+        }).join("");
 
         return `
           <div class="card"${borderStyle}>
@@ -854,7 +1162,26 @@
               <div class="countdown-box">
                 <div class="countdown-label">Jadwal Tayang Berikutnya</div>
                 <div class="countdown-val" id="cd-${p.id}">${formatCountdown(p.nextTimesWIB())}</div>
-                ${manualBtnHtml}
+              </div>
+
+              <div class="target-box">
+                <div class="target-header">
+                  <span class="target-title">🎯 Target Hari Ini</span>
+                  <span class="target-count">${dailyData.liveCount} / ${dailyData.totalSlots} Pos (${dailyData.pct}%)</span>
+                </div>
+                <div class="target-bar">
+                  <div class="target-fill" style="width: ${dailyData.pct}%;"></div>
+                </div>
+              </div>
+
+              <div class="slots-container">
+                <div class="slots-header">
+                  <span>📋 Jadwal Slot Hari Ini:</span>
+                  <span style="font-size:0.65rem; color:#64748b;">${dailyData.totalSlots} Slot</span>
+                </div>
+                <div class="slots-list">
+                  ${slotsHtml}
+                </div>
               </div>
             </div>
             <div class="last-post">
@@ -1041,7 +1368,7 @@
     }
 
     /* GITHUB DISPATCH TRIGGER & TOKEN MANAGEMENT */
-    async function triggerWorkflow(workflowFile, pillarId, btnElement) {
+    async function triggerWorkflow(workflowFile, pillarId, btnElement, slotKey = null) {
       if (activeJobs[pillarId]) return; // Proteksi total: cegah klik ganda sama sekali
 
       let token = localStorage.getItem('ps_gh_token');
@@ -1065,6 +1392,7 @@
       // 1. Kunci tombol langsung & ubah warna jadi Kuning Amber (Memicu Server)
       activeJobs[pillarId] = {
         status: 'dispatching',
+        slotKey: slotKey,
         initialCount: initialCount,
         startTime: Date.now()
       };
