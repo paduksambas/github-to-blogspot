@@ -24,6 +24,7 @@ except ImportError:
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 METRICS_FILE = os.path.join(REPO_ROOT, "facebook_metrics.json")
+ACTIONS_STATUS_FILE = os.path.join(REPO_ROOT, "facebook_actions_status.json")
 
 SSL_CONTEXT = ssl.create_default_context()
 SSL_CONTEXT.check_hostname = False
@@ -138,7 +139,62 @@ def check_and_collect_metrics():
         return False
 
 
+def collect_github_actions_status():
+    """Mengambil daftar workflow aktif dan riwayat run terbaru via GITHUB_TOKEN agar dashboard bebas rate-limit."""
+    gh_token = os.environ.get("GITHUB_TOKEN", "").strip()
+    repo = os.environ.get("GITHUB_REPOSITORY", "paduksambas/github-to-blogspot").strip()
+
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "PadukaSambas-Monitor/1.0"
+    }
+    if gh_token:
+        headers["Authorization"] = f"Bearer {gh_token}"
+
+    status_payload = {
+        "updated_at": get_wib_now().strftime("%Y-%m-%d %H:%M:%S WIB"),
+        "workflows": [],
+        "runs": []
+    }
+
+    try:
+        req_wf = urllib.request.Request(f"https://api.github.com/repos/{repo}/actions/workflows", headers=headers)
+        with urllib.request.urlopen(req_wf, timeout=15, context=SSL_CONTEXT) as r:
+            wf_data = json.loads(r.read().decode("utf-8"))
+            for w in wf_data.get("workflows", []):
+                status_payload["workflows"].append({
+                    "id": w.get("id"),
+                    "name": w.get("name"),
+                    "path": w.get("path"),
+                    "state": w.get("state"),
+                    "html_url": w.get("html_url")
+                })
+
+        req_runs = urllib.request.Request(f"https://api.github.com/repos/{repo}/actions/runs?per_page=15", headers=headers)
+        with urllib.request.urlopen(req_runs, timeout=15, context=SSL_CONTEXT) as r:
+            runs_data = json.loads(r.read().decode("utf-8"))
+            for run in runs_data.get("workflow_runs", []):
+                status_payload["runs"].append({
+                    "id": run.get("id"),
+                    "name": run.get("name"),
+                    "event": run.get("event"),
+                    "status": run.get("status"),
+                    "conclusion": run.get("conclusion"),
+                    "created_at": run.get("created_at"),
+                    "html_url": run.get("html_url")
+                })
+
+        with open(ACTIONS_STATUS_FILE, "w", encoding="utf-8") as f:
+            json.dump(status_payload, f, indent=2, ensure_ascii=False)
+        print(f"[+] Status GitHub Actions tersinkron ({len(status_payload['workflows'])} workflows, {len(status_payload['runs'])} runs).")
+        return True
+    except Exception as e:
+        print(f"[!] Gagal sinkronisasi status GitHub Actions: {e}")
+        return False
+
+
 if __name__ == "__main__":
     ok = check_and_collect_metrics()
+    collect_github_actions_status()
     if not ok:
         sys.exit(1)

@@ -523,14 +523,28 @@
 
     async function loadAllData() {
       try {
-        const [wfRes, runRes, metRes] = await Promise.all([
-          fetch(`https://api.github.com/repos/${REPO}/actions/workflows`),
-          fetch(`https://api.github.com/repos/${REPO}/actions/runs?per_page=15`),
+        // 1. Muat data bebas limit langsung dari GitHub Raw CDN
+        const [actRes, metRes] = await Promise.all([
+          fetch(`${RAW_BASE}/facebook_actions_status.json?t=${Date.now()}`),
           fetch(`${RAW_BASE}/facebook_metrics.json?t=${Date.now()}`)
         ]);
-        if (wfRes.ok) workflowsCache = (await wfRes.json()).workflows || [];
-        if (runRes.ok) runsCache = (await runRes.json()).workflow_runs || [];
+
+        if (actRes.ok) {
+          const actJson = await actRes.json();
+          workflowsCache = actJson.workflows || [];
+          runsCache = actJson.runs || [];
+        }
         if (metRes.ok) metricsCache = await metRes.json();
+
+        // 2. Coba ambil data live detik ini dari API publik jika kuota IP belum habis (opsional)
+        try {
+          const [wfRes, runRes] = await Promise.all([
+            fetch(`https://api.github.com/repos/${REPO}/actions/workflows`),
+            fetch(`https://api.github.com/repos/${REPO}/actions/runs?per_page=15`)
+          ]);
+          if (wfRes.ok) workflowsCache = (await wfRes.json()).workflows || workflowsCache;
+          if (runRes.ok) runsCache = (await runRes.json()).workflow_runs || runsCache;
+        } catch (e) {}
 
         await Promise.all(PILLARS.map(async p => {
           try {
