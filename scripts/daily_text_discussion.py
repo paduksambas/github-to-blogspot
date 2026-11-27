@@ -251,4 +251,6 @@ if __name__ == "__main__":
     parser.add_argument("--force", action="store_true", help="Abaikan riwayat pernah tayang")
     args = parser.parse_args()
 
-    run_daily_text_publisher(dry_run=args.dry_run, force=args.force)
+    ok = run_daily_text_publisher(dry_run=args.dry_run, force=args.force)
+    if not ok:
+        sys.exit(1)

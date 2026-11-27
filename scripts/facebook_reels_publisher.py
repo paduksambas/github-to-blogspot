@@ -582,4 +582,6 @@ if __name__ == "__main__":
     parser.add_argument("--force", action="store_true", help="Abaikan riwayat Reels")
     args = parser.parse_args()
 
-    run_reels_publisher(dry_run=args.dry_run, force=args.force)
+    ok = run_reels_publisher(dry_run=args.dry_run, force=args.force)
+    if not ok:
+        sys.exit(1)

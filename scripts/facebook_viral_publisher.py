@@ -623,4 +623,6 @@ if __name__ == "__main__":
     parser.add_argument("--force", action="store_true", help="Paksa penerbitan meskipun berita sudah tercatat di riwayat")
     args = parser.parse_args()
 
-    run_hourly_facebook_publisher(dry_run=args.dry_run, force=args.force)
+    ok = run_hourly_facebook_publisher(dry_run=args.dry_run, force=args.force)
+    if not ok:
+        sys.exit(1)
