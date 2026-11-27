@@ -1,9 +1,15 @@
 {
   "page_name": "Paduka Sambas",
   "followers_count": 948,
-  "fan_count": 0,
-  "token_status": "CHECKING",
+  "fan_count": 948,
+  "token_status": "ONLINE",
   "error_message": "",
-  "checked_at": "-",
-  "history": []
+  "checked_at": "2026-11-27 16:40:09 WIB",
+  "history": [
+    {
+      "date": "2026-11-27",
+      "followers_count": 948,
+      "fan_count": 948
+    }
+  ]
 }
