@@ -19,18 +19,22 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 
 def get_system_font(font_type="bold", size=24):
-    """Mencari font sistem yang tersedia di Windows maupun Linux (GitHub Actions)."""
+    """Mencari font sistem dengan prioritas utama font bawaan repositori (konsisten di Windows & Linux)."""
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    fonts_dir = os.path.join(repo_root, "assets", "fonts")
+
     if font_type == "impact":
         candidate_paths = [
+            os.path.join(fonts_dir, "Anton-Regular.ttf"),
             "C:/Windows/Fonts/impact.ttf",
             "/usr/share/fonts/truetype/msttcorefonts/Impact.ttf",
+            os.path.join(fonts_dir, "Poppins-Bold.ttf"),
             "C:/Windows/Fonts/arialbd.ttf",
-            "C:/Windows/Fonts/segoeuib.ttf",
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-            "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
         ]
     elif font_type == "bold":
         candidate_paths = [
+            os.path.join(fonts_dir, "Poppins-Bold.ttf"),
             "C:/Windows/Fonts/arialbd.ttf",
             "C:/Windows/Fonts/segoeuib.ttf",
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -38,6 +42,7 @@ def get_system_font(font_type="bold", size=24):
         ]
     else:
         candidate_paths = [
+            os.path.join(fonts_dir, "Poppins-Regular.ttf"),
             "C:/Windows/Fonts/arial.ttf",
             "C:/Windows/Fonts/segoeui.ttf",
             "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -173,48 +178,68 @@ def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_ca
             cy = 35 + (r * 16)
             draw.ellipse([cx, cy, cx + 6, cy + 6], fill=accent_color)
 
-    # Badge Logo Kiri Atas
+    # Badge Logo Kiri Atas (Auto-Fit)
     badge_w, badge_h = 240, 95
     draw.rounded_rectangle([25, 20, 25 + badge_w, 20 + badge_h], radius=18, fill=badge_bg, outline=(0, 0, 0), width=3)
-    f_badge1 = get_system_font("impact", 28)
-    f_badge2 = get_system_font("impact", 24)
-    draw.text((42, 28), "PADUKA SAMBAS", font=f_badge1, fill=badge_fg)
-    badge_sub = data.get("badge_red", "BERITA UTAMA")
-    if len(badge_sub) > 14:
-        badge_sub = "BERITA UTAMA"
-    draw.text((42, 60), badge_sub.upper(), font=f_badge2, fill=badge_fg)
 
-    # Headline Utama Atas
+    b1_size = 28
+    while b1_size > 14:
+        f_badge1 = get_system_font("impact", b1_size)
+        if f_badge1.getbbox("PADUKA SAMBAS")[2] - f_badge1.getbbox("PADUKA SAMBAS")[0] <= badge_w - 24:
+            break
+        b1_size -= 2
+
+    badge_sub = data.get("badge_red", "BERITA UTAMA").upper()
+    if len(badge_sub) > 16:
+        badge_sub = "BERITA UTAMA"
+    b2_size = 22
+    while b2_size > 12:
+        f_badge2 = get_system_font("impact", b2_size)
+        if f_badge2.getbbox(badge_sub)[2] - f_badge2.getbbox(badge_sub)[0] <= badge_w - 24:
+            break
+        b2_size -= 2
+
+    w_b1 = f_badge1.getbbox("PADUKA SAMBAS")[2] - f_badge1.getbbox("PADUKA SAMBAS")[0]
+    w_b2 = f_badge2.getbbox(badge_sub)[2] - f_badge2.getbbox(badge_sub)[0]
+    draw.text((25 + (badge_w - w_b1) // 2, 26), "PADUKA SAMBAS", font=f_badge1, fill=badge_fg)
+    draw.text((25 + (badge_w - w_b2) // 2, 64), badge_sub, font=f_badge2, fill=badge_fg)
+
+    # Headline Utama Atas (Auto-Fit)
     hl1 = data.get("headline_line1", "").strip().upper()
     hl2_p = data.get("headline_line2_prefix", "").strip().upper()
     hl2_k = data.get("keyword_highlight", "").strip().upper()
     hl2 = f"{hl2_p} {hl2_k}".strip()
 
     if not hl1:
-        full_title = data.get("title", "")
-        parts = full_title.split(":") if ":" in full_title else full_title.split(" - ")
-        if len(parts) > 1:
-            hl1 = parts[0][:22].upper()
-            hl2 = parts[1][:22].upper()
+        full_title = data.get("title", "").strip().upper()
+        wrapped_top = textwrap.wrap(full_title, width=22)
+        if len(wrapped_top) >= 2:
+            hl1 = wrapped_top[0]
+            hl2 = wrapped_top[1]
+        elif wrapped_top:
+            hl1 = wrapped_top[0]
+            hl2 = "KABAR TERKINI"
         else:
-            words = full_title.split()
-            hl1 = " ".join(words[:len(words)//2])[:22].upper()
-            hl2 = " ".join(words[len(words)//2:])[:22].upper()
+            hl1 = "KABAR UTAMA"
+            hl2 = "HARI INI"
 
-    font_top = get_system_font("impact", 66)
-    avail_x = 285
-    avail_w = w - avail_x - 110
+    avail_x = 280
+    avail_w = w - avail_x - 35
 
-    b_hl1 = font_top.getbbox(hl1)
-    w_hl1 = b_hl1[2] - b_hl1[0]
+    top_size = 66
+    while top_size > 28:
+        font_top = get_system_font("impact", top_size)
+        w_hl1 = font_top.getbbox(hl1)[2] - font_top.getbbox(hl1)[0]
+        w_hl2 = font_top.getbbox(hl2)[2] - font_top.getbbox(hl2)[0]
+        if w_hl1 <= avail_w and w_hl2 <= avail_w:
+            break
+        top_size -= 3
+
     x_hl1 = avail_x + max(0, (avail_w - w_hl1) // 2)
-
-    b_hl2 = font_top.getbbox(hl2)
-    w_hl2 = b_hl2[2] - b_hl2[0]
     x_hl2 = avail_x + max(0, (avail_w - w_hl2) // 2)
 
     draw.text((x_hl1, 30), hl1, font=font_top, fill=(255, 255, 255), stroke_width=6, stroke_fill=(0, 0, 0))
-    draw.text((x_hl2, 115), hl2, font=font_top, fill=accent_color, stroke_width=6, stroke_fill=(0, 0, 0))
+    draw.text((x_hl2, 118), hl2, font=font_top, fill=accent_color, stroke_width=6, stroke_fill=(0, 0, 0))
 
     # Garis Pembatas Header Hitam
     draw.line([(0, 250), (w, 250)], fill=(0, 0, 0), width=6)
@@ -321,7 +346,14 @@ def generate_facebook_news_card(data, output_path="posts/facebook_drafts/news_ca
         region_tag = "BERITA NASIONAL"
 
     sub_text = f"{badge_cat}  •  SUMBER: {source_cr}  •  {region_tag}"
-    draw.text((85, 1176), sub_text, font=get_system_font("bold", 21), fill=(240, 240, 240))
+    sub_size = 21
+    max_sub_w = w - 220
+    while sub_size > 13:
+        f_sub_bar = get_system_font("bold", sub_size)
+        if f_sub_bar.getbbox(sub_text)[2] - f_sub_bar.getbbox(sub_text)[0] <= max_sub_w:
+            break
+        sub_size -= 1
+    draw.text((85, 1175), sub_text, font=f_sub_bar, fill=(240, 240, 240))
 
     # Aksen Dots Kanan
     for c in range(5):

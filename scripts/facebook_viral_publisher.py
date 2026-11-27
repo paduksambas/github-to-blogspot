@@ -384,11 +384,11 @@ def craft_facebook_payload_with_gemini(article, gemini_api_key=None):
     else:
         badge_red = "BERITA NASIONAL"
 
-    # Default fallback data
-    words = title.split()
-    half = max(1, len(words) // 2)
-    hl1 = " ".join(words[:half])[:24].upper()
-    hl2_rem = " ".join(words[half:])[:24].upper()
+    # Default fallback data (word-wrap bersih tanpa memotong kata di tengah)
+    import textwrap
+    wrapped_hl = textwrap.wrap(title.upper(), width=22)
+    hl1 = wrapped_hl[0] if len(wrapped_hl) >= 1 else title[:22].upper()
+    hl2_rem = wrapped_hl[1] if len(wrapped_hl) >= 2 else "KABAR TERKINI"
 
     card_data = {
         "title": title,
