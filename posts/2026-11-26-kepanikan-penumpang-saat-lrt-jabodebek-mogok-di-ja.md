@@ -4,11 +4,11 @@ labels: ["Berita", "Hot"]
 description: "Simak kronologi lengkap LRT Jabodebek mogok di jalur Pancoran-Kuningan, keluhan penumpang terjebak, hingga klarifikasi resmi pihak KAI."
 status: "draft"
 date: "2026-11-26"
-thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-kepanikan-penumpang-saat-lrt-jabodebek-mogok-di-ja.jpg"
+thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-kepanikan-penumpang-saat-lrt-jabodebek-mogok-di-ja.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-kepanikan-penumpang-saat-lrt-jabodebek-mogok-di-ja.jpg" alt="Kepanikan Penumpang Saat LRT Jabodebek Mogok di Jalur Layang Pancoran-Kuningan" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-kepanikan-penumpang-saat-lrt-jabodebek-mogok-di-ja.jpg" alt="Kepanikan Penumpang Saat LRT Jabodebek Mogok di Jalur Layang Pancoran-Kuningan" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Kepanikan Penumpang Saat LRT Jabodebek Mogok di Jalur Layang Pancoran-Kuningan</em>
 </p>
 

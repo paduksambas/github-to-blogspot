@@ -791,9 +791,10 @@ def main():
         title, primary_category, news_item.get("rss_image", ""), used_images, local_image_path
     )
     
-    # URL CDN Publik untuk Thumbnail di Blogspot
-    thumbnail_url = f"https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/{image_file_name}"
-    print(f"[+] URL CDN Thumbnail: {thumbnail_url}")
+    # URL Global CDN Berkecepatan Tinggi (jsDelivr Multi-CDN Fastly + Cloudflare)
+    # Bebas batas kuota GitHub, loading gambar super cepat di Indonesia & Global
+    thumbnail_url = f"https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/{image_file_name}"
+    print(f"[+] URL CDN Thumbnail (jsDelivr High-Speed): {thumbnail_url}")
 
     # Auto-repair internal link kosong [teks]() jika AI lupa menyalin URL lengkap
     if existing_articles and "]()" in content:

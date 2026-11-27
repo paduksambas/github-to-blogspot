@@ -4,11 +4,11 @@ labels: ["Berita", "Bisnis"]
 description: "Simak ringkasan data resmi BPS mengenai indikator ketenagakerjaan dan tren ekonomi Kabupaten Sambas periode 2024."
 status: "draft"
 date: "2026-11-26"
-thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-sorotan-data-ekonomi-kabupaten-sambas-terbaru.jpg"
+thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-sorotan-data-ekonomi-kabupaten-sambas-terbaru.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-sorotan-data-ekonomi-kabupaten-sambas-terbaru.jpg" alt="Sorotan Data Ketenagakerjaan dan Indikator Ekonomi Kabupaten Sambas Terbaru" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-sorotan-data-ekonomi-kabupaten-sambas-terbaru.jpg" alt="Sorotan Data Ketenagakerjaan dan Indikator Ekonomi Kabupaten Sambas Terbaru" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Sorotan Data Ketenagakerjaan dan Indikator Ekonomi Kabupaten Sambas Terbaru</em>
 </p>
 

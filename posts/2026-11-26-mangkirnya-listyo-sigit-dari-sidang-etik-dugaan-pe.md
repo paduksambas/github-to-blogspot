@@ -4,11 +4,11 @@ labels: ["Berita"]
 description: "Sorotan publik tertuju pada mangkirnya Listyo Sigit dari sidang etik dugaan penyadapan. Polri pastikan proses penindakan hukum tetap berjalan."
 status: "draft"
 date: "2026-11-26"
-thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-mangkirnya-listyo-sigit-dari-sidang-etik-dugaan-pe.jpg"
+thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-mangkirnya-listyo-sigit-dari-sidang-etik-dugaan-pe.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-mangkirnya-listyo-sigit-dari-sidang-etik-dugaan-pe.jpg" alt="Mangkirnya Listyo Sigit dari Sidang Etik Dugaan Penyadapan: Polri Pastikan Proses Hukum Jalan Terus" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-mangkirnya-listyo-sigit-dari-sidang-etik-dugaan-pe.jpg" alt="Mangkirnya Listyo Sigit dari Sidang Etik Dugaan Penyadapan: Polri Pastikan Proses Hukum Jalan Terus" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Mangkirnya Listyo Sigit dari Sidang Etik Dugaan Penyadapan: Polri Pastikan Proses Hukum Jalan Terus</em>
 </p>
 

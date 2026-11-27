@@ -5,11 +5,11 @@ description: ""
 status: "publish"
 blogger_url: "https://padukasambas.blogspot.com/2026/11/gaya-unik-tes-kesehatan-cawapres.html"
 date: "2026-11-27"
-thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-gaya-unik-tes-kesehatan-cawapres-sugiono-tampil-al.jpg"
+thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-gaya-unik-tes-kesehatan-cawapres-sugiono-tampil-al.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-gaya-unik-tes-kesehatan-cawapres-sugiono-tampil-al.jpg" alt="Gaya Unik Tes Kesehatan Cawapres: Sugiono Tampil Ala Prabowo, Amran Pilih Kemeja Putih" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-gaya-unik-tes-kesehatan-cawapres-sugiono-tampil-al.jpg" alt="Gaya Unik Tes Kesehatan Cawapres: Sugiono Tampil Ala Prabowo, Amran Pilih Kemeja Putih" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Gaya Unik Tes Kesehatan Cawapres: Sugiono Tampil Ala Prabowo, Amran Pilih Kemeja Putih</em>
 </p>
 

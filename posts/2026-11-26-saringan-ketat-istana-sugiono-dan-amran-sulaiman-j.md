@@ -4,11 +4,11 @@ labels: ["Berita"]
 description: "Sugiono dan Andi Amran Sulaiman jalani tes kesehatan di RSPAD usai kantongi SKCK, hadapi verifikasi krusial penentuan kursi calon wakil presiden."
 status: "draft"
 date: "2026-11-26"
-thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-saringan-ketat-istana-sugiono-dan-amran-sulaiman-j.jpg"
+thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-saringan-ketat-istana-sugiono-dan-amran-sulaiman-j.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-saringan-ketat-istana-sugiono-dan-amran-sulaiman-j.jpg" alt="Saringan Ketat Istana: Sugiono dan Amran Sulaiman Jalani Tes Kesehatan Calon Wakil Presiden" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-saringan-ketat-istana-sugiono-dan-amran-sulaiman-j.jpg" alt="Saringan Ketat Istana: Sugiono dan Amran Sulaiman Jalani Tes Kesehatan Calon Wakil Presiden" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Saringan Ketat Istana: Sugiono dan Amran Sulaiman Jalani Tes Kesehatan Calon Wakil Presiden</em>
 </p>
 

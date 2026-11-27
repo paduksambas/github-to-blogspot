@@ -5,11 +5,11 @@ description: "Kesaksian Kemenkum, Kemendikdasmen, dan DPR di DKPP bongkar asal-u
 status: "publish"
 blogger_url: "https://padukasambas.blogspot.com/2026/11/kala-pasal-selundupan-gibran-terkuak-di.html"
 date: "2026-11-27"
-thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-kala-pasal-selundupan-gibran-terkuak-di-sidang-eti.jpg"
+thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-kala-pasal-selundupan-gibran-terkuak-di-sidang-eti.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-kala-pasal-selundupan-gibran-terkuak-di-sidang-eti.jpg" alt="Kala 'Pasal Selundupan' Gibran Terkuak di Sidang Etik: Kemenkum hingga DPR Buka Suara" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-kala-pasal-selundupan-gibran-terkuak-di-sidang-eti.jpg" alt="Kala 'Pasal Selundupan' Gibran Terkuak di Sidang Etik: Kemenkum hingga DPR Buka Suara" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Kala 'Pasal Selundupan' Gibran Terkuak di Sidang Etik: Kemenkum hingga DPR Buka Suara</em>
 </p>
 

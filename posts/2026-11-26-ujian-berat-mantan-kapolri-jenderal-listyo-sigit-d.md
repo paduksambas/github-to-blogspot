@@ -4,11 +4,11 @@ labels: ["Nasional", "Hukum", "Politik", "Kepolisian"]
 description: ""
 status: "draft"
 date: "2026-11-26"
-thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-ujian-berat-mantan-kapolri-jenderal-listyo-sigit-d.jpg"
+thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-ujian-berat-mantan-kapolri-jenderal-listyo-sigit-d.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-ujian-berat-mantan-kapolri-jenderal-listyo-sigit-d.jpg" alt="Ujian Berat Mantan Kapolri Jenderal Listyo Sigit di Sidang Etik Polri Hari Ini" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-ujian-berat-mantan-kapolri-jenderal-listyo-sigit-d.jpg" alt="Ujian Berat Mantan Kapolri Jenderal Listyo Sigit di Sidang Etik Polri Hari Ini" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Ujian Berat Mantan Kapolri Jenderal Listyo Sigit di Sidang Etik Polri Hari Ini</em>
 </p>
 

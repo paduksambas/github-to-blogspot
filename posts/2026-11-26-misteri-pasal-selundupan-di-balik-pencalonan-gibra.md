@@ -4,11 +4,11 @@ labels: ["Berita", "Hot"]
 description: ""
 status: "draft"
 date: "2026-11-26"
-thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-misteri-pasal-selundupan-di-balik-pencalonan-gibra.jpg"
+thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-misteri-pasal-selundupan-di-balik-pencalonan-gibra.jpg"
 ---
 
 <p style="text-align: center;">
-  <img src="https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-misteri-pasal-selundupan-di-balik-pencalonan-gibra.jpg" alt="Misteri 'Pasal Selundupan' di Balik Pencalonan Gibran: Pengakuan Mengejutkan di Ruang Sidang DKPP" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
+  <img src="https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-misteri-pasal-selundupan-di-balik-pencalonan-gibra.jpg" alt="Misteri 'Pasal Selundupan' di Balik Pencalonan Gibran: Pengakuan Mengejutkan di Ruang Sidang DKPP" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" />
   <br/><em>Ilustrasi: Misteri 'Pasal Selundupan' di Balik Pencalonan Gibran: Pengakuan Mengejutkan di Ruang Sidang DKPP</em>
 </p>
 
