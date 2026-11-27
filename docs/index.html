@@ -586,12 +586,13 @@
             if (r.ok) {
               const raw = await r.json();
               if (p.isBlogger) {
-                historiesCache[p.id] = Object.values(raw).map(v => {
+                const fileMap = {};
+                Object.values(raw).forEach(v => {
                   let pubTime = v.published_at;
                   if (!pubTime && v.date) {
                     pubTime = formatISOToWIB(v.date);
                   }
-                  return {
+                  const item = {
                     title: v.title || v.published_title || v.file || "(tanpa judul)",
                     published_at: pubTime || "-",
                     raw_time: v.published_at || v.date || "",
@@ -600,7 +601,12 @@
                     thumbnail: v.thumbnail || null,
                     file: v.file || ""
                   };
-                }).sort((a, b) => (a.raw_time > b.raw_time ? 1 : -1));
+                  const fKey = item.file || item.title;
+                  if (!fileMap[fKey] || item.is_live) {
+                    fileMap[fKey] = item;
+                  }
+                });
+                historiesCache[p.id] = Object.values(fileMap).sort((a, b) => (a.raw_time > b.raw_time ? 1 : -1));
               } else {
                 historiesCache[p.id] = raw;
               }
@@ -702,7 +708,7 @@
         (historiesCache.story || []).length,
         (historiesCache.text || []).length,
         (historiesCache.reels || []).length,
-        (historiesCache.blogger || []).length
+        (historiesCache.blogger || []).filter(x => x.is_live).length
       ];
 
       const ctx1 = document.getElementById("formatChart").getContext("2d");
