@@ -4,10 +4,15 @@
   "fan_count": 948,
   "token_status": "ONLINE",
   "error_message": "",
-  "checked_at": "2026-11-27 22:41:20 WIB",
+  "checked_at": "2026-11-28 02:33:47 WIB",
   "history": [
     {
       "date": "2026-11-27",
+      "followers_count": 948,
+      "fan_count": 948
+    },
+    {
+      "date": "2026-11-28",
       "followers_count": 948,
       "fan_count": 948
     }
