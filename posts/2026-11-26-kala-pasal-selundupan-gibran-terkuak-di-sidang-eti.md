@@ -2,8 +2,9 @@
 title: "Kala 'Pasal Selundupan' Gibran Terkuak di Sidang Etik: Kemenkum hingga DPR Buka Suara"
 labels: ["Berita"]
 description: "Kesaksian Kemenkum, Kemendikdasmen, dan DPR di DKPP bongkar asal-usul kontroversi 'Pasal Gibran' dalam PKPU, picu polemik aturan pencalonan."
-status: "draft"
-date: "2026-11-26"
+status: "publish"
+blogger_url: "https://padukasambas.blogspot.com/2026/11/kala-pasal-selundupan-gibran-terkuak-di.html"
+date: "2026-11-27"
 thumbnail: "https://raw.githubusercontent.com/paduksambas/github-to-blogspot/main/posts/images/2026-11-26-kala-pasal-selundupan-gibran-terkuak-di-sidang-eti.jpg"
 ---
 
