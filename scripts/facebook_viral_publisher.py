@@ -79,6 +79,45 @@ EDITORIAL_FALLBACK_IMAGES = {
     "Default": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80"
 }
 
+# =====================================================================
+# META (FACEBOOK) COMMUNITY STANDARDS SAFETY GUARD & BLACKLIST
+# =====================================================================
+# Memastikan akun Facebook Page Paduka Sambas 100% AMAN dari teguran,
+# pemblokiran (shadowban), pelanggaran hak cipta, dan strike Meta.
+FACEBOOK_PROHIBITED_KEYWORDS = [
+    # 1. Kekerasan Grafis, Gore, Darah & Kematian Sadis (Graphic Violence & Gore)
+    "mutilasi", "jasad membusuk", "mayat membusuk", "terpotong-potong", "potongan tubuh",
+    "leher digorok", "darah berceceran", "terbakar hidup-hidup", "otopsi", "kepala putus",
+    "jenazah hancur", "dikeroyok sampai tewas", "disiksa", "penyiksaan sadis",
+
+    # 2. Bunuh Diri & Melukai Diri Sendiri (Suicide & Self-Harm - Zero Tolerance)
+    "bunuh diri", "gantung diri", "lompat dari gedung", "tenggak racun", "sayat tangan",
+    "akhiri hidup", "tabrakkan diri ke kereta",
+
+    # 3. Konten Seksual, Asusila & Pelecehan (Nudity & Sexual Exploitation)
+    "pemerkosaan", "perkosa", "pencabulan", "cabul", "pelecehan seksual", "porno",
+    "pornografi", "alat kelamin", "sodomi", "vagina", "penis", "tanpa busana",
+    "telanjang", "video syur", "adegan ranjang", "prostitusi", "open bo",
+
+    # 4. Ujaran Kebencian, SARA & Diskriminasi (Hate Speech)
+    "penistaan agama", "bakar masjid", "bakar gereja", "kafir laknat",
+
+    # 5. Narkotika & Zat Terlarang Vulgar (Dangerous Goods)
+    "jual sabu", "pesan narkoba", "ganja sintetis", "ekstasi murah"
+]
+
+
+def is_meta_compliant(article):
+    """
+    Memeriksa kepatuhan berita terhadap Standar Komunitas Meta (Facebook Community Standards).
+    Menghindarkan Facebook Page dari teguran, pelanggaran konten sensitif, atau shadowban.
+    """
+    text = (article.get("title", "") + " " + article.get("summary", "")).lower()
+    for bad_word in FACEBOOK_PROHIBITED_KEYWORDS:
+        if bad_word in text:
+            return False, f"Terdeteksi kata sensitif/terlarang Meta: '{bad_word}'"
+    return True, "Safe"
+
 
 def load_mdv14_feed_catalog():
     """
@@ -377,6 +416,12 @@ Judul: {title}
 Sumber Asli: {source}
 Ringkasan: {summary}
 
+ATURAN KEPATUHAN STANDAR KOMUNITAS META (WAJIB DIPATUHI AGAR BEBAS TEGURAN):
+- DILARANG ENGAGEMENT BAIT: Jangan pernah gunakan kalimat spam seperti "Ketik 1", "Share jika setuju", "Komentar Amin", "Wajib bagikan", "Tag temanmu".
+- DILARANG GORE & VULGAR: Jangan mendeskripsikan darah, luka fisik mengerikan, atau bunuh diri secara grafis.
+- DISKUSI SANTUN & TERBUKA: discussion_prompt wajib berupa pertanyaan jurnalistik yang sopan dan berimbang (contoh: "Bagaimana pandangan Anda mengenai kebijakan ini? Sampaikan pendapat santun di kolom komentar.")
+- FAKTUAL & KREDIBEL: Ringkasan harus akurat sesuai fakta berita tanpa klaim palsu/hoaks.
+
 ATURAN JSON KETAT:
 - badge_gold: 1-2 kata kapital kategori berita (contoh: GEOPOLITIK, NASIONAL, EKONOMI, HUKUM)
 - kicker: 2-4 kata kapital penjelas konteks (contoh: RESPON CEPAT KELUHAN WARGA, BABAK BARU PROSES HUKUM)
@@ -468,6 +513,12 @@ def run_hourly_facebook_publisher(dry_run=False, force=False):
         if not force:
             if url in published_urls or t_clean in published_titles:
                 continue
+
+        # Filter Kepatuhan Standar Komunitas Meta (Facebook Safety Guard)
+        is_safe, reason = is_meta_compliant(item)
+        if not is_safe:
+            # Lewati berita sensitif demi keamanan mutlak akun dari teguran Meta
+            continue
 
         score = calculate_virality_score(item, all_titles)
         item["virality_score"] = score
