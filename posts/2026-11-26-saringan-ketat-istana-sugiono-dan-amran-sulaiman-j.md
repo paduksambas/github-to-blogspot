@@ -2,8 +2,9 @@
 title: "Saringan Ketat Istana: Sugiono dan Amran Sulaiman Jalani Tes Kesehatan Calon Wakil Presiden"
 labels: ["Berita"]
 description: "Sugiono dan Andi Amran Sulaiman jalani tes kesehatan di RSPAD usai kantongi SKCK, hadapi verifikasi krusial penentuan kursi calon wakil presiden."
-status: "draft"
-date: "2026-11-26"
+status: "publish"
+blogger_url: "https://padukasambas.blogspot.com/2026/11/saringan-ketat-istana-sugiono-dan-amran.html"
+date: "2026-11-28"
 thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-saringan-ketat-istana-sugiono-dan-amran-sulaiman-j.jpg"
 ---
 
