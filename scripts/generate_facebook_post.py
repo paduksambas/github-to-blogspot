@@ -369,6 +369,11 @@ def publish_to_facebook(image_path, caption, page_id=None, page_token=None):
     page_id = str(raw_page_id).strip().strip('"\'')
     page_token = str(raw_page_token).strip().strip('"\'')
 
+    # Safe debug format check
+    prefix = page_token[:10] if len(page_token) >= 10 else page_token
+    suffix = page_token[-4:] if len(page_token) >= 4 else ""
+    print(f"[*] Validasi Token: Panjang={len(page_token)}, Format Awalan='{prefix}...{suffix}', Titik={page_token.count('.')}, Spasi={page_token.count(' ')}")
+
     if not page_id or not page_token:
         print("[!] Gagal: FB_PAGE_ID atau FB_PAGE_ACCESS_TOKEN belum disetel di environment.")
         return False
