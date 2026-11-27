@@ -2,10 +2,10 @@ name: Daily Facebook Story Publisher
 
 on:
   schedule:
-    # Berjalan 2 kali sehari:
-    # 1. 08:00 WIB (01:00 UTC) - Jam Perjalanan & Pagi Hari
-    # 2. 21:00 WIB (14:00 UTC) - Jam Santai Malam Hari
-    - cron: '0 1,14 * * *'
+    # Berjalan 2 kali sehari (menit ke-12 agar tidak terkena antrean penuh menit :00):
+    # 1. 08:12 WIB (01:12 UTC) - Jam Perjalanan & Pagi Hari
+    # 2. 21:12 WIB (14:12 UTC) - Jam Santai Malam Hari
+    - cron: '12 1,14 * * *'
 
   workflow_dispatch:
     inputs:

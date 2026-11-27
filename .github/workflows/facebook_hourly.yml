@@ -2,8 +2,8 @@ name: Hourly Facebook Viral News Publisher
 
 on:
   schedule:
-    # Berjalan mandiri setiap 1 jam tepat (24 kali sehari tanpa menunggu blog)
-    - cron: '0 * * * *'
+    # Berjalan mandiri setiap 1 jam (menit ke-17 untuk menghindari antrean puncak GitHub di menit :00)
+    - cron: '17 * * * *'
 
   workflow_dispatch:
     inputs:
