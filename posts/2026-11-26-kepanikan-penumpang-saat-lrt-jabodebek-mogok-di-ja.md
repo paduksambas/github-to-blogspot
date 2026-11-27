@@ -2,8 +2,9 @@
 title: "Kepanikan Penumpang Saat LRT Jabodebek Mogok di Jalur Layang Pancoran-Kuningan"
 labels: ["Berita", "Hot"]
 description: "Simak kronologi lengkap LRT Jabodebek mogok di jalur Pancoran-Kuningan, keluhan penumpang terjebak, hingga klarifikasi resmi pihak KAI."
-status: "draft"
-date: "2026-11-26"
+status: "publish"
+blogger_url: "https://padukasambas.blogspot.com/2026/11/kepanikan-penumpang-saat-lrt-jabodebek.html"
+date: "2026-11-27"
 thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-kepanikan-penumpang-saat-lrt-jabodebek-mogok-di-ja.jpg"
 ---
 
