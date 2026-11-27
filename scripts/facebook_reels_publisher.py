@@ -42,6 +42,7 @@ try:
         extract_opengraph_image,
         EDITORIAL_FALLBACK_IMAGES,
         load_all_facebook_published_history,
+        is_duplicate_news,
         sanitize_caption_anti_clickbait,
         get_dynamic_hashtags
     )
@@ -55,6 +56,7 @@ except ImportError:
         extract_opengraph_image,
         EDITORIAL_FALLBACK_IMAGES,
         load_all_facebook_published_history,
+        is_duplicate_news,
         sanitize_caption_anti_clickbait,
         get_dynamic_hashtags
     )
@@ -491,10 +493,7 @@ def run_reels_publisher(dry_run=False, force=False):
     print(f"Waktu Eksekusi: {get_wib_now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
     print("=" * 70)
 
-    history = load_reels_history()
-    published_urls = {h.get("url") for h in history if h.get("url")}
-    published_titles = {h.get("title", "").strip().lower() for h in history if h.get("title")}
-    cross_urls, cross_titles = load_all_facebook_published_history()
+    all_published_items = load_all_facebook_published_history()
 
     # 1. Muat artikel dari katalog MD-V14
     feed_catalog = load_mdv14_feed_catalog()
@@ -514,10 +513,11 @@ def run_reels_publisher(dry_run=False, force=False):
     candidates = []
     for item in all_articles:
         url = item.get("url", "")
-        t_clean = item.get("title", "").strip().lower()
+        title = item.get("title", "")
 
         if not force:
-            if url in published_urls or t_clean in published_titles:
+            is_dup, _ = is_duplicate_news(title, url, all_published_items)
+            if is_dup:
                 continue
 
         is_safe, _ = is_meta_compliant(item)
@@ -529,15 +529,11 @@ def run_reels_publisher(dry_run=False, force=False):
         candidates.append(item)
 
     if not candidates:
-        print("[*] Semua berita terbaru sudah pernah diangkat ke Reels.")
+        print("[*] Semua berita terbaru sudah pernah diangkat di pilar Facebook/Blogger. Berhenti demi mencegah duplikasi.")
         return True
 
     candidates.sort(key=lambda x: x["score"], reverse=True)
-    fresh_cross = [
-        c for c in candidates
-        if c.get("url", "") not in cross_urls and c.get("title", "").strip().lower() not in cross_titles
-    ]
-    chosen = fresh_cross[0] if fresh_cross else candidates[0]
+    chosen = candidates[0]
 
     # Pastikan foto tersedia
     final_img = chosen.get("image_url")

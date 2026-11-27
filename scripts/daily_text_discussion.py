@@ -31,6 +31,7 @@ try:
         is_meta_compliant,
         calculate_virality_score,
         load_all_facebook_published_history,
+        is_duplicate_news,
         sanitize_caption_anti_clickbait
     )
 except ImportError:
@@ -40,6 +41,7 @@ except ImportError:
         is_meta_compliant,
         calculate_virality_score,
         load_all_facebook_published_history,
+        is_duplicate_news,
         sanitize_caption_anti_clickbait
     )
 
@@ -177,10 +179,7 @@ def run_daily_text_publisher(dry_run=False, force=False):
     print(f"Waktu Eksekusi: {get_wib_now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
     print("=" * 70)
 
-    history = load_text_history()
-    published_urls = {h.get("url") for h in history if h.get("url")}
-    published_titles = {h.get("title", "").strip().lower() for h in history if h.get("title")}
-    cross_urls, cross_titles = load_all_facebook_published_history()
+    all_published_items = load_all_facebook_published_history()
 
     # 1. Muat artikel dari katalog MD-V14
     feed_catalog = load_mdv14_feed_catalog()
@@ -197,14 +196,15 @@ def run_daily_text_publisher(dry_run=False, force=False):
 
     all_titles = [a["title"].strip().lower() for a in all_articles]
 
-    # 2. Filter kepatuhan & urutkan topik diskusi terbaik
+    # 2. Filter Multi-Layer Anti-Duplikasi & Kepatuhan Standar Komunitas
     candidates = []
     for item in all_articles:
         url = item.get("url", "")
-        t_clean = item.get("title", "").strip().lower()
+        title = item.get("title", "")
 
         if not force:
-            if url in published_urls or t_clean in published_titles:
+            is_dup, _ = is_duplicate_news(title, url, all_published_items)
+            if is_dup:
                 continue
 
         is_safe, _ = is_meta_compliant(item)
@@ -216,16 +216,11 @@ def run_daily_text_publisher(dry_run=False, force=False):
         candidates.append(item)
 
     if not candidates:
-        print("[*] Semua topik terbaru sudah pernah diangkat. Tidak ada postingan teks baru.")
+        print("[*] Semua topik terbaru sudah pernah diangkat di pilar Facebook/Blogger. Berhenti demi mencegah duplikasi.")
         return True
 
-    # Utamakan isu yang belum tayang di format lain agar variasi konten terjaga
     candidates.sort(key=lambda x: x["score"], reverse=True)
-    fresh_cross = [
-        c for c in candidates
-        if c.get("url", "") not in cross_urls and c.get("title", "").strip().lower() not in cross_titles
-    ]
-    chosen = fresh_cross[0] if fresh_cross else candidates[0]
+    chosen = candidates[0]
 
     print(f"[★] Topik Diskusi Terpilih: {chosen['title']} ({chosen['source_name']})")
 

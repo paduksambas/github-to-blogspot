@@ -28,6 +28,7 @@ import email.utils
 import urllib.request
 import urllib.error
 import xml.etree.ElementTree as ET
+from difflib import SequenceMatcher
 from datetime import datetime, timezone, timedelta
 
 def get_wib_now():
@@ -123,33 +124,121 @@ def is_meta_compliant(article):
     return True, "Safe"
 
 
+def clean_words_for_similarity(text):
+    """Membersihkan kata stop words bahasa Indonesia untuk perbandingan kemiripan semantik topik."""
+    stopwords = {
+        'di', 'ke', 'dari', 'dan', 'yang', 'untuk', 'ini', 'itu', 'pada', 'dalam', 
+        'adalah', 'saat', 'sampai', 'hingga', 'akan', 'tak', 'bisa', 'lebih', 'oleh',
+        'juga', 'dengan', 'atas', 'karena', 'tetapi', 'namun', 'seperti', 'tentang',
+        'para', 'bagi', 'antara', 'setelah', 'sebelum', 'kembali', 'resmi', 'klaim',
+        'sebut', 'ungkap', 'soal', 'kata', 'ungkapkan', 'usai', 'beberkan', 'jadwal'
+    }
+    words = set(re.findall(r'\b[a-zA-Z0-9]{3,}\b', text.lower())) - stopwords
+    return words
+
+
+def is_duplicate_news(candidate_title, candidate_url, published_items):
+    """
+    Pemeriksaan multi-layer anti-duplikasi:
+    1. Exact URL match (URL sama persis)
+    2. Exact Title match (Judul sama persis, case-insensitive)
+    3. High Sequence Similarity (Kemiripan karakter teks >= 0.55)
+    4. Substantive Keyword Overlap (Minimal 3 kata kunci penting >= 4 huruf yang sama)
+    5. Jaccard Keyword Similarity >= 0.35
+    """
+    if not candidate_title:
+        return False, "Judul kosong"
+
+    cand_t_clean = candidate_title.strip().lower()
+    cand_words = clean_words_for_similarity(candidate_title)
+    cand_long_words = {w for w in cand_words if len(w) >= 4}
+
+    for item in published_items:
+        hist_url = item.get("url", "")
+        hist_title = item.get("title", "")
+        if not hist_title:
+            continue
+        hist_t_clean = hist_title.strip().lower()
+
+        # 1. URL sama persis
+        if candidate_url and hist_url and candidate_url.strip() == hist_url.strip():
+            return True, f"URL sama persis: '{hist_title}'"
+
+        # 2. Judul sama persis
+        if cand_t_clean == hist_t_clean:
+            return True, f"Judul identik: '{hist_title}'"
+
+        # 3. Kemiripan Karakter Teks (SequenceMatcher >= 0.55)
+        seq_ratio = SequenceMatcher(None, cand_t_clean, hist_t_clean).ratio()
+        if seq_ratio >= 0.55:
+            return True, f"Kemiripan teks {int(seq_ratio*100)}%: '{hist_title}'"
+
+        # 4. Overlap Kata Kunci Substantif (Minimal 3 kata kunci penting >= 4 huruf sama)
+        hist_words = clean_words_for_similarity(hist_title)
+        overlap = cand_words & hist_words
+        long_overlap = cand_long_words & {w for w in hist_words if len(w) >= 4}
+        if len(long_overlap) >= 3:
+            return True, f"Topik berita sama (kata kunci: {list(long_overlap)}): '{hist_title}'"
+
+        # 5. Jaccard Similarity >= 0.35
+        total_union = cand_words | hist_words
+        if total_union:
+            jaccard = len(overlap) / len(total_union)
+            if jaccard >= 0.35:
+                return True, f"Kemiripan kata kunci {int(jaccard*100)}%: '{hist_title}'"
+
+    return False, "Unik"
+
+
 def load_all_facebook_published_history():
     """
-    Memuat gabungan riwayat tayang dari SEMUA format (Foto, Story, Teks, Reels)
-    untuk mencegah duplikasi topik yang sama di hari yang sama (Anti-Repetitive Content).
+    Memuat gabungan riwayat tayang dari SEMUA format (Foto Card, Story, Teks, Reels, Blogger)
+    untuk mencegah duplikasi topik lintas pilar.
     """
-    all_urls = set()
-    all_titles = set()
-    history_files = [
+    all_items = []
+    seen_keys = set()
+
+    # 1. Riwayat Facebook
+    fb_files = [
         "facebook_published_history.json",
-        "facebook_text_history.json",
         "facebook_story_history.json",
+        "facebook_text_history.json",
         "facebook_reels_history.json"
     ]
-    for fname in history_files:
+    for fname in fb_files:
         fpath = os.path.join(REPO_ROOT, fname)
         if os.path.exists(fpath):
             try:
                 with open(fpath, "r", encoding="utf-8") as f:
                     items = json.load(f)
-                    for item in items:
-                        if item.get("url"):
-                            all_urls.add(item["url"])
-                        if item.get("title"):
-                            all_titles.add(item["title"].strip().lower())
+                    if isinstance(items, list):
+                        for it in items:
+                            key = it.get("url") or it.get("title")
+                            if key and key not in seen_keys:
+                                seen_keys.add(key)
+                                all_items.append(it)
             except Exception:
                 continue
-    return all_urls, all_titles
+
+    # 2. Riwayat Blogger
+    blogger_file = os.path.join(REPO_ROOT, "published_history.json")
+    if os.path.exists(blogger_file):
+        try:
+            with open(blogger_file, "r", encoding="utf-8") as f:
+                b_items = json.load(f)
+                if isinstance(b_items, dict):
+                    for v in b_items.values():
+                        key = v.get("blogger_url") or v.get("title")
+                        if key and key not in seen_keys:
+                            seen_keys.add(key)
+                            all_items.append({
+                                "title": v.get("title", ""),
+                                "url": v.get("blogger_url", "")
+                            })
+        except Exception:
+            pass
+
+    return all_items
 
 
 def sanitize_caption_anti_clickbait(text):
@@ -563,12 +652,10 @@ def run_hourly_facebook_publisher(dry_run=False, force=False):
     print(f"Waktu Eksekusi: {get_wib_now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
     print("=" * 70)
 
-    # 1. Muat riwayat postingan Facebook
+    # 1. Muat riwayat postingan lintas format (Facebook Card, Story, Teks, Reels, Blogger)
     history_file = os.path.join(REPO_ROOT, "facebook_published_history.json")
-    published_history = load_facebook_history(history_file)
-    published_urls = {h.get("url") for h in published_history if h.get("url")}
-    published_titles = {h.get("title", "").strip().lower() for h in published_history if h.get("title")}
-    print(f"[*] Riwayat postingan Facebook yang tercatat: {len(published_history)} berita.")
+    all_published_items = load_all_facebook_published_history()
+    print(f"[*] Riwayat postingan lintas format yang tercatat: {len(all_published_items)} berita.")
 
     # 2. Muat katalog feed dari MD-V14
     feed_catalog = load_mdv14_feed_catalog()
@@ -588,13 +675,14 @@ def run_hourly_facebook_publisher(dry_run=False, force=False):
 
     all_titles = [a["title"].strip().lower() for a in all_candidates]
 
-    # 4. Berikan skor virality & filter berita yang belum pernah diposting
+    # 4. Berikan skor virality & filter berita dengan Multi-Layer Anti-Duplikasi
     scored_candidates = []
     for item in all_candidates:
         url = item.get("url", "")
-        t_clean = item.get("title", "").strip().lower()
+        title = item.get("title", "")
         if not force:
-            if url in published_urls or t_clean in published_titles:
+            is_dup, dup_reason = is_duplicate_news(title, url, all_published_items)
+            if is_dup:
                 continue
 
         # Filter Kepatuhan Standar Komunitas Meta (Facebook Safety Guard)
