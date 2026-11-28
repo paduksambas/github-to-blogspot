@@ -505,13 +505,93 @@ def update_published_history(post_data, live_url):
     print(f"[+] Riwayat publikasi diperbarui di {history_file}.")
 
 
-def run_scheduled_publishing(target_file=None, limit=1, skip_fb=False, skip_telegram=False, dry_run=False):
+BLOGGER_SLOTS = [
+    ("07:30 WIB", "06:45", "09:00"),
+    ("12:30 WIB", "11:45", "14:00"),
+    ("17:30 WIB", "16:45", "19:00"),
+    ("20:30 WIB", "19:45", "22:00"),
+]
+
+def parse_date_to_wib_hm(date_str):
+    """Mengonversi string tanggal ISO atau lokal menjadi format jam menit HH:MM WIB."""
+    if not date_str:
+        return ""
+    if "T" in date_str:
+        try:
+            dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.astimezone(timezone(timedelta(hours=7))).strftime("%H:%M")
+        except Exception:
+            pass
+    try:
+        parts = date_str.replace(" WIB", "").split()
+        if len(parts) >= 2:
+            return parts[1][:5]
+    except Exception:
+        pass
+    return ""
+
+def is_current_blogger_slot_fulfilled(history_file="published_history.json"):
+    """
+    Memeriksa apakah slot waktu Blogger saat ini sudah memiliki artikel yang terbit hari ini.
+    Mencegah penerbitan artikel ganda jika cron sweeper (:40 atau :50) dieksekusi setelah
+    jadwal utama (:30) sudah sukses.
+    """
+    now = datetime.now(timezone(timedelta(hours=7)))
+    today_str = now.strftime("%Y-%m-%d")
+    cur_hm = now.strftime("%H:%M")
+
+    matching_slot = None
+    for label, start_w, end_w in BLOGGER_SLOTS:
+        if start_w <= cur_hm <= end_w:
+            matching_slot = (label, start_w, end_w)
+            break
+
+    if not matching_slot:
+        return False, None, None
+
+    slot_label, start_w, end_w = matching_slot
+
+    if os.path.exists(history_file):
+        try:
+            with open(history_file, "r", encoding="utf-8") as f:
+                history = json.load(f)
+                if isinstance(history, dict):
+                    for k, v in history.items():
+                        if k == "__used_bg_images__":
+                            continue
+                        pub = v.get("published_at", "") or v.get("date", "")
+                        if today_str in pub:
+                            t = parse_date_to_wib_hm(pub)
+                            if start_w <= t <= end_w:
+                                return True, slot_label, v
+        except Exception:
+            pass
+
+    return False, slot_label, None
+
+
+def run_scheduled_publishing(target_file=None, limit=1, skip_fb=False, skip_telegram=False, dry_run=False, force=False):
     """
     Eksekutor utama penerbitan terjadwal.
     """
     print("\n" + "=" * 65)
     print(f"⏰ PADUKA SAMBAS - RUN SCHEDULED PUBLISHER ({get_wib_now()} WIB)")
     print("=" * 65)
+
+    # 0. Cek Proteksi Target Harian: Apakah slot jam ini sudah terisi?
+    if not force and not target_file:
+        already_done, slot_label, published_item = is_current_blogger_slot_fulfilled()
+        if already_done:
+            title_pub = published_item.get("title") or published_item.get("published_title", "")
+            print(f"\n[i] 🛡️ PROTEKSI TARGET BLOGGER: Slot {slot_label} sudah terbit hari ini!")
+            print(f"    Judul Artikel Terbit : {title_pub}")
+            print("[i] Sweeper otomatis (:40 / :50) selesai dengan aman tanpa posting ganda.")
+            print("[i] Total kuota harian Blogger tetap terjaga persis 4 artikel.\n")
+            return True
+        elif slot_label:
+            print(f"[*] Slot aktif: {slot_label} — Belum ada artikel terbit di jendela waktu ini. Memulai penerbitan draf...")
 
     if target_file and os.path.exists(target_file):
         target_posts = [parse_post_file(target_file)]
@@ -586,6 +666,7 @@ if __name__ == "__main__":
     parser.add_argument("--skip-fb", action="store_true", help="Lewati posting ke Halaman Facebook")
     parser.add_argument("--skip-telegram", action="store_true", help="Lewati notifikasi Telegram")
     parser.add_argument("--dry-run", action="store_true", help="Jalankan simulasi tanpa posting ke API eksternal")
+    parser.add_argument("--force", action="store_true", help="Paksa penerbitan meskipun slot waktu sudah terbit")
     args = parser.parse_args()
 
     success = run_scheduled_publishing(
@@ -593,7 +674,8 @@ if __name__ == "__main__":
         limit=args.limit,
         skip_fb=args.skip_fb,
         skip_telegram=args.skip_telegram,
-        dry_run=args.dry_run
+        dry_run=args.dry_run,
+        force=args.force
     )
     if not success:
         sys.exit(1)

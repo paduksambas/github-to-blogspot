@@ -2,15 +2,14 @@ name: Scheduled Draft Publisher (Blogger & Facebook)
 
 on:
   schedule:
-    # Jadwal Tayang 4 Kali Sehari pada Jam Emas Pembaca (WIB = UTC+7):
-    # - 07:30 WIB (00:30 UTC) -> Berita Pagi / Mengawali Aktivitas
-    # - 12:30 WIB (05:30 UTC) -> Istirahat Siang / Makan Siang
-    # - 17:30 WIB (10:30 UTC) -> Berita Sore / Perjalanan Pulang Kerja
-    # - 20:30 WIB (13:30 UTC) -> Prime Time Malam / Waktu Santai Keluarga
-    - cron: '30 0 * * *'
-    - cron: '30 5 * * *'
-    - cron: '30 10 * * *'
-    - cron: '30 13 * * *'
+    # 1. Trigger Jadwal Utama: Menit :30 (07:30, 12:30, 17:30, 20:30 WIB)
+    - cron: '30 0,5,10,13 * * *'
+
+    # 2. OPSI 2 (Sweeper Cadangan): Menit :40 jika menit :30 terlewat antrean server GitHub
+    - cron: '40 0,5,10,13 * * *'
+
+    # 3. OPSI 3 (Sweeper Darurat): Menit :50 jika menit :30 dan :40 keduanya sempat tertunda
+    - cron: '50 0,5,10,13 * * *'
 
   workflow_dispatch:
     inputs:
@@ -22,6 +21,11 @@ on:
         description: 'Jalur spesifik berkas draf (opsional, contoh: posts/2026-11-26-bupati-kupang-yosef-lede-resmi-ditahan-usai-jadi-t.md)'
         required: false
         default: ''
+      force:
+        description: 'Paksa penerbitan meskipun slot waktu sudah terbit'
+        type: boolean
+        required: false
+        default: false
       skip_fb:
         description: 'Lewati penerbitan ke Facebook Page'
         type: boolean
@@ -80,6 +84,11 @@ jobs:
           # Tambahkan opsi target file jika ada
           if [ -n "${{ github.event.inputs.file }}" ]; then
             CMD="$CMD --file \"${{ github.event.inputs.file }}\""
+          fi
+
+          # Tambahkan opsi force jika dipicu manual bypass
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then
+            CMD="$CMD --force"
           fi
 
           # Facebook ditangani mandiri secara berkala setiap 1 jam oleh facebook_hourly.yml
