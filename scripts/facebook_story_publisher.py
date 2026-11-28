@@ -58,6 +58,42 @@ SSL_CONTEXT.verify_mode = ssl.CERT_NONE
 
 STORY_HISTORY_FILE = os.path.join(REPO_ROOT, "facebook_story_history.json")
 
+STORY_SLOTS = [
+    ("08:12 WIB", "07:15", "10:00"),
+    ("21:12 WIB", "20:15", "23:00"),
+]
+
+
+def is_current_story_slot_fulfilled():
+    """
+    Memeriksa apakah slot Facebook Story saat ini sudah terbit hari ini.
+    Mencegah posting ganda saat cron sweeper (:22 atau :32) dijalankan.
+    """
+    now = get_wib_now()
+    today_str = now.strftime("%Y-%m-%d")
+    cur_hm = now.strftime("%H:%M")
+
+    matching_slot = None
+    for label, start_w, end_w in STORY_SLOTS:
+        if start_w <= cur_hm <= end_w:
+            matching_slot = (label, start_w, end_w)
+            break
+
+    if not matching_slot:
+        return False, None, None
+
+    slot_label, start_w, end_w = matching_slot
+    history = load_story_history()
+    for item in history:
+        pub = item.get("published_at", "")
+        if today_str in pub:
+            parts = pub.replace(" WIB", "").split()
+            if len(parts) >= 2:
+                time_part = parts[1][:5]
+                if start_w <= time_part <= end_w:
+                    return True, slot_label, item
+    return False, slot_label, None
+
 
 def load_story_history():
     if os.path.exists(STORY_HISTORY_FILE):
@@ -306,6 +342,15 @@ def run_story_publisher(dry_run=False, force=False):
     print("PADUKA SAMBAS — FACEBOOK STORIES (9:16) PUBLISHER")
     print(f"Waktu Eksekusi: {get_wib_now().strftime('%Y-%m-%d %H:%M:%S WIB')}")
     print("=" * 70)
+
+    # 0. Cek Proteksi Target Slot Harian: Apakah slot jam ini sudah terbit?
+    if not force:
+        already_done, slot_label, item = is_current_story_slot_fulfilled()
+        if already_done:
+            print(f"[*] Slot {slot_label} sudah memiliki Story terbit hari ini:")
+            print(f"    '{item.get('title')}'")
+            print("[*] Melewati eksekusi secara aman (mencegah duplikasi).")
+            return True
 
     all_published_items = load_all_facebook_published_history()
 

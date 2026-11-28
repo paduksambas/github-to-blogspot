@@ -2,10 +2,14 @@ name: Daily Facebook Story Publisher
 
 on:
   schedule:
-    # Berjalan 2 kali sehari (menit ke-12 agar tidak terkena antrean penuh menit :00):
-    # 1. 08:12 WIB (01:12 UTC) - Jam Perjalanan & Pagi Hari
-    # 2. 21:12 WIB (14:12 UTC) - Jam Santai Malam Hari
+    # 1. Trigger Jadwal Utama: Menit :12 (08:12 & 21:12 WIB = 01:12 & 14:12 UTC)
     - cron: '12 1,14 * * *'
+
+    # 2. OPSI 2 (Sweeper Cadangan): Menit :22 jika menit :12 terlewat antrean server GitHub
+    - cron: '22 1,14 * * *'
+
+    # 3. OPSI 3 (Sweeper Darurat): Menit :32 jika menit :12 dan :22 keduanya sempat tertunda
+    - cron: '32 1,14 * * *'
 
   workflow_dispatch:
     inputs:
