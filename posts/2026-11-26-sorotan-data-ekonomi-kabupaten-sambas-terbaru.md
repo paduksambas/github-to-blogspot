@@ -2,8 +2,9 @@
 title: "Sorotan Data Ketenagakerjaan dan Indikator Ekonomi Kabupaten Sambas Terbaru"
 labels: ["Berita", "Bisnis"]
 description: "Simak ringkasan data resmi BPS mengenai indikator ketenagakerjaan dan tren ekonomi Kabupaten Sambas periode 2024."
-status: "draft"
-date: "2026-11-26"
+status: "publish"
+blogger_url: "https://padukasambas.blogspot.com/2026/11/sorotan-data-ketenagakerjaan-dan.html"
+date: "2026-11-28"
 thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-sorotan-data-ekonomi-kabupaten-sambas-terbaru.jpg"
 ---
 
