@@ -385,6 +385,22 @@
       font-size: 0.65rem;
       font-weight: 700;
     }
+    .slot-badge-amber {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+    .slot-badge-blue {
+      background: rgba(59, 130, 246, 0.18);
+      color: #60a5fa;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
     .slot-badge-sched {
       background: rgba(100, 116, 139, 0.18);
       color: #94a3b8;
@@ -1521,17 +1537,28 @@
         }
       });
 
-      // Tahap 3: Tentukan slot yang tersisa (terjadwal atau tertunda)
+      // Tahap 3: Tentukan slot yang tersisa (terjadwal atau tertunda dengan Triple Sweeper Guard)
       slots.forEach((s, sIdx) => {
         if (matchedSlots.has(sIdx)) return;
         if (s.slotDate > now) {
           s.status = 'scheduled';
         } else {
           const minutesPassed = (now - s.slotDate) / (60 * 1000);
-          if (minutesPassed >= 5) {
-            s.status = 'missed';
+          if (minutesPassed < 10) {
+            // Menit 0-9 setelah jadwal (misal :17 - :26) -> Antrean Server, Sweeper :27 bersiap
+            s.status = 'sweeper_queue';
+            s.badgeLabel = '⏳ Antrean Server (:27)';
+            s.badgeClass = 'slot-badge-amber';
+          } else if (minutesPassed < 20) {
+            // Menit 10-19 setelah jadwal (misal :27 - :36) -> Sweeper :27 aktif / :37 darurat
+            s.status = 'sweeper_retry';
+            s.badgeLabel = '🔄 Sweeper :27 / :37';
+            s.badgeClass = 'slot-badge-blue';
           } else {
-            s.status = 'running';
+            // Lewat 20 menit (setelah :37) -> Terlewat, tombol bypass manual aktif
+            s.status = 'missed';
+            s.badgeLabel = '⚠️ Terlewat (Bypass Siap)';
+            s.badgeClass = 'slot-badge-missed';
           }
         }
       });
@@ -1587,7 +1614,7 @@
                 <div class="slot-post-title" title="${title}">📌 ${title}</div>
               </div>
             `;
-          } else if (s.status === 'missed') {
+          } else if (s.status === 'sweeper_queue' || s.status === 'sweeper_retry' || s.status === 'missed') {
             let btnHtml = '';
             const job = activeJobs[p.id];
             if (job) {
@@ -1603,13 +1630,16 @@
                 btnHtml = `<button class="btn-slot-bypass" disabled style="opacity:0.35;">⚡ Terbitkan Slot ${s.timeStr}</button>`;
               }
             } else {
-              btnHtml = `<button class="btn-slot-bypass" onclick="triggerWorkflow('${p.workflowFile}', '${p.id}', this, '${s.slotKey}')">⚡ Terbitkan Slot ${s.timeStr}</button>`;
+              const btnLabel = s.status === 'missed'
+                ? `⚡ Terbitkan Slot ${s.timeStr} (Darurat)`
+                : `⚡ Bypass Sekarang (${s.timeStr})`;
+              btnHtml = `<button class="btn-slot-bypass" onclick="triggerWorkflow('${p.workflowFile}', '${p.id}', this, '${s.slotKey}')">${btnLabel}</button>`;
             }
             return `
               <div class="slot-item is-missed">
                 <div class="slot-item-top">
                   <span class="slot-time">${s.timeStr}</span>
-                  <span class="slot-badge-missed">⚠️ Tertunda</span>
+                  <span class="${s.badgeClass || 'slot-badge-missed'}">${s.badgeLabel || '⚠️ Tertunda'}</span>
                 </div>
                 ${btnHtml}
               </div>

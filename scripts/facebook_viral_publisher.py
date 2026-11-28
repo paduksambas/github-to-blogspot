@@ -642,6 +642,56 @@ Balas HANYA dengan blok JSON valid tanpa teks pengantar."""
     return card_data
 
 
+# Daftar 9 Slot Jadwal Master News Card Paduka Sambas (WIB = UTC+7)
+MASTER_NEWS_SLOTS = [
+    ("06:17 WIB", "05:15", "07:15"),
+    ("08:17 WIB", "07:15", "09:15"),
+    ("10:17 WIB", "09:15", "11:15"),
+    ("12:17 WIB", "11:15", "13:15"),
+    ("14:17 WIB", "13:15", "15:15"),
+    ("16:17 WIB", "15:15", "17:15"),
+    ("18:17 WIB", "17:15", "19:15"),
+    ("20:17 WIB", "19:15", "21:15"),
+    ("22:17 WIB", "21:15", "23:45"),
+]
+
+def is_current_slot_already_fulfilled(history_items):
+    """
+    Memeriksa apakah slot waktu 2-jam saat ini sudah memiliki postingan yang terbit hari ini.
+    Mencegah double posting ketika Opsi 2 (Sweeper :27) atau Opsi 3 (:37 / External Pinger)
+    dieksekusi setelah jadwal utama (:17) sudah sukses.
+    """
+    now = get_wib_now()
+    today_str = now.strftime("%Y-%m-%d")
+    cur_hm = now.strftime("%H:%M")
+
+    # Cari slot yang sedang aktif saat ini
+    matching_slot = None
+    for slot_label, start_w, end_w in MASTER_NEWS_SLOTS:
+        if start_w <= cur_hm <= end_w:
+            matching_slot = (slot_label, start_w, end_w)
+            break
+
+    if not matching_slot:
+        # Di luar jendela aktif harian
+        return False, None, None
+
+    slot_label, start_w, end_w = matching_slot
+
+    # Periksa apakah sudah ada postingan yang terbit di jendela slot ini hari ini
+    for item in history_items:
+        pub = item.get("published_at", "")
+        if today_str in pub:
+            try:
+                time_part = pub.split()[1][:5]
+                if start_w <= time_part <= end_w:
+                    return True, slot_label, item
+            except Exception:
+                continue
+
+    return False, slot_label, None
+
+
 def run_hourly_facebook_publisher(dry_run=False, force=False):
     """
     Fungsi Utama: Menjalankan pemindaian berita MD-V14, filtering virality,
@@ -656,6 +706,20 @@ def run_hourly_facebook_publisher(dry_run=False, force=False):
     history_file = os.path.join(REPO_ROOT, "facebook_published_history.json")
     all_published_items = load_all_facebook_published_history()
     print(f"[*] Riwayat postingan lintas format yang tercatat: {len(all_published_items)} berita.")
+
+    # 1.1 Cek Proteksi Target Harian: Apakah slot jam ini sudah terisi?
+    if not force:
+        card_history = load_facebook_history(history_file)
+        already_done, slot_label, published_item = is_current_slot_already_fulfilled(card_history)
+        if already_done:
+            print(f"\n[i] 🛡️ PROTEKSI TARGET HARIAN: Slot {slot_label} sudah terbit hari ini!")
+            print(f"    Waktu Terbit Sebelumnya : {published_item.get('published_at', '')}")
+            print(f"    Judul Berita Terbit     : {published_item.get('title', '')}")
+            print("[i] Sweeper otomatis (:27 / :37 / external pinger) selesai dengan aman tanpa posting ganda.")
+            print("[i] Total kuota postingan Master Card harian tetap terjaga persis 9 postingan.\n")
+            return True
+        elif slot_label:
+            print(f"[*] Slot aktif: {slot_label} — Belum ada berita yang terbit di jendela waktu ini. Memulai proses publikasi...")
 
     # 2. Muat katalog feed dari MD-V14
     feed_catalog = load_mdv14_feed_catalog()

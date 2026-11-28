@@ -2,9 +2,14 @@ name: Hourly Facebook Viral News Publisher
 
 on:
   schedule:
-    # Berjalan hanya di Jam Aktif Manusia (06:17 - 22:17 WIB, tiap 2 jam sekali = 9x/hari)
-    # Bebas spam tengah malam agar skor interaksi halaman tetap tinggi & aman dari shadowban
+    # 1. Trigger Jadwal Utama: Menit :17 (06:17 - 22:17 WIB, tiap 2 jam sekali = 9x/hari)
     - cron: '17 1,3,5,7,9,11,13,15,23 * * *'
+
+    # 2. OPSI 2 (Sweeper Cadangan): Menit :27 jika menit :17 terlewat oleh antrean server GitHub
+    - cron: '27 1,3,5,7,9,11,13,15,23 * * *'
+
+    # 3. OPSI 3 (Sweeper Darurat): Menit :37 jika menit :17 dan :27 keduanya sempat tertunda
+    - cron: '37 1,3,5,7,9,11,13,15,23 * * *'
 
   workflow_dispatch:
     inputs:
