@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-28 02:33:47 WIB",
+  "updated_at": "2026-11-28 09:50:42 WIB",
   "workflows": [
     {
       "id": 431123918,
@@ -81,139 +81,139 @@
   ],
   "runs": [
     {
-      "id": 46057560846,
+      "id": 46100013985,
       "name": "Facebook Health & Follower Metrics Monitor",
       "event": "schedule",
       "status": "in_progress",
       "conclusion": null,
-      "created_at": "2026-11-27T19:33:41Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46057560846"
+      "created_at": "2026-11-28T02:50:32Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46100013985"
     },
     {
-      "id": 46037732418,
-      "name": "Auto Publish to Blogspot",
-      "event": "push",
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-11-27T16:56:07Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46037732418"
-    },
-    {
-      "id": 46037731409,
+      "id": 46096975659,
       "name": "pages build and deployment",
       "event": "dynamic",
       "status": "completed",
       "conclusion": "success",
-      "created_at": "2026-11-27T16:56:06Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46037731409"
+      "created_at": "2026-11-28T02:13:13Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46096975659"
     },
     {
-      "id": 46033050992,
-      "name": "pages build and deployment",
-      "event": "dynamic",
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-11-27T16:22:25Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46033050992"
-    },
-    {
-      "id": 46029800625,
-      "name": "pages build and deployment",
-      "event": "dynamic",
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-11-27T16:00:08Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46029800625"
-    },
-    {
-      "id": 46029632159,
-      "name": "Hourly Facebook Viral News Publisher",
-      "event": "workflow_dispatch",
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-27T15:58:55Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46029632159"
-    },
-    {
-      "id": 46029225559,
-      "name": "pages build and deployment",
-      "event": "dynamic",
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-11-27T15:55:59Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46029225559"
-    },
-    {
-      "id": 46029187731,
-      "name": "Hourly Facebook Viral News Publisher",
-      "event": "workflow_dispatch",
-      "status": "completed",
-      "conclusion": "failure",
-      "created_at": "2026-11-27T15:55:42Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46029187731"
-    },
-    {
-      "id": 46029092083,
+      "id": 46096882847,
       "name": "Hourly Facebook Viral News Publisher",
       "event": "workflow_dispatch",
       "status": "completed",
       "conclusion": "success",
-      "created_at": "2026-11-27T15:55:03Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46029092083"
+      "created_at": "2026-11-28T02:12:04Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46096882847"
     },
     {
-      "id": 46028715261,
-      "name": "pages build and deployment",
-      "event": "dynamic",
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-11-27T15:52:23Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46028715261"
-    },
-    {
-      "id": 46028663981,
+      "id": 46090197009,
       "name": "Auto News Bot (Scanner, AI Rewriter & Publisher)",
       "event": "schedule",
       "status": "completed",
       "conclusion": "failure",
-      "created_at": "2026-11-27T15:52:02Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46028663981"
+      "created_at": "2026-11-28T00:52:20Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46090197009"
     },
     {
-      "id": 46028600390,
-      "name": "Hourly Facebook Viral News Publisher",
-      "event": "workflow_dispatch",
-      "status": "completed",
-      "conclusion": "success",
-      "created_at": "2026-11-27T15:51:35Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46028600390"
-    },
-    {
-      "id": 46028230657,
+      "id": 46078038096,
       "name": "pages build and deployment",
       "event": "dynamic",
       "status": "completed",
       "conclusion": "success",
-      "created_at": "2026-11-27T15:49:00Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46028230657"
+      "created_at": "2026-11-27T22:40:15Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46078038096"
     },
     {
-      "id": 46028122905,
-      "name": "Hourly Facebook Viral News Publisher",
-      "event": "workflow_dispatch",
+      "id": 46077962443,
+      "name": "Daily Facebook Story Publisher",
+      "event": "schedule",
       "status": "completed",
       "conclusion": "success",
-      "created_at": "2026-11-27T15:48:14Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46028122905"
+      "created_at": "2026-11-27T22:39:29Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46077962443"
     },
     {
-      "id": 46027887123,
+      "id": 46075600995,
       "name": "pages build and deployment",
       "event": "dynamic",
       "status": "completed",
       "conclusion": "success",
-      "created_at": "2026-11-27T15:46:36Z",
-      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46027887123"
+      "created_at": "2026-11-27T22:16:18Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46075600995"
+    },
+    {
+      "id": 46075543746,
+      "name": "Scheduled Draft Publisher (Blogger & Facebook)",
+      "event": "schedule",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-27T22:15:46Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46075543746"
+    },
+    {
+      "id": 46061377499,
+      "name": "pages build and deployment",
+      "event": "dynamic",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-27T20:06:58Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46061377499"
+    },
+    {
+      "id": 46061258569,
+      "name": "Daily Facebook Reels Publisher",
+      "event": "schedule",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-27T20:05:56Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46061258569"
+    },
+    {
+      "id": 46060307837,
+      "name": "pages build and deployment",
+      "event": "dynamic",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-27T19:57:45Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46060307837"
+    },
+    {
+      "id": 46060205146,
+      "name": "Hourly Facebook Viral News Publisher",
+      "event": "schedule",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-27T19:56:47Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46060205146"
+    },
+    {
+      "id": 46057841688,
+      "name": "pages build and deployment",
+      "event": "dynamic",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-27T19:36:03Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46057841688"
+    },
+    {
+      "id": 46057800242,
+      "name": "Scheduled Draft Publisher (Blogger & Facebook)",
+      "event": "schedule",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-27T19:35:41Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46057800242"
+    },
+    {
+      "id": 46057579761,
+      "name": "pages build and deployment",
+      "event": "dynamic",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-27T19:33:50Z",
+      "html_url": "https://github.com/paduksambas/github-to-blogspot/actions/runs/46057579761"
     }
   ]
 }
