@@ -561,7 +561,10 @@ def is_current_blogger_slot_fulfilled(history_file="published_history.json"):
                     for k, v in history.items():
                         if k == "__used_bg_images__":
                             continue
-                        pub = v.get("published_at", "") or v.get("date", "")
+                        # Hanya entri yang sudah LIVE dipublikasikan ke Blogger (memiliki blogger_url)
+                        if not v.get("blogger_url"):
+                            continue
+                        pub = v.get("published_at", "")
                         if today_str in pub:
                             t = parse_date_to_wib_hm(pub)
                             if start_w <= t <= end_w:
