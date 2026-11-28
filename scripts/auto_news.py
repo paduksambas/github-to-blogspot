@@ -870,7 +870,7 @@ source: "{source_name}"
                 used_list.append(chosen_bg)
         save_history(history)
         print(f"\n🎉 Berita viral '{title}' dengan THUMBNAIL OTOMATIS berhasil dipublikasikan ke Blogspot!")
-        send_telegram_alert(title, chosen_cat)
+        send_telegram_alert(title, primary_category)
     else:
         print("\n[!] Gagal menerbitkan artikel ke Blogspot.")
         sys.exit(1)
