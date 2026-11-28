@@ -2,8 +2,9 @@
 title: "Sorotan Media Asing & Babak Baru Pengambilalihan Lahan RAPP oleh Garuda Adidaya"
 labels: ["Bisnis", "Berita"]
 description: "Media asing soroti langkah Garuda Adidaya ambil alih lahan RAPP. Kebijakan ini picu perdebatan sengit antara pemulihan ekologis dan kepastian dunia usaha."
-status: "draft"
-date: "2026-11-26"
+status: "publish"
+blogger_url: "https://padukasambas.blogspot.com/2026/11/sorotan-media-asing-babak-baru.html"
+date: "2026-11-28"
 thumbnail: "https://cdn.jsdelivr.net/gh/paduksambas/github-to-blogspot@main/posts/images/2026-11-26-sorotan-media-asing-babak-baru-pengambilalihan-lah.jpg"
 ---
 
